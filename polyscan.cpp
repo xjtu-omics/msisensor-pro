@@ -1,0 +1,583 @@
+/*
+ * polyscan.cpp for MSIsensor 
+ * Copyright (c) 2013 Beifang Niu && Kai Ye WUGSC All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+#include <iostream>
+#include <sstream>
+#include <bitset>
+#include <map>
+#include <omp.h>
+#include<sys/stat.h>
+#include <sys/types.h>
+
+
+#include "utilities.h"
+#include "polyscan.h"
+#include "bamreader.h"
+#include "param.h"
+#include "sample.h"
+//#include "train.h"
+
+extern Param paramd;
+extern std::map <std::string,int > SitesSupport;
+extern bit8_t alphabet[];
+extern bit8_t rev_alphabet[];
+extern char uhomo_code[];
+extern char homo_code[];
+extern Sample sample;
+//extern Train train;
+
+PolyScan::PolyScan() { 
+    homosBuffer.reserve(paramd.bufSize);
+    totalSites.reserve(paramd.bufSize);
+}
+
+PolyScan::~PolyScan() { 
+    totalSites.clear();
+}
+
+// eliminates a character from the input string
+void PolyScan::eliminate(const char ch, std::string & str){
+    size_t eliminateCharPos = str.find(ch);
+    while (eliminateCharPos != std::string::npos) {
+        str.erase(eliminateCharPos, 1);
+        eliminateCharPos = str.find(ch);
+    }
+}
+
+// Parse one region 
+bool PolyScan::ParseOneRegion(const std::string & regionString) {
+    size_t separatorPos = regionString.find(":");
+    bool correctParse   = false;
+    bool m_endDefined   = false;
+    bool m_startDefined = false;
+    int m_start = -1;
+    int m_end   = -1;
+    std::string m_targetChromosomeName;
+    // found a separator
+    if (separatorPos != std::string::npos) {
+        m_targetChromosomeName = regionString.substr(0, separatorPos);
+        std::string coordinates = regionString.substr(separatorPos + 1);
+        // removes the ',' in 1,000 or 1,000,000 that users may add 
+        // for readability but wreak havoc with atoi
+        eliminate(',', coordinates); 
+        size_t startEndSeparatorPos = coordinates.find("-");
+        // there are two coordinates
+        if (startEndSeparatorPos != std::string::npos) {
+            std::string secondPositionStr = coordinates.substr(startEndSeparatorPos + 1);
+            m_end = atoi(secondPositionStr.c_str());
+            m_endDefined = true;
+        }
+
+        m_start = atoi(coordinates.c_str());
+        m_startDefined = true;
+        if (m_start < 0 || (m_endDefined && (m_end < m_start))) {
+            correctParse = false;
+        } else { correctParse = true; }
+    }
+    // no separator found
+    else {
+        m_targetChromosomeName = regionString;
+        correctParse = true;
+    }
+    // assign values
+    region_one.chr   = m_targetChromosomeName;
+    region_one.start = m_start;
+    region_one.end   = m_end;
+
+    return correctParse;
+}
+
+// Loading bed regions
+void PolyScan::LoadBeds(std::ifstream &fin) {
+    std::string chr;
+    std::string line;
+    std::string tempChr = "";
+    int start;
+    int stop;
+    int i = -1;
+    while (getline(fin, line)){
+        std::stringstream linestream(line);
+        linestream >> chr;
+        linestream >> start;
+        linestream >> stop;
+        /*
+        std::cout<< chr <<"\t"
+                 << start <<"\t"SitesSupport
+                 << stop << "\n";
+        */
+        if (chr == tempChr) {
+            BedRegion tempBedRegion;
+            tempBedRegion.start = start;
+            tempBedRegion.end = stop;
+            beds[i].regions_list.push_back(tempBedRegion);
+        } else {
+            ++i;
+            BedChr tempBedChr;
+            tempBedChr.chr = chr;
+            beds.push_back(tempBedChr);
+            // load mapping
+            chrMaptoIndex.insert(std::pair<std::string, bit16_t>(chr, i));
+            BedRegion tempBedRegion;
+            tempBedRegion.start = start;
+            tempBedRegion.end = stop;
+            beds[i].regions_list.push_back(tempBedRegion);
+            tempChr = chr;
+        } 
+        linestream.clear();
+        linestream.str("");
+    } 
+}
+
+// loading bam list
+// only load one bam file
+void PolyScan::LoadBams(const std::string &bam1, const std::string &bam2) {
+    BamPairs t_bampair;
+    t_bampair.sName = "sample_name";
+
+    if (bam1.find(".bam") != std::string::npos) { 
+        t_bampair.normal_bam = bam1;
+    } else { std::cerr << "please provide valid format normal bam file ! \n"; exit(0); }
+    if (bam2.find(".bam") != std::string::npos) {
+        t_bampair.tumor_bam = bam2; 
+    } else { std::cerr << "please provide valid format tumor bam file ! \n"; exit(0); }
+
+    // loading
+    totalBamPairs.push_back(t_bampair);
+    totalBamPairsNum++;
+}
+
+// loading bam list
+// load tumor bam file only
+void PolyScan::LoadBam(const std::string &bam) {
+    BamTumors t_bamtumor;
+    t_bamtumor.sName = "sample_name";
+//    std::cout<<bam<<"\n";
+    if (bam.find(".bam") != std::string::npos) {
+        t_bamtumor.tumor_bam = bam;
+    } else { std::cerr << "please provide valid format tumor bam file ! \n"; exit(0); }//add by yelab
+
+    // loading
+    totalBamTumors.push_back(t_bamtumor);
+    totalBamTumorsNum++;
+}
+
+//add by yelab
+void PolyScan::LoadBamn(const std::string &bam,const std::string &Name) {
+	BamNormals t_bamnormal;
+
+
+//   std::cout<<bam<<"\n";
+//   std::cout<<bam.find(".bam")<<"\n";
+//   std::cout<<std::string::npos<<"\n";
+//	if (bam.find(".bam") != std::string::npos) {
+	if (1==1) {
+		t_bamnormal.sName = Name;
+		t_bamnormal.normal_bam = bam;
+
+	}
+	else { std::cerr << "please provide valid format normal bam file ! \n"; exit(0); }
+
+	// loading
+	totalBamNormals.push_back(t_bamnormal);
+	totalBamNormalsNum++;
+
+}
+
+// read and load sites
+bool PolyScan::LoadHomosAndMicrosates(std::ifstream &fin) {
+    std::string chr;
+    std::string bases;
+    std::string fbases;
+    std::string ebases;
+    std::string line;
+    std::string tChr = "";
+    // count total loading sites
+    //
+    totalHomosites = 0;
+    int loc;
+    bit8_t  siteLength;
+    bit16_t tsiteLength;
+    bit16_t siteBinary;
+    bit16_t siteRepeats;
+    bit16_t frontF;
+    bit16_t tailF;
+
+    int j = 0;
+    BedChr tbedChr;
+    BedRegion tbedRegion;
+    bit16_t tIndex;
+    
+    // skip title
+    getline(fin, line);
+    while (getline(fin, line)) {
+        std::stringstream linestream(line);
+        linestream >> chr;
+        linestream >> loc;
+        linestream >> tsiteLength;
+        linestream >> siteBinary;
+        linestream >> siteRepeats;
+        linestream >> frontF;
+        linestream >> tailF;
+        //xxx
+        linestream >> bases;
+        linestream >> fbases;
+        linestream >> ebases;
+
+        // filtering
+        if (tsiteLength > 1 && paramd.HomoOnly == 1) continue;
+        if (tsiteLength == 1 && paramd.MicrosateOnly == 1) continue;
+        if (tsiteLength == 1 && ((siteRepeats < paramd.MininalHomoForDis) || (siteRepeats > paramd.MaxHomoSize)) ) continue;
+        if (tsiteLength > 1 && ((siteRepeats < paramd.MinMicrosateForDis) || (siteRepeats > paramd.MaxMicrosateForDis)) ) continue;
+
+        siteLength = tsiteLength & 255;
+        // defined one region
+        if (ifUserDefinedRegion) {
+            if (chr != region_one.chr) {
+                continue;
+            } else {
+                if ( 
+                     (loc < region_one.start) 
+                     || 
+                     ((loc + siteLength * siteRepeats) > region_one.end)
+                   ) { continue; }
+            }
+        }
+        // bed filtering
+        if (ifUserDefinedBed) {
+            // new chr 
+            if (tChr != chr) {
+                j = 0;
+                if (chrMaptoIndex.count(chr) > 0) {
+                    tbedChr = beds[chrMaptoIndex[chr]];
+                    tChr = tbedChr.chr;
+                    tbedRegion = tbedChr.regions_list[j];
+                } else { continue; }
+            }
+            // filtering
+            /* 
+            if (loc < tbedRegion.start) continue;
+            if (loc > tbedRegion.end) {
+                for (j; j<tbedChr.regions_list.size(); j++) {
+                    tbedRegion = tbedChr.regions_list[j];
+                    if (loc < tbedRegion.end) { break; }
+                }
+                if (j >= tbedChr.regions_list.size()) continue;
+            }
+            if ((loc + siteLength * siteRepeats) > tbedRegion.end) continue;
+            */
+            // filtering 
+            if ((loc + siteLength * siteRepeats) < tbedRegion.start) continue;
+            if (loc > tbedRegion.end) {
+                for (j; j<tbedChr.regions_list.size(); j++) {
+                    tbedRegion = tbedChr.regions_list[j];
+                    if (loc <= tbedRegion.end) { break; }
+                }
+                if ((loc + siteLength * siteRepeats) < tbedRegion.start) continue;
+                if (j >= tbedChr.regions_list.size()) continue;
+            }
+        }
+
+        // load sites 
+        //HomoSite *toneSite = new HomoSite;
+        HomoSite toneSite;
+        toneSite.chr = chr;
+        toneSite.location = loc;
+        toneSite.typeLen = siteLength;
+        toneSite.homoType = siteBinary;
+        toneSite.length = siteRepeats;
+        toneSite.frontKmer = frontF;
+        toneSite.endKmer = tailF;
+        toneSite.bases = bases;
+        toneSite.fbases = fbases;
+        toneSite.ebases = ebases;
+
+        toneSite.lowcut = ((loc - MAX_READ_LENGTH) > 0) ? (loc - MAX_READ_LENGTH) : 0;
+        toneSite.highcut = loc + MAX_READ_LENGTH;
+
+        totalSites.push_back(toneSite);
+        totalHomosites++;
+
+        linestream.clear();
+        linestream.str("");
+
+    } // end while
+
+    if (totalHomosites != 0) return true;
+    return false;
+}
+
+// bed regions ?
+void PolyScan::BedFilterorNot() {
+    if (beds.size() > 0) ifUserDefinedBed = true;
+}
+
+// test sites loading
+void PolyScan::TestHomos() {
+    for (unsigned long i=0; i<totalHomosites; i++) {
+        HomoSite *toneSite = &totalSites[i];
+        std::cout << toneSite->chr<<"\t"
+                  << toneSite->location<<"\t"
+                  << int(toneSite->typeLen)<<"\t"
+                  << toneSite->homoType<<"\t"
+                  << toneSite->length<<"\t"
+                  << toneSite->frontKmer<<"\t"
+                  << toneSite->endKmer<<"\t"
+                  << sizeof(*toneSite) <<"\n";
+    }
+}
+
+// split windows
+void PolyScan::SplitWindows() {
+    Window oneW;
+    HomoSite *second;
+    HomoSite *first = &totalSites[0];
+
+    oneW._start = first->location;
+    oneW._end = oneW._start;
+    oneW._chr = first->chr;
+    oneW._startSite = oneW._endSite = &totalSites[0];
+    for (int i=1; i< totalHomosites; i++) {
+        first = &totalSites[i];
+        if ( (first->chr == oneW._chr) 
+             && 
+             (first->location - oneW._start) < paramd.windowSize) {
+            continue;
+        }
+        oneW._end = totalSites[i-1].location + MAX_SPAN_SIZE;
+        oneW._endSite = &totalSites[i-1];
+        oneW._siteCount = oneW._endSite - oneW._startSite + 1;
+        // record one window
+        oneW.ChangeStart();
+        totalWindows.push_back(oneW);
+        totalWindowsNum++;
+        oneW._start = first->location;
+        oneW._end = oneW._start;
+        oneW._chr = first->chr;
+        oneW._startSite = oneW._endSite = &totalSites[i];
+    }
+    oneW._end = first->location + MAX_SPAN_SIZE;
+    oneW._endSite = first;
+    oneW._siteCount = oneW._endSite - oneW._startSite + 1;
+    // record this window
+    oneW.ChangeStart();
+    totalWindows.push_back(oneW);
+    totalWindowsNum++;
+}
+
+// test windows
+void PolyScan::TestWindows() {
+    Window *oneW;
+    for (int i=0; i< totalWindowsNum; i++) {
+        oneW = &totalWindows[i];
+        std::cout << oneW->_chr <<"\t"
+                  << oneW->_start <<"\t"
+                  << oneW->_siteCount <<"\t"
+                  << oneW->_startSite->chr<<"\t"
+                  << oneW->_startSite->location<<"\t"
+                  << oneW->_endSite->chr<<"\t"
+                  << oneW->_endSite->location<<"\n";
+    }
+}
+
+// initial distribution
+void PolyScan::InithializeDistributions() {
+    for (int i=0; i< totalWindowsNum; i++) {
+        totalWindows[i].InitialDisW();
+    }
+}
+
+// release distribution
+void PolyScan::releaseDistributions() {
+    for (int i=0; i< totalWindowsNum; i++) {
+        totalWindows[i].ClearDis();
+    }
+}
+
+// output distribution
+void PolyScan::outputDistributions() {
+    for (int i=0; i< totalWindowsNum; i++) {
+        totalWindows[i].OutputDisW();
+    }
+}
+
+// get distribution 
+void PolyScan::GetHomoDistribution( Sample &oneSample, const std::string &prefix ) {
+    oneSample.iniOutput(prefix);
+    std::vector< SPLIT_READ > readsInWindow;
+    for (int i=0; i< totalWindowsNum; i++) {
+        totalWindows[i].InitialDisW();
+        totalWindows[i].GetDistribution(readsInWindow);
+        totalWindows[i].DisGenotypingW(oneSample);
+        totalWindows[i].PouroutDisW(oneSample);
+        totalWindows[i].ClearDis();
+        readsInWindow.clear();
+        std::cout << "window: " << i << " done...:" <<  totalWindows[i]._chr << ":" << totalWindows[i]._start << "-" << totalWindows[i]._end << std::endl;
+    }
+    // FDR
+    oneSample.calculateFDR();
+    oneSample.pourOutSomaticFDR();
+    // MSI score
+    oneSample.pourOutMsiScore();
+    oneSample.closeOutStream();
+    oneSample.VerboseInfo();
+
+}
+
+// for tumor only input
+void PolyScan::GetHomoTumorDistribution( Sample &oneSample, const std::string &prefix ) {
+    oneSample.iniTumorDisOutput(prefix);
+    std::vector< SPLIT_READ > readsInWindow;
+    for (int i=0; i< totalWindowsNum; i++) {
+        totalWindows[i].InitialTumorDisW();
+        totalWindows[i].GetTumorDistribution(readsInWindow);
+        totalWindows[i].PourTumoroutDisW(oneSample);
+        totalWindows[i].PouroutTumorSomatic(oneSample);
+        totalWindows[i].ClearTumorDis();
+        readsInWindow.clear();
+        std::cout << "window: " << i << " done...:" <<  totalWindows[i]._chr << ":" << totalWindows[i]._start << "-" << totalWindows[i]._end << std::endl;
+    }
+    oneSample.pourOutMsiScore();
+    oneSample.closeOutStream();
+    oneSample.VerboseInfo();
+
+}
+
+// add by YeLab
+void PolyScan::GetHunterTumorDistribution(Sample &oneSample, const std::string &prefix) {
+	oneSample.hunterIniTumorDisOutput(prefix);
+	std::vector< SPLIT_READ > readsInWindow;
+	for (int i = 0; i< totalWindowsNum; i++) {
+		totalWindows[i].InitialTumorDisW();
+		totalWindows[i].GetTumorDistribution(readsInWindow);
+		if (0){
+
+			totalWindows[i].ClearTumorDis();
+			break;
+		}
+		totalWindows[i].PourTumoroutDisW(oneSample);
+		totalWindows[i].PouroutTumorSomaticH(oneSample);
+		totalWindows[i].ClearTumorDis();
+		readsInWindow.clear();
+		std::cout << "window: " << i << " done...:" << totalWindows[i]._chr << ":" << totalWindows[i]._start << "-" << totalWindows[i]._end << std::endl;
+	}
+	oneSample.pourOutMsiScore();
+	oneSample.closeOutStream();
+	oneSample.VerboseInfo();
+
+}
+
+void PolyScan::GetNormalDistrubution(Sample &oneSample, const std::string &prefix) {//add by yelab
+//	totalBamTumorsNum=0
+	totalBamTumorsNum=1;
+	BamTumors t_bamtumor;
+	t_bamtumor.sName = "sample_name";
+	t_bamtumor.tumor_bam = "";
+	totalBamTumors.push_back(t_bamtumor);
+
+	for (unsigned short j=0; j<totalBamNormalsNum; j++) {
+//		const char* per=(prefix+"/"+totalBamNormals[j].sName).c_str();
+//		int isCreate = mkdir(per,00755);
+		std::cout << "Process the "<<j+1<<" case : "<<totalBamNormals[j].sName<<" "<<totalBamNormals[j].normal_bam<<"\n";
+//		std::cout<<j<<"\t"<<totalBamNormals[j].sName<<"\n";
+//		train.trainIniNormalDisOutput(prefix+"/"+totalBamNormals[j].sName+"/"+totalBamNormals[j].sName);
+		oneSample.trainIniNormalDisOutput(prefix+"//"+totalBamNormals[j].sName);
+		std::vector< SPLIT_READ > readsInWindow;
+		totalBamTumors[0].tumor_bam=totalBamNormals[j].normal_bam;
+
+
+
+		for (int i = 0; i< totalWindowsNum; i++) {
+				totalWindows[i].InitialTumorDisW();
+
+//				totalWindows[i].GetTumorDistribution(readsInWindow);
+				if (!totalBamNormals[j].normal_bam.empty()) {
+					// extract reads
+
+					totalWindows[i].LoadReads(readsInWindow, totalBamTumors[0].tumor_bam.c_str());
+
+					totalWindows[i].ScanReads(readsInWindow, 0, true);
+//					std::cout<<j<<"\t"<<totalBamNormals[j].sName<<"\n";
+					readsInWindow.clear();
+				}
+
+				if (0){
+
+					totalWindows[i].ClearTumorDis();
+					break;
+				}
+//				totalWindows[i].PourTumoroutDisW(oneSample);
+				totalWindows[i].PouroutTumorSomaticH(oneSample);
+				totalWindows[i].ClearTumorDis();
+				readsInWindow.clear();
+				std::cout << "Process "<<j+1<<" "<<totalBamNormals[j].sName<<" "
+						  << "window: " << i << " done...:" << totalWindows[i]._chr << ":" << totalWindows[i]._start << "-" << totalWindows[i]._end << std::endl;
+				}
+//					oneSample.pourOutMsiScore();
+			oneSample.closeOutStreamTrain();
+//					oneSample.VerboseInfo();
+	}
+	oneSample.closeOutStream();
+	std::map<std::string,int>::iterator it ;
+	std::map <std::string,std::vector<double>> FinalSites;
+	int supportNumCutOff=(int)totalBamNormalsNum/2; // 2 is parameter
+	for (it=SitesSupport.begin(); it!=SitesSupport.end(); ++it){
+		std::vector<double> buf;
+	    std::cout << (it->first) << " => " << (it->first)<< (it->second )<< '\n';
+	    if ((it->second) >=supportNumCutOff){
+	    	buf.push_back(1);
+         	FinalSites[it->first]=buf;
+	    }
+	}
+
+	std::string chr="";
+	std::string location="";
+	for (unsigned short j=0; j<totalBamNormalsNum; j++) {
+		std::cout<<prefix+"//"+totalBamNormals[j].sName<<"\n";
+
+		std::ifstream fin;
+		std::string oneLine = "";
+		fin.open((prefix+"//"+totalBamNormals[j].sName+"_dis").c_str());
+		while (!fin.eof()) {
+			getline(fin, oneLine);
+			std::stringstream linestream(oneLine);
+
+			linestream >> chr;
+//			linestream >> location;
+//			if (!name.empty()){
+//				TrainName.push_back(name);
+//				TrainBam.push_back(bam);
+//			}
+			std::cout<<chr<<1<<"\n";
+		}
+		fin.close();
+	}
+
+
+
+     std::cout<<FinalSites.size() <<"\n";
+
+
+}
