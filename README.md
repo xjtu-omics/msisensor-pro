@@ -1,3 +1,11 @@
+MSIsensor-pro
+=============
+MSIsensor-pro is an updated version of msisensor([see more detail about msisensor](https://github.com/ding-lab/msisensor)). MSIsensor-pro can evaluate Microsatellite Instability (MSI) for cancer patients with next generation sequencing data and accepts the whole genome sequencing, whole exome sequencing and target region (panel) sequencing data. Given that there are always no normal control samples for many patients who need to do MSI test, MSIsensor-pro adds a new module (pro) for MSI classification with only tumor sequencing data. For more detail about MSIsensor-pro, please see our [Wiki]().
+
+
+
+
+
 MSIsensor
 ===========
 MSIsensor is a C++ program to detect replication slippage variants at microsatellite regions, and differentiate them as somatic or germline. Given paired tumor and normal sequence data, it builds a distribution for expected (normal) and observed (tumor) lengths of repeated sequence per microsatellite, and compares them using Pearson's Chi-Squared Test. Comprehensive testing indicates MSIsensor is an efficient and effective tool for deriving MSI status from standard tumor-normal paired sequence data. Since there are many users complained that they don't have paired normal sequence data or related normal sequence data can be used to build a paired normal control, we released MSIsensor with version from 0.3. Given tumor only sequence data, it uses comentropy theory and figures out a comentropy value for a distribution per microsatellite. Our test results show that it's performance is comparable with paired tumor and normal sequence data input(figure below). We suggest msi score cutoff 11% for tumor only data. (msi high: msi score >= 11%).
