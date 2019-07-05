@@ -96,10 +96,6 @@ void Sample::iniOutput( const std::string &gavePrefix ) {
                        << "right_flank_bases" <<"\t"
                        << "genotype"          <<"\n";
 
-
-
-
-
 }
 
 void Sample::iniTumorDisOutput( const std::string &gavePrefix ) { 
@@ -128,7 +124,7 @@ void Sample::hunterIniTumorDisOutput(const std::string &gavePrefix) {
 	if (!gavePrefix.empty()) { outputPrefix = gavePrefix; }
 	// init pour out result files
 	output.open(outputPrefix.c_str());
-	outputSomatic.open((outputPrefix + "_somatic").c_str());
+	outputSomatic.open((outputPrefix + "_unstable").c_str());
 	outputDistribution.open((outputPrefix + "_dis").c_str());
 	outputAll.open((outputPrefix + "_all").c_str());
 
@@ -143,7 +139,20 @@ void Sample::hunterIniTumorDisOutput(const std::string &gavePrefix) {
 	                      << "repeat_times"      <<"\t"
 	                      << "repeat_unit_bases" <<"\t"
 	                      << "right_flank_bases" <<"\t"
-	                      << "pro"           <<"\n";
+	                      << "pro_U"             <<"\t"
+	 	 	 	 	 	  << "pro_V"             <<"\t"
+						  << "CovReads"          <<"\t"
+						  << "threshold"         <<"\n";
+	outputAll << "chromosome"        <<"\t"
+		                      << "location"          <<"\t"
+		                      << "left_flank_bases"  <<"\t"
+		                      << "repeat_times"      <<"\t"
+		                      << "repeat_unit_bases" <<"\t"
+		                      << "right_flank_bases" <<"\t"
+		                      << "pro_U"             <<"\t"
+		 	 	 	 	 	  << "pro_V"             <<"\t"
+							  << "CovReads"          <<"\t"
+							  << "threshold"         <<"\n";
 }//YeLab
 
 void Sample::trainIniNormalDisOutput(const std::string &gavePrefix) {//Yelab

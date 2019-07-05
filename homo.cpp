@@ -86,6 +86,7 @@ HomoSite::HomoSite()
 	, hunterValueV( 0.0 ) // add by Yelab
     , somatic( false )
     , withGenotype( false )   
+	, thres(paramd.hunterThreshold)
 {
     InitType();
 };
@@ -140,19 +141,6 @@ void HomoSite::TransferString() {
 }
 
 // initial distribution
-void HomoSite::InitialDis() {
-    normalDis = new unsigned short *[polyscan.totalBamPairsNum];
-    tumorDis  = new unsigned short *[polyscan.totalBamPairsNum];
-    for (unsigned int j=0; j<polyscan.totalBamPairsNum; j++) {
-        normalDis[j] = new unsigned short [paramd.s_dispots];
-        tumorDis[j]  = new unsigned short [paramd.s_dispots];
-        for (unsigned int k=0; k<paramd.s_dispots; k++) {
-            normalDis[j][k] = 0;
-            tumorDis[j][k]  = 0;
-        }
-    }
-}
-
 //initial tumor only distribution
 void HomoSite::InitialTumorDis() {
     tumorDis  = new unsigned short *[polyscan.totalBamTumorsNum];
@@ -196,6 +184,19 @@ void HomoSite::OutputTumorDis() {
 }
 
 // Pourout distribution
+void HomoSite::InitialDis() {
+    normalDis = new unsigned short *[polyscan.totalBamPairsNum];
+    tumorDis  = new unsigned short *[polyscan.totalBamPairsNum];
+    for (unsigned int j=0; j<polyscan.totalBamPairsNum; j++) {
+        normalDis[j] = new unsigned short [paramd.s_dispots];
+        tumorDis[j]  = new unsigned short [paramd.s_dispots];
+        for (unsigned int k=0; k<paramd.s_dispots; k++) {
+            normalDis[j][k] = 0;
+            tumorDis[j][k]  = 0;
+        }
+    }
+}
+
 void HomoSite::PouroutDis(Sample &sample) {
 	sample.outputDistribution << chr << " "
 	    << location << " " 
@@ -452,6 +453,7 @@ void HomoSite::HunterTrain(Sample &sample) {//add by yelab
 //add by YeLab ,for hunter
 void HomoSite::HunterDisTumorSomatic(Sample &sample) {
 	sample.numberOftotalSites++;
+
 	bool reportSomatic;
 	std::vector<double> resUV;
 	reportSomatic = false;
@@ -502,11 +504,6 @@ void HomoSite::HunterDisTumorSomatic(Sample &sample) {
 
 	}
 	else{
-
-
-
-
-
 		if (tumorCov >= paramd.covCutoff) {
 			withSufCov = true;
 			//comentropy = Comentropy( tumorDis[0], paramd.s_dispots);
@@ -532,33 +529,44 @@ void HomoSite::HunterDisTumorSomatic(Sample &sample) {
 			withSufCov = false;
 	//		hunterValue = 0;//?
 		}
-		if (hunterValueU >= paramd.hunterThreshold) {
+		if (hunterValueU > thres) {
 			reportSomatic = true;
 			sample.numberOfMsiDataPoints++;
 		}
 		if (withSufCov) {
 			sample.numberOfDataPoints++;
-			sample.outputAll << chr << "\t"
-				<< location << "\t"
-				<< fbases << "\t"
-				<< length << "\t"
-				<< bases << "\t"
-				<< ebases;
-			sample.outputAll << "\t" << std::fixed << hunterValueU;
-			sample.outputAll << std::endl;
+			sample.outputAll
+							<< chr       << "\t"
+							<< location  << "\t"
+							<< fbases    << "\t"
+							<< length    << "\t"
+							<< bases     << "\t"
+							<< ebases    <<"\t"
+							<< std::fixed << hunterValueU    <<"\t"
+							<< std::fixed << hunterValueV    <<"\t"
+							<< std::fixed << tumorCov    	 <<"\t"
+							<< std::fixed << thres           <<"\n";
 		}//YeLab
 
 
 
 		if (reportSomatic) {
-			sample.outputSomatic << chr << "\t"
-				<< location << "\t"
-				<< fbases << "\t"
-				<< length << "\t"
-				<< bases << "\t"
-				<< ebases;
-			sample.outputSomatic << "\t" << std::fixed << hunterValueU;
-			sample.outputSomatic << std::endl;
+			sample.outputSomatic
+							<< chr       << "\t"
+							<< location  << "\t"
+							<< fbases    << "\t"
+							<< length    << "\t"
+							<< bases     << "\t"
+							<< ebases    <<"\t"
+						    << std::fixed << hunterValueU    <<"\t"
+						    << std::fixed << hunterValueV    <<"\t"
+						    << std::fixed << tumorCov    	 <<"\t"
+						    << std::fixed << thres           <<"\n";
+
+
+
+
+
 			SomaticSite onessite;
 			onessite.chr = chr;
 			onessite.location = location;

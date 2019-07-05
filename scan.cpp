@@ -69,8 +69,8 @@ void ScanUsage(void) {
 		<<"Example:\n"
 		<<"   msisensor-pro scan -d /path/to/reference.fa -o /path/to/reference.list\n\n"
 		<<"Note:\n"
-		<<"   This module inherits from msisensor.If you used it for your work, please cite:\n"
-		<<"   Beifang Niu*, Kai Ye*, Qunyuan Zhang, Charles Lu, Mingchao Xie, Michael D. McLellan, Michael C. Wendl and Li Ding#.MSIsensor: microsatellite instability detection using paired tu-mor-normal sequence data. Bioinformatics 30, 1015–1016 (2014).\n \n"
+		<<"   This module inherits from msisensor.If you use it for your work, please cite:\n"
+		<<"   Beifang Niu*, Kai Ye*, Qunyuan Zhang, Charles Lu, Mingchao Xie, Michael D. McLellan, Michael C. Wendl and Li Ding#.MSIsensor: microsatellite instability detection using paired tumor-normal sequence data. Bioinformatics 30, 1015–1016 (2014).\n \n"
 
         << std::endl;
     exit(1);

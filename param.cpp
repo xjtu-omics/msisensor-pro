@@ -108,6 +108,9 @@ Param::Param()
 	, outputzeroDis(0) //Yelab
 	, NormalcovCutoff(0.5) //Yelab
 	, train(false)
+	, pro(false)
+	, hard(false)
+	, sampleRatio(0.5)
 {
     inital_homo_phabet();
     initalphabet();

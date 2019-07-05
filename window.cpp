@@ -145,6 +145,7 @@ void Window::PourTumoroutDisW(Sample &oneSample) {
     HomoSite *p = NULL;
     for (unsigned short i=0; i<_siteCount; i++) {
         p = _startSite + i;
+//        std::cout<<p->thres<<"\n";
         if (paramd.outputzeroDis){
         	if (p->outDislabelTumorOnly(oneSample)>paramd.covCutoff ){
         		p->PourTumoroutDis(oneSample);
@@ -180,6 +181,7 @@ void Window::PouroutTumorSomaticH(Sample &oneSample) {
 	for (unsigned short i = 0; i<_siteCount; i++) {
 		p = _startSite + i;
 		p->HunterDisTumorSomatic(oneSample);
+//		std::cout<<p->thres<<"hhshdsh"<<"\n";
 	}
 };
 

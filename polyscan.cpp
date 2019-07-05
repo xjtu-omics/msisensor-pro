@@ -39,6 +39,7 @@
 #include "bamreader.h"
 #include "param.h"
 #include "sample.h"
+#include "distribution.h"
 //#include "train.h"
 
 extern Param paramd;
@@ -196,7 +197,7 @@ void PolyScan::LoadBamn(const std::string &bam,const std::string &Name) {
 //	if (bam.find(".bam") != std::string::npos) {
 	if (1==1) {
 		t_bamnormal.sName = Name;
-		t_bamnormal.normal_bam = bam;
+		t_bamnormal.normal_bam = abs_path(bam);
 
 	}
 	else { std::cerr << "please provide valid format normal bam file ! \n"; exit(0); }
@@ -225,6 +226,7 @@ bool PolyScan::LoadHomosAndMicrosates(std::ifstream &fin) {
     bit16_t siteRepeats;
     bit16_t frontF;
     bit16_t tailF;
+    double thres;
 
     int j = 0;
     BedChr tbedChr;
@@ -246,6 +248,9 @@ bool PolyScan::LoadHomosAndMicrosates(std::ifstream &fin) {
         linestream >> bases;
         linestream >> fbases;
         linestream >> ebases;
+        if(! paramd.hard){
+        	linestream >> thres;
+        }
 
         // filtering
         if (tsiteLength > 1 && paramd.HomoOnly == 1) continue;
@@ -314,6 +319,13 @@ bool PolyScan::LoadHomosAndMicrosates(std::ifstream &fin) {
         toneSite.bases = bases;
         toneSite.fbases = fbases;
         toneSite.ebases = ebases;
+        if (paramd.pro){
+        	toneSite.thres=thres;
+//        	std::cout<<"dfjjf"<<"\n";
+        }
+//        std::cout<<toneSite.thres<<"\n";
+//        std::cout<<toneSite.thres<<"\n";
+
 
         toneSite.lowcut = ((loc - MAX_READ_LENGTH) > 0) ? (loc - MAX_READ_LENGTH) : 0;
         toneSite.highcut = loc + MAX_READ_LENGTH;
@@ -489,7 +501,26 @@ void PolyScan::GetHunterTumorDistribution(Sample &oneSample, const std::string &
 	oneSample.VerboseInfo();
 
 }
+std::string getRel(std::string str,std::string pattern)
+{
+    std::string::size_type pos;
+    std::vector<std::string> result;
 
+    str+=pattern;//扩展字符串以方便操作
+    int size=str.size();
+
+    for(int i=0; i<size; i++)
+    {
+        pos=str.find(pattern,i);
+        if(pos<size)
+        {
+            std::string s=str.substr(i,pos-i);
+            result.push_back(s);
+            i=pos+pattern.size()-1;
+        }
+    }
+    return result[result.size()-1];
+}
 void PolyScan::GetNormalDistrubution(Sample &oneSample, const std::string &prefix) {//add by yelab
 //	totalBamTumorsNum=0
 	totalBamTumorsNum=1;
@@ -497,7 +528,22 @@ void PolyScan::GetNormalDistrubution(Sample &oneSample, const std::string &prefi
 	t_bamtumor.sName = "sample_name";
 	t_bamtumor.tumor_bam = "";
 	totalBamTumors.push_back(t_bamtumor);
-//	disFile+).c_str()
+
+    std::ofstream fout;
+    fout.open(prefix+getRel(paramd.homoFile,"/")+"_baseline");
+    if (!fout){
+    	 std::cerr<<"EOORR: please check your output path!\n<<\n";
+    }
+    fout << "chromosome"        <<"\t"
+		<< "location"          <<"\t"
+		<< "left_flank_bases"  <<"\t"
+		<< "repeat_times"      <<"\t"
+		<< "repeat_unit_bases" <<"\t"
+		<< "right_flank_bases" <<"\t"
+		<< "covReads"          <<"\t"
+		<< "threshold"         <<"\t"
+		<< "supportSamples"     <<"\n";
+
 
 	for (unsigned short j=0; j<totalBamNormalsNum; j++) {
 //		const char* per=(prefix+"/"+totalBamNormals[j].sName).c_str();
@@ -534,19 +580,20 @@ void PolyScan::GetNormalDistrubution(Sample &oneSample, const std::string &prefi
 				totalWindows[i].PouroutTumorSomaticH(oneSample);
 				totalWindows[i].ClearTumorDis();
 				readsInWindow.clear();
-				std::cout << "Process "<<j+1<<" "<<totalBamNormals[j].sName<<" "
+				std::cout << "    Process "<<j+1<<" "<<totalBamNormals[j].sName<<" "
 						  << "window: " << i << " done...:" << totalWindows[i]._chr << ":" << totalWindows[i]._start << "-" << totalWindows[i]._end << std::endl;
 				}
 //					oneSample.pourOutMsiScore();
 			oneSample.closeOutStreamTrain();
 //					oneSample.VerboseInfo();
 	}
+	std::cout<<"Build baseline for microsatellites ..."<<std::endl;
 
 	std::map<std::string, int>::iterator it;
 	std::map<std::string, double> threshold;
 	std::unordered_map <std::string,std::vector<double>> FinalSites;
 	std::unordered_map <std::string,std::vector<double>>::iterator iter;
-	int supportNumCutOff=(int)totalBamNormalsNum/2; // 2 is parameter
+	int supportNumCutOff=(int)totalBamNormalsNum*paramd.sampleRatio; // 2 is parameter
 	std::vector<double> buf;
 	std::vector<double> tmp;
 	for (it=SitesSupport.begin(); it!=SitesSupport.end(); ++it){
@@ -612,12 +659,14 @@ void PolyScan::GetNormalDistrubution(Sample &oneSample, const std::string &prefi
     }
 //    std::cout<<threshold.size()<<"fjjfjfsjs"<<"\t"<<"\n";
 
-    std::ofstream fout(prefix+"/"+paramd.homoFile+"_baseline");
+
+//    std::cout<<totalHomosites<<"\n";
     for (int k=0 ;k<totalHomosites;k++){
     	site=totalSites[k].chr+"_"+std::to_string(totalSites[k].location);
 //    	std::cout<<totalSites[k].chr<<"\t"
 //				 <<totalSites[k].location<<"\t"<<"\n";
     	if(threshold.find(site)!=threshold.end()){
+//    		std::cout<<totalHomosites<<"\n";
     		 fout<<totalSites[k].chr<<"\t"
 				 <<totalSites[k].location<<"\t"
 				 <<std::to_string(totalSites[k].typeLen)<<"\t"
@@ -628,12 +677,12 @@ void PolyScan::GetNormalDistrubution(Sample &oneSample, const std::string &prefi
 				 <<totalSites[k].bases<<"\t"
 				 <<totalSites[k].fbases<<"\t"
 				 <<totalSites[k].ebases<<"\t"
-				 <<threshold[site]<<"\n" ;
+				 <<threshold[site]    <<"\t"
+				 <<SitesSupport[site]<<"\n";
+				 "\n" ;
 //    	    	std::cout<<"hhh"<<"\n";
     	}
     }
     fout.close();
-//
-
-
+    std::cout<<"The micorsatellites file  with baseline is in: "<<prefix+getRel(paramd.homoFile,"/")+"_baseline\n"<<std::endl;
 }

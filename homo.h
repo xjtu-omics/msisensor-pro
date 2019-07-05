@@ -70,6 +70,7 @@ public:
     //
     int lowcut;
     int highcut; 
+    double thres;
 
     // distribution
     unsigned short **normalDis;
