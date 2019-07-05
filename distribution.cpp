@@ -38,6 +38,7 @@
 #include<sys/stat.h>
 #include <sys/types.h>
 #include <map>
+//#include <io.h>
 
 // Static function declaration
 #include "param.h"
@@ -77,18 +78,29 @@ std::ofstream foutO;
 
 std::string one_region;
 
-void loadFilepathFromConfig(std::string TrainBamConfig, std::vector<std::string>& TrainBam) {//Yelab
+int loadFilepathFromConfig(std::string TrainBamConfig, std::vector<std::string>& TrainBam) {//Yelab
 	std::ifstream fin;
 	std::string oneLine = "";
 	fin.open(TrainBamConfig.c_str());
-	while (!fin.eof()) {
-		getline(fin, oneLine);
+	if(!fin)
+	{
+		std::cerr << "Open configure file failed, please provide valid configure file ! \n"; exit(0);
+	}
+	while (getline(fin, oneLine)) {
+//		getline(fin, oneLine);
 		std::string name="";
 		std::string bam="";
 
 		std::stringstream linestream(oneLine);
 		linestream >> name;
 		linestream >> bam;
+		const char *pathname=bam.c_str();
+		if ( access(pathname, R_OK)==-1){
+			std::cerr << "Open bam file failed( "<<bam<<" ), please provide valid bam file with its index file ! \n"; exit(0);;
+		}
+		else{
+            std::cout<< "load bam:"<<bam<<" OK!\n";
+		}
 		if (!name.empty()){
 			TrainName.push_back(name);
 			TrainBam.push_back(bam);
@@ -196,14 +208,13 @@ void EntropyDisUsage(void) {
 
 //add by yelab
 void TrainUsage(void){
-	std::cerr << "\nUsage:  msisensor train [options] \n\n"
+	std::cerr << "\nUsage:  msisensor baseline [options] \n\n"
 		<< "       -d   <string>   homopolymer and microsatellite file\n"
 		<< "       -i   <string>   configure files for building baseline (text file) \n"
 		<< "            e.g.\n"
 		<< "              case1\t/path/to/case1_sorted.bam\n"
 		<< "              case2\t/path/to/case1_sorted.bam\n"
-		<< "              case2\t/path/to/case1-sorted.bam\n\n"
-
+		<< "              case2\t/path/to/case1-sorted.bam\n"
 		<< "       -o   <string>   output directory\n\n"
 
 //		<< "       -e   <string>   bed file, optional\n"
@@ -309,8 +320,8 @@ int tGetOptions(int rgc, char *rgv[]) {
         switch(rgv[i][1]) {
             case 'd': homoFile = rgv[++i]; break;
             case 'i':TrainBamConfig = rgv[++i]; break;
-            //case 't': tumorBam  = rgv[++i]; break;
             case 'o': disFile  = rgv[++i]; break;
+
             case 'e': bedFile  = rgv[++i]; break;
             case 'r': one_region = rgv[++i]; break;
 			case '0': paramd.outputzeroDis=atoi(rgv[++i]); break;
@@ -332,6 +343,11 @@ int tGetOptions(int rgc, char *rgv[]) {
             case '?':TrainUsage();
         }
     }
+    paramd.homoFile=homoFile;
+    //add code for directory
+
+
+
     return i;
 }
 
@@ -443,7 +459,7 @@ int TrainMsiP(int argc, char *argv[]) {
 //	   else
 
 
-	polyscan.GetNormalDistrubution(sample, per1);
+	polyscan.GetNormalDistrubution(sample, disFile);
 //	if (normalBam.empty() && !tumorBam.empty()) {
 //		polyscan.GetNormalDistrubution(sample, disFile);
 //	}

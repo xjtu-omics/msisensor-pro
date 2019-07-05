@@ -64,6 +64,7 @@ public:
     unsigned int MinMicrosate;
     unsigned int MinMicrosateForDis;
     unsigned int MaxMicrosateForDis;
+    std::string homoFile;
 
     // filtering
     int HomoOnly;

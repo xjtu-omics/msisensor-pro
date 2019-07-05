@@ -28,11 +28,12 @@
 #include <sstream>
 #include <bitset>
 #include <map>
+#include<unordered_map>
 #include <omp.h>
 #include<sys/stat.h>
 #include <sys/types.h>
-
-
+#include <numeric>
+#include<cmath>
 #include "utilities.h"
 #include "polyscan.h"
 #include "bamreader.h"
@@ -496,6 +497,7 @@ void PolyScan::GetNormalDistrubution(Sample &oneSample, const std::string &prefi
 	t_bamtumor.sName = "sample_name";
 	t_bamtumor.tumor_bam = "";
 	totalBamTumors.push_back(t_bamtumor);
+//	disFile+).c_str()
 
 	for (unsigned short j=0; j<totalBamNormalsNum; j++) {
 //		const char* per=(prefix+"/"+totalBamNormals[j].sName).c_str();
@@ -503,7 +505,7 @@ void PolyScan::GetNormalDistrubution(Sample &oneSample, const std::string &prefi
 		std::cout << "Process the "<<j+1<<" case : "<<totalBamNormals[j].sName<<" "<<totalBamNormals[j].normal_bam<<"\n";
 //		std::cout<<j<<"\t"<<totalBamNormals[j].sName<<"\n";
 //		train.trainIniNormalDisOutput(prefix+"/"+totalBamNormals[j].sName+"/"+totalBamNormals[j].sName);
-		oneSample.trainIniNormalDisOutput(prefix+"//"+totalBamNormals[j].sName);
+		oneSample.trainIniNormalDisOutput(prefix+"/detail/"+totalBamNormals[j].sName);
 		std::vector< SPLIT_READ > readsInWindow;
 		totalBamTumors[0].tumor_bam=totalBamNormals[j].normal_bam;
 
@@ -539,45 +541,99 @@ void PolyScan::GetNormalDistrubution(Sample &oneSample, const std::string &prefi
 			oneSample.closeOutStreamTrain();
 //					oneSample.VerboseInfo();
 	}
-	oneSample.closeOutStream();
-	std::map<std::string,int>::iterator it ;
-	std::map <std::string,std::vector<double>> FinalSites;
+
+	std::map<std::string, int>::iterator it;
+	std::map<std::string, double> threshold;
+	std::unordered_map <std::string,std::vector<double>> FinalSites;
+	std::unordered_map <std::string,std::vector<double>>::iterator iter;
 	int supportNumCutOff=(int)totalBamNormalsNum/2; // 2 is parameter
+	std::vector<double> buf;
+	std::vector<double> tmp;
 	for (it=SitesSupport.begin(); it!=SitesSupport.end(); ++it){
-		std::vector<double> buf;
-	    std::cout << (it->first) << " => " << (it->first)<< (it->second )<< '\n';
+
+//	    std::cout << (it->first) << " => " << (it->first)<< (it->second )<< '\n';
 	    if ((it->second) >=supportNumCutOff){
-	    	buf.push_back(1);
          	FinalSites[it->first]=buf;
 	    }
 	}
 
-	std::string chr="";
-	std::string location="";
+	std::string chr;
+	std::string location;
+	std::string left_flank_bases;
+	std::string right_flank_bases;
+	std::string repeat_times;
+	std::string rub;
+	std::string rfb;
+	std::string cov;
+	std::string site;
+	double pro_u;
+	double pro_v;
 	for (unsigned short j=0; j<totalBamNormalsNum; j++) {
-		std::cout<<prefix+"//"+totalBamNormals[j].sName<<"\n";
+//		std::cout<<prefix+"/detail/"+totalBamNormals[j].sName<<"\n";
 
 		std::ifstream fin;
 		std::string oneLine = "";
-		fin.open((prefix+"//"+totalBamNormals[j].sName+"_dis").c_str());
-		while (!fin.eof()) {
-			getline(fin, oneLine);
-			std::stringstream linestream(oneLine);
+		std::istringstream linestream;
+		fin.open((prefix+"/detail/"+totalBamNormals[j].sName+"_all").c_str());
+//		if(!fin)
+//		{
+//			std::cout<<"open fail!\n";
+//		}
+		while (getline(fin, oneLine)) {
 
-			linestream >> chr;
-//			linestream >> location;
-//			if (!name.empty()){
-//				TrainName.push_back(name);
-//				TrainBam.push_back(bam);
-//			}
-			std::cout<<chr<<1<<"\n";
+			linestream.str(oneLine);
+			linestream >> chr>>location>>left_flank_bases>>right_flank_bases>>repeat_times>>rub>>rfb>>cov>>pro_u;
+			linestream.clear();
+			site=chr+"_"+location;
+			if(FinalSites.find(site)!=FinalSites.end())
+				FinalSites[site].push_back(pro_u);
+
+//			buf=FinalSites[];
+//			buf
+
+
+//			std::cout<<chr<<"  11111  "<<pro_u<<"\n";
 		}
 		fin.close();
 	}
 
+    for(iter=FinalSites.begin();iter!=FinalSites.end();iter++){
+    	tmp= iter->second;
+//    	std::cout<<tmp.size()<<"\n";
+    	double sum = std::accumulate(std::begin(tmp), std::end(tmp), 0.0);
+    	double mean =  sum / tmp.size();
 
+    	double accum  = 0.0;
+    	std::for_each (std::begin(tmp), std::end(tmp), [&](const double d) {
+    		accum  += (d-mean)*(d-mean);
+    	});
+    	double stdev = std::sqrt(accum/(tmp.size()-1));
+    	threshold[iter->first]=mean+3*stdev;
+    }
+//    std::cout<<threshold.size()<<"fjjfjfsjs"<<"\t"<<"\n";
 
-     std::cout<<FinalSites.size() <<"\n";
+    std::ofstream fout(prefix+"/"+paramd.homoFile+"_baseline");
+    for (int k=0 ;k<totalHomosites;k++){
+    	site=totalSites[k].chr+"_"+std::to_string(totalSites[k].location);
+//    	std::cout<<totalSites[k].chr<<"\t"
+//				 <<totalSites[k].location<<"\t"<<"\n";
+    	if(threshold.find(site)!=threshold.end()){
+    		 fout<<totalSites[k].chr<<"\t"
+				 <<totalSites[k].location<<"\t"
+				 <<std::to_string(totalSites[k].typeLen)<<"\t"
+				 <<totalSites[k].homoType<<"\t"
+				 <<totalSites[k].length<<"\t"
+				 <<totalSites[k].frontKmer<<"\t"
+				 <<totalSites[k].endKmer<<"\t"
+				 <<totalSites[k].bases<<"\t"
+				 <<totalSites[k].fbases<<"\t"
+				 <<totalSites[k].ebases<<"\t"
+				 <<threshold[site]<<"\n" ;
+//    	    	std::cout<<"hhh"<<"\n";
+    	}
+    }
+    fout.close();
+//
 
 
 }
