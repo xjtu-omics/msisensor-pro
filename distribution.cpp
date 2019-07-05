@@ -109,10 +109,10 @@ int loadFilepathFromConfig(std::string TrainBamConfig, std::vector<std::string>&
 	fin.close();
 }
 void DisUsage(void) {
-    std::cerr<<"\nUsage:  msisensor msi [options] \n\n"
+    std::cerr<<"\nUsage:  msisensor-pro msi [options] \n\n"
         <<"       -d   <string>   homopolymers and microsatellites file\n"
-        <<"       -n   <string>   normal bam file\n"
-        <<"       -t   <string>   tumor  bam file\n"
+        <<"       -n   <string>   normal bam file with index\n"
+        <<"       -t   <string>   tumor  bam file with index\n"
         <<"       -o   <string>   output prefix\n\n"
 
         <<"       -e   <string>   bed file, optional\n"
@@ -121,7 +121,7 @@ void DisUsage(void) {
         <<"       -c   <int>      coverage threshold for msi analysis, WXS: 20; WGS: 15, default="<<paramd.covCutoff<<"\n"
         <<"       -z   <int>      coverage normalization for paired tumor and normal data, 0: no; 1: yes, default="<<paramd.Normalization<<"\n"
         <<"       -r   <string>   choose one region, format: 1:10000000-20000000\n"
-        <<"       -l   <int>      minimal homopolymer size, default="<<paramd.MininalHomoSize<<"\n"
+//        <<"       -l   <int>      minimal homopolymer size, default="<<paramd.MininalHomoSize<<"\n"
         <<"       -p   <int>      minimal homopolymer size for distribution analysis, default="<<paramd.MininalHomoForDis<<"\n"
         <<"       -m   <int>      maximal homopolymer size for distribution analysis, default="<<paramd.MaxHomoSize<<"\n"
 

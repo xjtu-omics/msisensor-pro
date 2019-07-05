@@ -58,21 +58,26 @@ int usage(void) {
 	<< "Best Practices:\n"
 	<< "\t(a) For tumor only samples:\n"
 	<< "\t\t1. scan\n"
-	<< "\t\t      >> msisensor-pro scan -d /path/to/reference.fa -o /path/to/reference.site\n"
+	<< "\t\t      >> msisensor-pro scan -d /path/to/reference.fa -o /path/to/reference.list\n"
 
 	<< "\t\t2. baseline \n"
-	<< "\t\t      >> msisensor-pro baseline -d /path/to/reference.site -i /path/to/configure.txt -o /path/to/baseline/directory\n"
+	<< "\t\t      >> msisensor-pro baseline -d /path/to/reference.list -i /path/to/configure.txt -o /path/to/baseline/directory\n"
 
 	<< "\t\t3. pro \n"
-	<< "\t\t      >> msisensor-pro pro -d /path/to/baseline/directory/reference_baseline.site -t /path/to/tumor/case1_sorted.bam -o /path/to/output\n\n"
+	<< "\t\t      >> msisensor-pro pro -d /path/to/baseline/directory/reference.list_baseline -t /path/to/case1_tumor_sorted.bam -o /path/to/case1_output\n\n"
 	<< "\t(b) For tumor-normal paired samples:\n"
 	<< "\t\t1. scan\n"
-	<< "\t\t      >> msisensor-pro scan -d /path/to/reference.fa -o /path/to/reference.site\n"
+	<< "\t\t      >> msisensor-pro scan -d /path/to/reference.fa -o /path/to/reference.list\n"
 	<< "\t\t2. msi \n"
-	<< "\t\t      >> msisensor-pro msi -d /path/to/reference.site -n /path/to/case1_normal_sorted.bam -t /path/to/case1_tumor_sorted.bam -o /path/to/output\n\n"
+	<< "\t\t      >> msisensor-pro msi -d /path/to/reference.list -n /path/to/case1_normal_sorted.bam -t /path/to/case1_tumor_sorted.bam -o /path/to/case1_output\n\n"
 
-	<< "Notes:We offer the scan result of GRCh38.d1.vd1 on our github \n\n"
+	<< "Notes:\n"
+	<< "    1. If your analysis are based on reference GRCh38.d1.vd1, you can ignore the scan step by downloading the microsatellites information on our github directly. \n\n"
+	<< "    2. If you don't have normal samples to build baseline(baseline step for tumor only sample detection), you can download the microsatellites information with baseline on our github or use -i option in pro module to set a hard cutoff directly.\n\n"
+//	<< "    3. This module inherits from msisensor.If you used it for your work, please cite:\n"
+//	<< "       Beifang Niu*, Kai Ye*, Qunyuan Zhang, Charles Lu, Mingchao Xie, Michael D. McLellan, Michael C. Wendl and Li Ding#.MSIsensor: microsatellite instability detection using paired tu-mor-normal sequence data. Bioinformatics 30, 1015–1016 (2014)."
     << "\n\n";
+
     return 1; 
 }
 

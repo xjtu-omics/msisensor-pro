@@ -52,7 +52,7 @@ std::ifstream fin_d;
 std::ofstream fout;
 
 void ScanUsage(void) {
-    std::cerr<<"\nUsage:  msisensor scan [options] \n\n"
+    std::cerr<<"\nUsage:  msisensor-pro scan [options] \n\n"
         <<"       -d   <string>   reference genome sequences file, *.fasta or *.fa format\n"
         <<"       -o   <string>   output homopolymers and microsatellites file\n\n"
 
@@ -64,7 +64,14 @@ void ScanUsage(void) {
         <<"       -p   <int>      output homopolymer only, 0: no; 1: yes, default="<<param.HomoOnly<<"\n"
         <<"       \n"
         <<"       -h   help\n\n"
-		<<"       -h   help\n\n"
+		<<"Function: \n"
+		<<"   This module scan the reference genome to get microsatellites information. You need to input (-d) a reference file (*.fa or *.fasta), and you will get a microsatellites file (-o) for following analysis. If you use GRCh38.d1.vd1 , you can download the file on out github directly. \n\n"
+		<<"Example:\n"
+		<<"   msisensor-pro scan -d /path/to/reference.fa -o /path/to/reference.list\n\n"
+		<<"Note:\n"
+		<<"   This module inherits from msisensor.If you used it for your work, please cite:\n"
+		<<"   Beifang Niu*, Kai Ye*, Qunyuan Zhang, Charles Lu, Mingchao Xie, Michael D. McLellan, Michael C. Wendl and Li Ding#.MSIsensor: microsatellite instability detection using paired tu-mor-normal sequence data. Bioinformatics 30, 1015–1016 (2014).\n \n"
+
         << std::endl;
     exit(1);
 }
