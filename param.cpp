@@ -79,7 +79,7 @@ Param::Param()
     , chains(0)
     , max_dbseq_size(300000000) //300Mb
     , append_dbseq_size(0x1000000) //16Mb
-    , MininalHomoSize(5)
+    , MininalHomoSize(10) //5->10
     , ContextLength(5)
     , MaxHomoSize(50)
     , SpanSize(500)
@@ -94,7 +94,7 @@ Param::Param()
     , MicrosateOnly(0)
     , s_dispots(100)
     , MaxMicrosate(5)
-    , Repeats(3)
+    , Repeats(5) //3->5
     , numberThreads(1)
     , PercentPairs(20)
     , PercentPairsNumber(2)

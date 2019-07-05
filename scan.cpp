@@ -53,16 +53,18 @@ std::ofstream fout;
 
 void ScanUsage(void) {
     std::cerr<<"\nUsage:  msisensor scan [options] \n\n"
-        <<"       -d   <string>   reference genome sequences file, *.fasta format\n"
+        <<"       -d   <string>   reference genome sequences file, *.fasta or *.fa format\n"
         <<"       -o   <string>   output homopolymers and microsatellites file\n\n"
-        <<"       -l   <int>      minimal homopolymer size, default="<<param.MininalHomoSize<<"\n"
+
+        <<"       -l   <int>      minimal homopolymer(repeat unit length = 1) size, default="<<param.MininalHomoSize<<"\n"
         <<"       -c   <int>      context length, default="<<param.ContextLength<<"\n"
         <<"       -m   <int>      maximal homopolymer size, default="<<param.MaxHomoSize<<"\n"
-        <<"       -s   <int>      maximal length of microsate, default="<<param.MaxMicrosate<<"\n"
-        <<"       -r   <int>      minimal repeat times of microsate, default="<<param.Repeats<<"\n"
+        <<"       -s   <int>      maximal length of microsatellite, default="<<param.MaxMicrosate<<"\n"
+        <<"       -r   <int>      minimal repeat times of microsatellite(repeat unit length>=2), default="<<param.Repeats<<"\n"
         <<"       -p   <int>      output homopolymer only, 0: no; 1: yes, default="<<param.HomoOnly<<"\n"
         <<"       \n"
         <<"       -h   help\n\n"
+		<<"       -h   help\n\n"
         << std::endl;
     exit(1);
 }
