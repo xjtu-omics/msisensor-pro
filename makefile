@@ -17,10 +17,10 @@ all: samtools MSIsensor-pro
 samtools:
 	        $(MAKE) -C ${SAMTOOLS_ROOT}
 
-msisensor-pro: $(OBJS)
+MSIsensor-pro: $(OBJS)
 	        $(CXX) $^ $(CXXFLAGS) $(LDFLAGS) $(LIBS) -o $@ 
 
 clean:
-	        rm -f *.o msisensor-pro
+	        rm -f *.o MSIsensor-pro
 			        $(MAKE) -C ${SAMTOOLS_ROOT} clean
 
