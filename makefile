@@ -12,7 +12,7 @@ OBJS= $(patsubst %,%.o,$(SOURCE))
 %.o:%.cpp
 	        $(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
-all: samtools msisensor-pro
+all: samtools MSIsensor-pro
 
 samtools:
 	        $(MAKE) -C ${SAMTOOLS_ROOT}
