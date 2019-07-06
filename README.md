@@ -71,5 +71,5 @@ See more detail in the **[Key Commands](https://github.com/xjtu-omics/msisensor-
 
 # Files  format
 
-  see detail in the **[file format](https://github.com/xjtu-omics/msisensor-pro/wiki/Files-format)** page
+  see detail in the **[files format](https://github.com/xjtu-omics/msisensor-pro/wiki/Files-format)** page
 ## 
