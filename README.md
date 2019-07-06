@@ -1,4 +1,4 @@
-
+General introduction
 MSIsensor-pro is an updated version of **[msisensor](https://github.com/ding-lab/msisensor)**. MSIsensor-pro can evaluate Microsatellite Instability (MSI) for cancer patients with next generation sequencing data and accepts the whole genome sequencing, whole exome sequencing and target region (panel) sequencing data. Given that there are always no normal control samples for many patients who need to do MSI test, MSIsensor-pro adds a new module (pro) for MSI classification with only tumor sequencing data. MSIsensor-pro show a comparable performance with MSIsensor original version. If you want to know more detail about MSIsensor-pro, please see the **[MSIsensor-pro Schematics and Internals](https://github.com/xjtu-omics/msisensor-pro/wiki/MSIsensor-pro-Schematics-and-Internals)** page.
 
 # Scopes of MSIsensor-pro
