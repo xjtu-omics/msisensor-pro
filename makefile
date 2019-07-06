@@ -12,12 +12,12 @@ OBJS= $(patsubst %,%.o,$(SOURCE))
 %.o:%.cpp
 	        $(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
-all: samtools MSIsensor-pro
+all: samtools msisensor-pro
 
 samtools:
 	        $(MAKE) -C ${SAMTOOLS_ROOT}
 
-MSIsensor-pro: $(OBJS)
+msisensor-pro: $(OBJS)
 	        $(CXX) $^ $(CXXFLAGS) $(LDFLAGS) $(LIBS) -o $@ 
 
 clean:
