@@ -36,7 +36,7 @@ MSIsensor-pro can evaluate MSI with next generation sequencing (NGS) data. If yo
  
 * install
 
-      sudo mv msisensor /usr/local/bin/
+      sudo mv msisensor-pro /usr/local/bin/
 
 
  
