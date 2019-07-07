@@ -31,7 +31,7 @@ MSIsensor-pro can evaluate MSI with next generation sequencing (NGS) data. If yo
 
 * make 
 
-      cd MSIsensor-pro
+      cd msisensor-pro
       make
  
 * install
