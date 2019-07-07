@@ -21,6 +21,6 @@ msisensor-pro: $(OBJS)
 	        $(CXX) -std=c++11 $^ $(CXXFLAGS) $(LDFLAGS) $(LIBS) -o $@ 
 
 clean:
-	        rm -f *.o MSIsensor-pro
+	        rm -f *.o msisensor-pro
 			        $(MAKE) -C ${SAMTOOLS_ROOT} clean
 
