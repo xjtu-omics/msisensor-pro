@@ -8,9 +8,7 @@ MSIsensor-pro can evaluate MSI with next generation sequencing (NGS) data. If yo
 
 # How to install MSIsensor-pro?
 
-##  [ Install using bioconda ](https://github.com/xjtu-omics/msisensor-pro/wiki/How-to-install-MSIsensor-pro#install-using--bioconda)
 
-     conda install msisensor-pro
 
 
 ## [ Install from source code ](https://github.com/xjtu-omics/msisensor-pro/wiki/How-to-install-MSIsensor-pro#install-from-source-code)
