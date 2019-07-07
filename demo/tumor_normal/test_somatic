@@ -1,2 +1,0 @@
-chromosome	location	left_flank_bases	repeat_times	repeat_unit_bases	right_flank_bases	difference	P_value	FDR	rank
-chr1	1090291	CTGGG	5	CA	CCAGT	0.42553	0.0052775	0.036942	1

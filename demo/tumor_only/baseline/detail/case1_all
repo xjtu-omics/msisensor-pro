@@ -1,6 +1,0 @@
-chromosome	location	left_flank_bases	repeat_times	repeat_unit_bases	right_flank_bases	covReads	pro_u	pro_v
-chr1	1035168	GCGGT	13	G	TGGGC	25	0.196923	0.196923
-chr1	1043873	GGGCA	5	GT	CCCCG	42	0.000000	0.000000
-chr1	1203642	CTGTG	5	TC	CCTCC	34	0.000000	0.000000
-chr1	1308671	TCCGT	5	GC	TATCT	22	0.000000	0.000000
-chr1	1395518	CTGCC	5	AG	CACAG	202	0.000000	0.000000
