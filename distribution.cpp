@@ -39,6 +39,7 @@
 #include <sys/types.h>
 #include <map>
 #include <unistd.h>
+#include <sstream>
 
 
 // Static function declaration

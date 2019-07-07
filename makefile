@@ -10,7 +10,7 @@ SOURCE = cmds scan distribution refseq polyscan param utilities homo window bamr
 OBJS= $(patsubst %,%.o,$(SOURCE))
 
 %.o:%.cpp
-	        $(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	        $(CXX) -std=c++11 $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 all: samtools msisensor-pro
 
@@ -18,7 +18,7 @@ samtools:
 	        $(MAKE) -C ${SAMTOOLS_ROOT}
 
 msisensor-pro: $(OBJS)
-	        $(CXX) $^ $(CXXFLAGS) $(LDFLAGS) $(LIBS) -o $@ 
+	        $(CXX) -std=c++11 $^ $(CXXFLAGS) $(LDFLAGS) $(LIBS) -o $@ 
 
 clean:
 	        rm -f *.o MSIsensor-pro
