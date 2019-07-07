@@ -18,11 +18,11 @@ MSIsensor-pro can evaluate MSI with next generation sequencing (NGS) data. If yo
 
 * For Debian or Ubuntu:
 
-     sudo apt-get install zlib1g-dev libncurses5-dev libncursesw5-dev
+      sudo apt-get install zlib1g-dev libncurses5-dev libncursesw5-dev
 
 * For Fedora, CentOS or RHEL
 
-     sudo yum install zlib-devel ncurses-devel ncurses
+      sudo yum install zlib-devel ncurses-devel ncurses
 
 #### Build MSIsensor-pro from source code
 * colne the repository from our github
