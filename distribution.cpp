@@ -92,7 +92,7 @@ int loadFilepathFromConfig(std::string TrainBamConfig, std::vector<std::string>&
 		std::string name="";
 		std::string bam="";
 
-		std::stringstream linestream(oneLine);
+		std::istringstream linestream(oneLine);
 		linestream >> name;
 		linestream >> bam;
 		bam=abs_path(bam);
