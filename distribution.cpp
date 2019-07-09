@@ -245,7 +245,7 @@ void TrainUsage(void){
 		<< "       -p   <int>      minimal homopolymer size for pro analysis, default=" << paramd.MininalHomoForDis << "\n"
 		<< "       -m   <int>      maximal homopolymer size for pro analysis, default=" << paramd.MaxHomoSize << "\n"
 
-
+		<<"       -u   <int>      span size around window for extracting reads, default="<<paramd.DisSpan<<"\n"
 		<< "       -s   <int>      minimal microsatellite size for distribution analysis, default=" << paramd.MinMicrosateForDis << "\n"
 		<< "       -w   <int>      maximal microsatellite size for distribution analysis, default=" << paramd.MaxMicrosateForDis << "\n"
 //

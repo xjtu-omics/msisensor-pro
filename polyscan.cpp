@@ -28,12 +28,12 @@
 #include <sstream>
 #include <bitset>
 #include <map>
-#include<unordered_map>
+#include <unordered_map>
 #include <omp.h>
-#include<sys/stat.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <numeric>
-#include<cmath>
+#include <cmath>
 #include "utilities.h"
 #include "polyscan.h"
 #include "bamreader.h"
