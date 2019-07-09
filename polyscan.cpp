@@ -27,7 +27,7 @@
 #include <iostream>
 #include <sstream>
 #include <bitset>
-#include <map>
+#include  <map>
 #include <unordered_map>
 #include <omp.h>
 #include <sys/stat.h>
@@ -522,6 +522,8 @@ std::string getRel(std::string str,std::string pattern)
     return result[result.size()-1];
 }
 void PolyScan::GetNormalDistrubution(Sample &oneSample, const std::string &prefix) {//add by yelab
+//    omp_set_num_threads( paramd.numberThreads );
+
 //	totalBamTumorsNum=0
 	totalBamTumorsNum=1;
 	BamTumors t_bamtumor;
@@ -540,12 +542,13 @@ void PolyScan::GetNormalDistrubution(Sample &oneSample, const std::string &prefi
 		<< "repeat_times"      <<"\t"
 		<< "repeat_unit_bases" <<"\t"
 		<< "right_flank_bases" <<"\t"
-		<< "covReads"          <<"\t"
+//		<< "covReads"          <<"\t"
 		<< "threshold"         <<"\t"
 		<< "supportSamples"     <<"\n";
 
-
-	for (unsigned short j=0; j<totalBamNormalsNum; j++) {
+//#pragma omp parallel for
+	for (unsigned short i=0; i<totalBamNormalsNum; i++) {
+		unsigned short j=i;
 //		const char* per=(prefix+"/"+totalBamNormals[j].sName).c_str();
 //		int isCreate = mkdir(per,00755);
 		std::cout << "Process the "<<j+1<<" case : "<<totalBamNormals[j].sName<<" "<<totalBamNormals[j].normal_bam<<"\n";
@@ -587,6 +590,7 @@ void PolyScan::GetNormalDistrubution(Sample &oneSample, const std::string &prefi
 			oneSample.closeOutStreamTrain();
 //					oneSample.VerboseInfo();
 	}
+//#pragma omp atomic;
 	std::cout<<"Build baseline for microsatellites ..."<<std::endl;
 
 	std::map<std::string, int>::iterator it;
