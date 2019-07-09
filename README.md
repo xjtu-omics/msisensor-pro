@@ -69,3 +69,9 @@ See more detail in the **[Key Commands](https://github.com/xjtu-omics/msisensor-
 
   see detail in the **[Files format](https://github.com/xjtu-omics/msisensor-pro/wiki/Files-format)** page
 ## 
+
+# Contact
+
+If you have any questions, please contact with Peng Jia (pengjia@stu.xjtu.edu.cn) or Kai Ye (kaiye@xjtu.edu.cn).
+
+
