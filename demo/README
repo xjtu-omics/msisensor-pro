@@ -1,0 +1,7 @@
+* tumor_only test
+    ./tumor_only.sh 
+* tumor-normal paired test 
+    ./tumor_normal.sh
+* clear data
+    ./cleardata.sh
+    
