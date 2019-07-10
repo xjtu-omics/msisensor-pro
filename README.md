@@ -9,7 +9,17 @@ MSIsensor-pro evaluates MSI status of a given sample with next generation sequen
 # How to install MSIsensor-pro?
 
 
+## [ Install Using Bioconda ](https://github.com/xjtu-omics/msisensor-pro/wiki/How-to-install-MSIsensor-pro#install-from-source-code)
+
+****
+
+      conda install msisensor-pro
+      
+
 ## [ Install from source code ](https://github.com/xjtu-omics/msisensor-pro/wiki/How-to-install-MSIsensor-pro#install-from-source-code)
+
+**( Recommended For Developers )**
+
 
 #### Install the dependencies
   Dependent packages including zlib, ncurses and nurses-dev are required for MSIsensor-pro. You may already have these prerequisite packages. If not, you need to run the following code to obtain dependent packages.
