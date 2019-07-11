@@ -192,7 +192,7 @@ void ProUsage(void) {
 		<<"   For diffferent requirements of users, we offer two choices.\n"
 		<<"      * If you have no normal sample to train a baseline, you can use hard threshold (-i option) to defined an unstable.\n"
 		<<"      * You can use also use soft threshold train by your self or download on our github(GRCh38.d1.vd1).\n\n"
-		<<"   If you have any questions, please contact with Peng Jia (pengjia@stu.xjtu.edu.cn) or Kai Ye (kaiye.xjtu.edu.cn) .\n"
+		<<"   If you have any questions, please contact with Peng Jia (pengjia@stu.xjtu.edu.cn) or Kai Ye (kaiye@xjtu.edu.cn) .\n"
 
 		<< std::endl;
 	exit(1);
@@ -263,7 +263,7 @@ void TrainUsage(void){
 
 
 		<<"Note:\n\n"
-		<<"   If you have any questions, please contact with Peng Jia (pengjia@stu.xjtu.edu.cn) or Kai Ye (kaiye.xjtu.edu.cn) .\n"
+		<<"   If you have any questions, please contact with Peng Jia (pengjia@stu.xjtu.edu.cn) or Kai Ye (kaiye@xjtu.edu.cn) .\n"
 
 
 		<< std::endl;

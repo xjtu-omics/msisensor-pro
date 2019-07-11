@@ -75,7 +75,7 @@ int usage(void) {
 	<< "    1. If your analysis are based on reference GRCh38.d1.vd1, you can ignore the scan step by downloading the microsatellites information on our github directly. \n\n"
 	<< "    2. If you don't have normal samples to build baseline(baseline step for tumor only sample detection), you can download the microsatellites information with baseline on our github or use -i option in pro module to set a hard cutoff directly.\n\n"
 
-	<< "    If you have any questions, please contact with Peng Jia (pengjia@stu.xjtu.edu.cn) or Kai Ye (kaiye.xjtu.edu.cn) .\n"
+	<< "    If you have any questions, please contact with Peng Jia (pengjia@stu.xjtu.edu.cn) or Kai Ye (kaiye@xjtu.edu.cn) .\n"
 //	<< "    3. This module inherits from msisensor.If you used it for your work, please cite:\n"
 //	<< "       Beifang Niu*, Kai Ye*, Qunyuan Zhang, Charles Lu, Mingchao Xie, Michael D. McLellan, Michael C. Wendl and Li Ding#.MSIsensor: microsatellite instability detection using paired tu-mor-normal sequence data. Bioinformatics 30, 1015–1016 (2014)."
     << "\n\n";
