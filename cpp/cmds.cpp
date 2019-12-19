@@ -82,6 +82,12 @@ int main(int argc, char **argv) {
             return 0;
 		
         }
+        else if ((strcmp(argv[1], "-V") == 0)||(strcmp(argv[1], "-v") == 0)||(strcmp(argv[1], "--version") == 0)) {
+                    // distribution && msi scoring analysis
+        	std::cerr<<"\n"
+        	         << "Version: "<<VERSION<<"\n\n";
+                    return 0;
+        }
 //        else if (strcmp(argv[1], "entropy") == 0) {
 //              // distribution && msi scoring analysis for tumor only
 //             HomoAndMicrosateDisMsiEntropy(argc-1, argv+1);
