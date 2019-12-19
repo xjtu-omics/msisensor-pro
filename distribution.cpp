@@ -645,7 +645,7 @@ int HomoAndMicrosateDisMsiEntropy(int argc, char *argv[]) {
 //	return 0;
 //}
 
-// add by Yelab for hunter
+// add by Yelab for msisensor-pro
 int HomoAndMicrosateDisMsiPro(int argc, char *argv[]) {
 //	InitHunter();
 	if (argc == 1) ProUsage();

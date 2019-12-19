@@ -226,6 +226,9 @@ bool PolyScan::LoadHomosAndMicrosates(std::ifstream &fin) {
         if(! paramd.hard){
         	linestream >> thres;
         }
+        else{
+        	thres=paramd.hunterThreshold;
+        }
 
         // filtering
         if (tsiteLength > 1 && paramd.HomoOnly == 1) continue;

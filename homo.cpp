@@ -486,20 +486,20 @@ void HomoSite::HunterDisTumorSomatic(Sample &sample) {
 			resUV = Hunterp(tumorDis[0], paramd.s_dispots, length);
 			hunterValueU=resUV[0];
 			hunterValueV=resUV[1];
-			if(paramd.train){
-				site=chr+"_"+std::to_string(location);
-//				std::cout<<site<<"\n";
-	//			int l_it=SitesSupport.find(site);
-	//			std::map<int, std::string>::iterator iter;
-	//			iter = SitesSupport.find(site);
-				if ( SitesSupport.find(site)==SitesSupport.end()){
-					SitesSupport[site]=1;
-
-				}
-				else{
-					SitesSupport[site]++;
-				}
-			}
+//			if(paramd.train){
+//				site=chr+"_"+std::to_string(location);
+////				std::cout<<site<<"\n";
+//	//			int l_it=SitesSupport.find(site);
+//	//			std::map<int, std::string>::iterator iter;
+//	//			iter = SitesSupport.find(site);
+//				if ( SitesSupport.find(site)==SitesSupport.end()){
+//					SitesSupport[site]=1;
+//
+//				}
+//				else{
+//					SitesSupport[site]++;
+//				}
+//			}
 		}
 		else {
 			withSufCov = false;
@@ -538,10 +538,6 @@ void HomoSite::HunterDisTumorSomatic(Sample &sample) {
 						    << std::fixed << hunterValueV    <<"\t"
 						    << std::fixed << tumorCov    	 <<"\t"
 						    << std::fixed << thres           <<"\n";
-
-
-
-
 
 			SomaticSite onessite;
 			onessite.chr = chr;
