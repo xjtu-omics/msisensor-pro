@@ -40,7 +40,7 @@ MSIsensor-pro evaluates MSI status of a given sample with next generation sequen
 
 * make 
 
-      cd msisensor-pro
+      cd msisensor-pro/cpp
       make
  
 * install
