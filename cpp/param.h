@@ -1,5 +1,4 @@
 
-
 #ifndef _PARAM_H_
 #define _PARAM_H_
 
@@ -24,58 +23,58 @@ typedef bit32_t ref_loc_t;
 
 class Param {
 public:
-    Param();
-    ~Param();
+	Param();
+	~Param();
 
-    int max_dbseq_size; 
-    int append_dbseq_size; 
-    int bufSize;
-    // Homo sites
-    int MininalHomoSize;
-    int ContextLength;
-    // Microsate
-    unsigned int MaxMicrosate;
-    unsigned int Repeats;
+	int max_dbseq_size;
+	int append_dbseq_size;
+	int bufSize;
+	// Homo sites
+	int MininalHomoSize;
+	int ContextLength;
+	// Microsate
+	unsigned int MaxMicrosate;
+	unsigned int Repeats;
 
-    unsigned int MinMicrosate;
-    unsigned int MinMicrosateForDis;
-    unsigned int MaxMicrosateForDis;
-    std::string homoFile;
+	unsigned int MinMicrosate;
+	unsigned int MinMicrosateForDis;
+	unsigned int MaxMicrosateForDis;
+	std::string homoFile;
 
-    // filtering
-    int HomoOnly;
-    int MicrosateOnly;
-    int ncpu;
-    int chains;
-    // Homo sites
-    int MininalHomoForDis;
-    int MaxHomoSize;
-    int SpanSize;
-    int DisSpan;
-    // coverage normalization
+	// filtering
+	int HomoOnly;
+	int MicrosateOnly;
+	int ncpu;
+	int chains;
+	// Homo sites
+	int MininalHomoForDis;
+	int MaxHomoSize;
+	int SpanSize;
+	int DisSpan;
+	// coverage normalization
 
-    int Normalization;
+	int Normalization;
 
-    // output 0 dis , add by Yelab
-    int outputzeroDis;
+	// output 0 dis , add by Yelab
+	int outputzeroDis;
 
-    // Thread number
-    unsigned int numberThreads;
-    // statistic var
-    unsigned int s_dispots; 
-    unsigned int PercentPairs;
-    unsigned int PercentPairsNumber;
-    unsigned int HomoCoverage;
-    // window size
-    unsigned int windowSize;
+	// Thread number
+	unsigned int numberThreads;
+	// statistic var
+	unsigned int s_dispots;
+	unsigned int PercentPairs;
+	unsigned int PercentPairsNumber;
+	unsigned int HomoCoverage;
+	// window size
+	unsigned int windowSize;
 
-    // genotyping 
-    unsigned int covCutoff;
-    double fdrThreshold;
-    double comentropyThreshold;
+	// genotyping
+	unsigned int covCutoff;
+	double fdrThreshold;
+	double comentropyThreshold;
 
-	double hunterThreshold;//add by YeLab
-	double NormalcovCutoff;//add by YeLab
+	double hunterThreshold; //add by YeLab
+	double NormalcovCutoff; //add by YeLab
 	double sampleRatio; //add by YeLab
 	bool train;
 	bool pro;

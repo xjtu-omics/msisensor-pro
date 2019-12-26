@@ -1,5 +1,4 @@
 
-
 #ifndef _BAMPAIRS_H_
 #define _BAMPAIRS_H_
 
@@ -15,16 +14,16 @@
 // Bam file pairs
 class BamPairs {
 public:
-    BamPairs();
-    ~BamPairs();
-    // total pairs
-    unsigned int totalParis;
-    // bam files
-    std::string normal_bam;
-    std::string tumor_bam;
+	BamPairs();
+	~BamPairs();
+	// total pairs
+	unsigned int totalParis;
+	// bam files
+	std::string normal_bam;
+	std::string tumor_bam;
 
 protected:
-    //xxx
+	//xxx
 };
 
 #endif //_BAMPAIRS_H_
