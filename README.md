@@ -81,6 +81,9 @@ See more detail in the **[Key Commands](https://github.com/xjtu-omics/msisensor-
   see detail in the **[Files format](https://github.com/xjtu-omics/msisensor-pro/wiki/Files-format)** page
 ## 
 
+# Citation
+  Jia,P. et al. (2020) MSIsensor-pro: fast, accurate and matched-normal-sample-free detection of microsatellite instability. bioRxiv, 2020.01.08.899633.
+   
 # Contact
 
 If you have any questions, please contact with Peng Jia (pengjia@stu.xjtu.edu.cn) or Kai Ye (kaiye@xjtu.edu.cn).
