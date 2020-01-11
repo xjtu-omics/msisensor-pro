@@ -82,7 +82,7 @@ See more detail in the **[Key Commands](https://github.com/xjtu-omics/msisensor-
 ## 
 
 # Citation
-  Jia,P. et al. (2020) MSIsensor-pro: fast, accurate and matched-normal-sample-free detection of microsatellite instability. bioRxiv, 2020.01.08.899633.
+  Jia,P. et al. (2020) MSIsensor-pro: fast, accurate and matched-normal-sample-free detection of microsatellite instability. bioRxiv, [2020.01.08.899633](https://doi.org/10.1101/2020.01.08.899633).
    
 # Contact
 
