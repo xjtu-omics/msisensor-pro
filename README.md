@@ -1,4 +1,4 @@
-[![Bioconda](https://img.shields.io/conda/dn/bioconda/msisensor-pro.svg?style=flat)](https://bioconda.github.io/recipes/msisensor-pro/README.html)
+[![Bioconda](https://img.shields.io/conda/dn/bioconda/msisensor-pro.svg?label=Bioconda)](https://bioconda.github.io/recipes/msisensor-pro/README.html)
 
 # General introduction
 
