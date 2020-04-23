@@ -104,7 +104,7 @@ void Window::PouroutDisW(Sample &oneSample) {
 	for (unsigned short i = 0; i < _siteCount; i++) {
 		p = _startSite + i;
 		if (paramd.outputzeroDis) {
-			if ((p->outDislabel(oneSample) > paramd.covCutoff)) {
+			if ((p->outDislabel(oneSample) )) {
 				//        std::cout << p->outDislabel(oneSample) << "\n";
 				p->PouroutDis(oneSample);
 			}
@@ -124,7 +124,7 @@ void Window::PourTumoroutDisW(Sample &oneSample) {
 		p = _startSite + i;
 //        std::cout<<p->thres<<"\n";
 		if (paramd.outputzeroDis) {
-			if (p->outDislabelTumorOnly(oneSample) > paramd.covCutoff) {
+			if (p->outDislabelTumorOnly(oneSample)) {
 				p->PourTumoroutDis(oneSample);
 			}
 		} else {
