@@ -102,6 +102,7 @@ void parse_flags_and_tags(const bam1_t * b, flags_hit * flags) {
 	return;
 }
 
+
 /*
 
  static int fetch_func_ALL (const bam1_t * b1, void *data) {
@@ -213,7 +214,6 @@ bool ReadInBamReads(const char *bam_path, const std::string & FragName,
 	bam_header_destroy(header);
 	bam_index_destroy(idx);
 	bam_close(fp);
-
 	return true;
 }
 
