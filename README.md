@@ -2,6 +2,7 @@
 [![Published in Genomics, Proteomics & Bioinformatics](https://img.shields.io/badge/Published%20in-GPB-167DA4.svg)](https://www.sciencedirect.com/science/article/pii/S1672022920300218)
 [![Anaconda-Server Badge](https://anaconda.org/bioconda/msisensor-pro/badges/latest_release_date.svg)](https://anaconda.org/bioconda/msisensor-pro)
 
+![MSIsensor-pro](/fig/logo_msisensor-pro.png)
 
 # General introduction
 
