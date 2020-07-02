@@ -4,7 +4,7 @@
 
 ![MSIsensor-pro](/fig/logo_msisensor-pro.png)
 
-## Please click [here](https://github.com/xjtu-omics/msisensor-pro/wiki) to see more about MSIsensor-pro.
+## Please click [here](https://github.com/xjtu-omics/msisensor-pro/wiki) to see more about MSIsensor-pro in Wiki.
 
 # General introduction
 
