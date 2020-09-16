@@ -236,7 +236,8 @@ void Window::LoadReads(std::vector<SPLIT_READ> &readsInWindow,
 	std::string tag = "";
 	if (!bam.empty()) {
 		// extract reads
-		ReadInBamReads(bam.c_str(), _chr, _start, _end, readsInWindow, tag);
+//        std::cout<<bam.c_str()<<"\t"<<"bam_path"<<std::endl;
+        ReadInBamReads(bam.c_str(), _chr, _start, _end, readsInWindow, tag);
 	}
 }
 

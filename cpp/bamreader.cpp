@@ -170,7 +170,7 @@ bool ReadInBamReads(const char *bam_path, const std::string & FragName,
 	assert(fp);
 	bam_index_t *idx;
 	idx = bam_index_load(bam_path); // load BAM index
-	assert(idx);
+    assert(idx);
 	bam_header_t *header = bam_header_read(fp);
 	bam_init_header_hash(header);
 	assert(header);
