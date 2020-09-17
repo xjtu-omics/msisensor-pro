@@ -10,7 +10,7 @@
 #ifndef VERSION
 //#define VERSION "v0.1.0"
 //#define VERSION "v1.0.a"
-#define VERSION "v1.0.2"  
+#define VERSION "v1.1.a"  
 #endif
 
 int usage(void) {
