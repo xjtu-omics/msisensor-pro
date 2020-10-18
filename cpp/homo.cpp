@@ -297,16 +297,18 @@ void HomoSite::DisGenotyping(Sample &sample) {
 		onessite.bases = bases;
 		onessite.diff = dif;
 		onessite.pValue = pValue;
+		onessite.genotype1=genotype[0];
+		onessite.genotype2=genotype[1];
 
 		sample.totalSomaticSites.push_back(onessite);
 	}
 
-	if (reportGermline) {
-		sample.outputGermline << chr << "\t" << location << "\t" << fbases
-				<< "\t" << length << "\t" << bases << "\t" << ebases;
-		sample.outputGermline << "\t" << genotype[0] << "|" << genotype[1];
-		sample.outputGermline << std::endl;
-	}
+//	if (reportGermline) {
+//		sample.outputGermline << chr << "\t" << location << "\t" << fbases
+//				<< "\t" << length << "\t" << bases << "\t" << ebases;
+//		sample.outputGermline << "\t" << genotype[0] << "|" << genotype[1];
+//		sample.outputGermline << std::endl;
+//	}
 
 }
 

@@ -11,45 +11,49 @@
 // homopolymer site
 class SomaticSite {
 public:
-	SomaticSite();
-	~SomaticSite();
+    SomaticSite();
 
-	// homo or microsate
-	// A/C/G/T/AC/AGC
-	//
-	std::string chr;
+    ~SomaticSite();
 
-	// location
-	int location;
+    // homo or microsate
+    // A/C/G/T/AC/AGC
+    //
+    std::string chr;
 
-	// repeat times
-	unsigned short length;
+    // location
+    int location;
 
-	// homo or microsate
-	// content
-	std::string bases;
-	// front kmer
-	std::string fbases;
-	// tail kmer
-	std::string ebases;
-	// difference between
-	// normal and tumor
-	double diff;
-	double pValue;
-	double FDR;
-	unsigned short rank;
-	bool somatic;
+    // repeat times
+    unsigned short length;
+    int genotype1; // add by Pengjia
+    int genotype2;// add by Pengjia
 
-	// output content
-	void PourOut();
-	// sorting based on p-value
-	//
-	bool operator <(const SomaticSite& rhs) const {
-		return pValue < rhs.pValue;
-	}
+    // homo or microsate
+    // content
+    std::string bases;
+    // front kmer
+    std::string fbases;
+    // tail kmer
+    std::string ebases;
+    // difference between
+    // normal and tumor
+    double diff;
+    double pValue;
+    double FDR;
+    unsigned short rank;
+    bool somatic;
+
+    // output content
+    void PourOut();
+
+    // sorting based on p-value
+    //
+    bool operator<(const SomaticSite &rhs) const {
+        return pValue < rhs.pValue;
+    }
 
 protected:
-	// xxx
+    // xxx
 };
 
 #endif //_SOMATIC_H_
