@@ -1,0 +1,3 @@
+case1	./bamForTumorOnlyBaseLine/case1_normal_sorted.bam
+case2	./bamForTumorOnlyBaseLine/case2_normal_sorted.bam
+case3	./bamForTumorOnlyBaseLine/case3_normal_sorted.bam
