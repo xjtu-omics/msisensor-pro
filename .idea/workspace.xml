@@ -28,31 +28,142 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fb2b9a57-3c3f-4c3b-8e39-b8b33bbdd69a" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/demo/scripts/1_test_scan.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/scripts/2_test_msi.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/scripts/3_test_baseline.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/scripts/4_test_pro.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/scripts/clean_all.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/README" beforeDir="false" afterPath="$PROJECT_DIR$/demo/README" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/cleardata.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/reference/reference.fa" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/reference/reference.fa.fai" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/tumor_normal.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/tumor_normal/test_normal_sorted.bai" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/tumor_normal/test_normal_sorted.bam" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/tumor_normal/test_tumor_sorted.bam" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/tumor_normal/test_tumor_sorted.bam.bai" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/tumor_normal/tumor_normal.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/tumor_only.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/tumor_only/bamForTumorOnlyBaseLine/case1_normal_sorted.bam" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/tumor_only/bamForTumorOnlyBaseLine/case1_normal_sorted.bam.bai" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/tumor_only/bamForTumorOnlyBaseLine/case2_normal_sorted.bai" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/tumor_only/bamForTumorOnlyBaseLine/case2_normal_sorted.bam" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/tumor_only/bamForTumorOnlyBaseLine/case3_normal_sorted.bam" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/tumor_only/bamForTumorOnlyBaseLine/case3_normal_sorted.bam.bai" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/tumor_only/baselineBam.configure" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/tumor_only/test_tumor_sorted.bai" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/tumor_only/test_tumor_sorted.bam" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/binary/msisensor-pro" beforeDir="false" afterPath="$PROJECT_DIR$/binary/msisensor-pro" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/bamreader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/bamreader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/bamreader.h" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/bamreader.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/distribution.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/distribution.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/distribution.h" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/distribution.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/makefile" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/polyscan.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/polyscan.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/polyscan.h" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/polyscan.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/refseq.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/refseq.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/scan.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/scan.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/scan.h" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/scan.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/window.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/window.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/window.h" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/window.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/data/data4baseline/baselineBam.configure" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/scripts/1_test_scan.sh" beforeDir="false" afterPath="$PROJECT_DIR$/demo/scripts/1_test_scan.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/scripts/2_test_msi.sh" beforeDir="false" afterPath="$PROJECT_DIR$/demo/scripts/2_test_msi.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/scripts/3_test_baseline.sh" beforeDir="false" afterPath="$PROJECT_DIR$/demo/scripts/3_test_baseline.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/scripts/4_test_pro.sh" beforeDir="false" afterPath="$PROJECT_DIR$/demo/scripts/4_test_pro.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/scripts/clean_all.sh" beforeDir="false" afterPath="$PROJECT_DIR$/demo/scripts/clean_all.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/AUTHORS" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/COPYING" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/ChangeLog.old" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/INSTALL" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/Makefile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/Makefile.mingw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/NEWS" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam2bcf.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam2bcf.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam2bcf_indel.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam2depth.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam_aux.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam_cat.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam_color.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam_endian.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam_import.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam_index.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam_lpileup.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam_mate.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam_md.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam_pileup.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam_plcmd.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam_reheader.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam_rmdup.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam_rmdupse.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam_sort.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam_stat.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam_tview.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam_tview.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam_tview_curses.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bam_tview_html.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bamshuf.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bamtk.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bcftools/Makefile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bcftools/README" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bcftools/bcf.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bcftools/bcf.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bcftools/bcf.tex" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bcftools/bcf2qcall.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bcftools/bcfutils.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bcftools/call1.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bcftools/em.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bcftools/fet.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bcftools/index.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bcftools/kfunc.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bcftools/kmin.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bcftools/kmin.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bcftools/main.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bcftools/mut.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bcftools/prob1.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bcftools/prob1.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bcftools/vcf.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bcftools/vcfutils.pl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bedcov.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bedidx.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bgzf.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bgzf.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/bgzip.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/cut_target.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/errmod.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/errmod.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/faidx.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/faidx.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/kaln.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/kaln.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/khash.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/klist.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/knetfile.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/knetfile.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/kprobaln.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/kprobaln.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/kseq.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/ksort.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/kstring.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/kstring.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/HmmGlocal.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/Makefile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/ace2sam.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/bamcheck.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/blast2sam.pl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/bowtie2sam.pl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/export2sam.pl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/interpolate_sam.pl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/maq2sam.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/md5.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/md5.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/md5fa.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/novo2sam.pl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/plot-bamcheck" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/psl2sam.pl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/r2plot.lua" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/sam2vcf.pl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/samtools.pl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/soap2sam.pl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/varfilter.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/vcfutils.lua" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/wgsim.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/wgsim_eval.pl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/misc/zoom2sam.pl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/padding.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/phase.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/razf.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/razf.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/razip.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/sam.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/sam.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/sam_header.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/sam_header.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/sam_view.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/sample.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/sample.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/samtools-0.1.19/samtools.1" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,6 +175,14 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
   </component>
   <component name="ProjectId" id="1f4IcOjAyQB0EhO1LVcojxLDyag" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -78,14 +197,14 @@
     <property name="cf.first.check.clang-format" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/demo/scripts" />
     <property name="nodejs_package_manager_path" value="npm" />
-    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/demo/scripts" />
     </key>
   </component>
-  <component name="RunManager" selected="Shell Script.clean_all.sh">
+  <component name="RunManager" selected="Shell Script.3_test_baseline.sh">
     <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -158,11 +277,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Shell Script.3_test_baseline.sh" />
+        <item itemvalue="Shell Script.1_test_scan.sh" />
         <item itemvalue="Shell Script.clean_all.sh" />
         <item itemvalue="Shell Script.4_test_pro.sh" />
-        <item itemvalue="Shell Script.3_test_baseline.sh" />
         <item itemvalue="Shell Script.2_test_msi.sh" />
-        <item itemvalue="Shell Script.1_test_scan.sh" />
       </list>
     </recent_temporary>
   </component>
@@ -185,7 +304,9 @@
       <workItem from="1608603309913" duration="18000" />
       <workItem from="1608603499283" duration="433000" />
       <workItem from="1611671725769" duration="10024000" />
-      <workItem from="1611888760457" duration="3052000" />
+      <workItem from="1611888760457" duration="3738000" />
+      <workItem from="1611923121006" duration="2457000" />
+      <workItem from="1611994026029" duration="756000" />
     </task>
     <servers />
   </component>

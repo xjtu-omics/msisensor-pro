@@ -8,6 +8,8 @@
 #include "param.h"
 #include "polyscan.h"
 
+
+#include <fstream>
 extern Param paramd;
 extern std::map<std::string, int> SitesSupport;
 extern PolyScan polyscan;
@@ -122,6 +124,8 @@ void Window::PourTumoroutDisW(Sample &oneSample) {
 	HomoSite *p = NULL;
 	for (unsigned short i = 0; i < _siteCount; i++) {
 		p = _startSite + i;
+
+
 //        std::cout<<p->thres<<"\n";
 		if (paramd.outputzeroDis) {
 			if (p->outDislabelTumorOnly(oneSample)) {
@@ -190,7 +194,7 @@ void Window::GetDistribution(std::vector<SPLIT_READ> &readsInWindow) {
 		if (!polyscan.totalBamPairs[j].normal_bam.empty()) {
 			// extract reads
 			LoadReads(readsInWindow,
-					polyscan.totalBamPairs[j].normal_bam.c_str());
+					polyscan.totalBamPairs[j].normal_bam.c_str(),polyscan.refPath);
 			ScanReads(readsInWindow, j, false);
 			readsInWindow.clear();
 		}
@@ -198,7 +202,7 @@ void Window::GetDistribution(std::vector<SPLIT_READ> &readsInWindow) {
 		if (!polyscan.totalBamPairs[j].tumor_bam.empty()) {
 			// extract reads
 			LoadReads(readsInWindow,
-					polyscan.totalBamPairs[j].tumor_bam.c_str());
+					polyscan.totalBamPairs[j].tumor_bam.c_str(),polyscan.refPath);
 			ScanReads(readsInWindow, j, true);
 			readsInWindow.clear();
 		}
@@ -206,16 +210,21 @@ void Window::GetDistribution(std::vector<SPLIT_READ> &readsInWindow) {
 }
 
 void Window::GetTumorDistribution(std::vector<SPLIT_READ> &readsInWindow) {
+
 	for (unsigned short j = 0; j < polyscan.totalBamTumorsNum; j++) {
 		// tumor
 		if (!polyscan.totalBamTumors[j].tumor_bam.empty()) {
 			// extract reads
+
+			//添加额外参数refPath，支持读取cram文件
 			LoadReads(readsInWindow,
-					polyscan.totalBamTumors[j].tumor_bam.c_str());
+					polyscan.totalBamTumors[j].tumor_bam.c_str(),polyscan.refPath);
+
 			ScanReads(readsInWindow, j, true);
 			readsInWindow.clear();
 		}
 	}
+//	out.flush();
 }
 
 void Window::GetNormalDistribution(std::vector<SPLIT_READ> &readsInWindow) { //add by yelab
@@ -224,7 +233,7 @@ void Window::GetNormalDistribution(std::vector<SPLIT_READ> &readsInWindow) { //a
 		if (!polyscan.totalBamNormals[j].normal_bam.empty()) {
 			// extract reads
 			LoadReads(readsInWindow,
-					polyscan.totalBamNormals[j].normal_bam.c_str());
+					polyscan.totalBamNormals[j].normal_bam.c_str(),polyscan.refPath);
 			ScanReads(readsInWindow, j, true);
 			readsInWindow.clear();
 		}
@@ -232,12 +241,22 @@ void Window::GetNormalDistribution(std::vector<SPLIT_READ> &readsInWindow) { //a
 }
 
 void Window::LoadReads(std::vector<SPLIT_READ> &readsInWindow,
-		const std::string bam) {
+		const std::string bam,std::string ref) {
 	std::string tag = "";
 	if (!bam.empty()) {
 		// extract reads
 //        std::cout<<bam.c_str()<<"\t"<<"bam_path"<<std::endl;
-        ReadInBamReads(bam.c_str(), _chr, _start, _end, readsInWindow, tag);
+
+        if(ref.empty())
+        {
+            ReadInBamReads(bam.c_str(), _chr, _start, _end, readsInWindow, tag);
+//            std::cout<<readsInWindow.size()<<std::endl;
+        }
+        else
+        {
+            ReadInCramReads(bam.c_str(), ref.c_str(),_chr, _start, _end, readsInWindow, tag);
+//            std::cout<<readsInWindow.size()<<std::endl;
+        }
 	}
 }
 

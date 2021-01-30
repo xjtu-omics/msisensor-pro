@@ -136,16 +136,18 @@ void PolyScan::LoadBams(const std::string &bam1, const std::string &bam2) {
     BamPairs t_bampair;
     t_bampair.sName = "sample_name";
 
-    if (bam1.find(".bam") != std::string::npos) {
+    if (bam1.find(".bam") != std::string::npos || bam1.find(".cram") != std::string::npos) {
         t_bampair.normal_bam = bam1;
     } else {
         std::cerr << "please provide valid format normal bam file ! \n";
         exit(0);
     }
-    if (bam2.find(".bam") != std::string::npos) {
+
+
+    if (bam2.find(".bam") != std::string::npos || bam2.find(".cram") != std::string::npos) {
         t_bampair.tumor_bam = bam2;
     } else {
-        std::cerr << "please provide valid format tumor bam file ! \n";
+        std::cerr << "please provide valid format tumor bam/cram file ! \n";
         exit(0);
     }
 
@@ -160,10 +162,13 @@ void PolyScan::LoadBam(const std::string &bam) {
     BamTumors t_bamtumor;
     t_bamtumor.sName = "sample_name";
 //    std::cout<<bam<<"\n";
-    if (bam.find(".bam") != std::string::npos) {
+
+
+    //加入对cram的支持
+    if (bam.find(".bam") != std::string::npos || bam.find(".cram") != std::string::npos) {
         t_bamtumor.tumor_bam = bam;
     } else {
-        std::cerr << "please provide valid format tumor bam file ! \n";
+        std::cerr << "please provide valid format tumor bam/cram file ! \n";
         exit(0);
     }        //add by yelab
 
@@ -180,7 +185,7 @@ void PolyScan::LoadBamn(const std::string &bam, const std::string &Name) {
 //   std::cout<<bam.find(".bam")<<"\n";
 //   std::cout<<std::string::npos<<"\n";
 //	if (bam.find(".bam") != std::string::npos) {
-    if (bam.find(".bam") != std::string::npos) {
+    if (bam.find(".bam") != std::string::npos || bam.find(".cram") != std::string::npos) {
         t_bamnormal.sName = Name;
 //		t_bamnormal.normal_bam = abs_path(bam);
         t_bamnormal.normal_bam = bam;
@@ -548,8 +553,8 @@ void PolyScan::GetNormalDistrubution(Sample &oneSample,
          //		<< "covReads"          <<"\t"
          << "threshold" << "\t" << "supportSamples" << "\n";
 
-    omp_set_num_threads(paramd.numberThreads);
-#pragma omp parallel
+//    omp_set_num_threads(paramd.numberThreads);
+//#pragma omp parallel for
     for (unsigned short i = 0; i < totalBamNormalsNum; i++) {
         unsigned short j = i;
 //		const char* per=(prefix+"/"+totalBamNormals[j].sName).c_str();
@@ -559,11 +564,14 @@ void PolyScan::GetNormalDistrubution(Sample &oneSample,
                   << totalBamNormals[j].normal_bam << "\n";
 //		std::cout<<j<<"\t"<<totalBamNormals[j].sName<<"\n";
 //		train.trainIniNormalDisOutput(prefix+"/"+totalBamNormals[j].sName+"/"+totalBamNormals[j].sName);
-        oneSample.trainIniNormalDisOutput(
-                prefix + "/detail/" + totalBamNormals[j].sName);
+//        #pragma omp critical
+        {
+            oneSample.trainIniNormalDisOutput(
+                    prefix + "/detail/" + totalBamNormals[j].sName);
+        }
         std::vector <SPLIT_READ> readsInWindow;
 //        totalBamTumors[0].tumor_bam = totalBamNormals[j].normal_bam;
-
+//#pragma omp parallel for
         for (int i = 0; i < totalWindowsNum; i++) {
             totalWindows[i].InitialTumorDisW();
 
@@ -572,7 +580,7 @@ void PolyScan::GetNormalDistrubution(Sample &oneSample,
                 // extract reads
 
 
-                totalWindows[i].LoadReads(readsInWindow, totalBamNormals[j].normal_bam.c_str());
+                totalWindows[i].LoadReads(readsInWindow, totalBamNormals[j].normal_bam.c_str(), refPath);
 
 
                 totalWindows[i].ScanReads(readsInWindow, 0, true);

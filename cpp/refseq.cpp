@@ -36,6 +36,7 @@ bool RefSeq::PouroutHeader(std::ofstream &fout) {
 			<< "left_flank_binary" << "\t" << "right_flank_binary" << "\t"
 			<< "repeat_unit_bases" << "\t" << "left_flank_bases" << "\t"
 			<< "right_flank_bases" << "\n";
+	return true;
 }
 
 // output and clear buffer
@@ -52,6 +53,7 @@ bool RefSeq::PouroutBuffer(std::ofstream &fout) {
 	}
 	homosBuffer.clear();
 	totalSites = 0;
+	return true;
 }
 
 // Load next chromosome

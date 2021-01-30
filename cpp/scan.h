@@ -9,8 +9,8 @@
 #include "param.h"
 
 // Samtools header files
-#include "khash.h"
-#include "sam.h"
+#include "htslib/khash.h"
+#include "htslib/sam.h"
 
 #endif //_SCAN_H_
 

@@ -39,6 +39,9 @@ std::string TrainBamConfig; //Yelab
 std::vector <std::string> TrainName; //Yelab
 std::vector <std::string> TrainBam; //Yelab
 std::string tumorBam;
+
+std::string refP; //存储reference path
+
 std::string bedFile;
 std::string disFile;
 
@@ -68,7 +71,9 @@ int loadFilepathFromConfig(std::string TrainBamConfig,
         std::istringstream linestream(oneLine);
         linestream >> name;
         linestream >> bam;
+        std::cout<<bam<<"  "<<name<<std::endl;
         bam = abs_path(bam);
+        std::cout<<bam<<"  "<<name<<std::endl;
         const char *pathname = bam.c_str();
         if (access(pathname, R_OK) == -1) {
             std::cerr << "Open bam file failed( " << bam
@@ -83,6 +88,7 @@ int loadFilepathFromConfig(std::string TrainBamConfig,
         }
     }
     fin.close();
+    return 1;
 }
 
 void DisUsage(void) {
@@ -90,6 +96,7 @@ void DisUsage(void) {
               << "       -d   <string>   homopolymers and microsatellites file\n"
               << "       -n   <string>   normal bam file with index\n"
               << "       -t   <string>   tumor  bam file with index\n"
+              << "       -g   <string>   reference file( .cram need )\n"
               << "       -o   <string>   output prefix\n\n"
 
               << "       -e   <string>   bed file, optional\n"
@@ -129,7 +136,7 @@ void DisUsage(void) {
               << "Example:\n"
               << "   msisensor-pro msi -d /path/to/reference.list -n /path/to/case1_normal_sorted.bam -t /path/to/case1_tumor_sorted.bam -o /path/to/case1_output\n\n"
               << "Note:\n"
-              << "   This module inherits from msisensor.If you use it for your work, please cite:\n"
+              << "   This module inherits from msisensor. If you use it for your work, please cite:\n"
               << "   Beifang Niu*, Kai Ye*, Qunyuan Zhang, Charles Lu, Mingchao Xie, Michael D. McLellan, Michael C. Wendl and Li Ding#.MSIsensor: microsatellite instability detection using paired tumor-normal sequence data. Bioinformatics 30, 1015–1016 (2014).\n \n"
 
               << std::endl;
@@ -140,7 +147,8 @@ void DisUsage(void) {
 void ProUsage(void) {
     std::cerr << "\nUsage:  msisensor-pro pro [options] \n\n"
               << "       -d   <string>   homopolymers and microsatellites file\n"
-              << "       -t   <string>   tumor bam file\n"
+              << "       -t   <string>   tumor bam/cram file\n"
+              << "       -g   <string>   reference file( .cram need )\n"
               << "       -o   <string>   output prefix\n\n"
 
               << "       -e   <string>   bed file, optional\n"
@@ -246,6 +254,7 @@ void TrainUsage(void) {
               << "       -c   <int>      coverage threshold for msi analysis, WXS: 20; WGS: 15, default="
               << paramd.covCutoff << "\n"
 
+              << "       -g   <string>   reference file( .cram need )\n"
               << "       -l   <double>   a site with a ratio of deteced in all samples less than this parameter will be removed in following analysis, default="
               << paramd.sampleRatio << "\n"
               << "       -p   <int>      minimal homopolymer size for pro analysis, default="
@@ -289,6 +298,9 @@ int dGetOptions(int rgc, char *rgv[]) {
         if (rgv[i][0] != '-')
             return i;
         switch (rgv[i][1]) {
+            case 'g':
+                refP=rgv[++i];
+                break;
             case 'd':
                 homoFile = rgv[++i];
                 break;
@@ -371,6 +383,9 @@ int dGetProOptions(int rgc, char *rgv[]) {
         if (rgv[i][0] != '-')
             return i;
         switch (rgv[i][1]) {
+            case 'g':
+                refP=rgv[++i];
+                break;
             case 'd':
                 homoFile = rgv[++i];
                 break;
@@ -444,6 +459,10 @@ int tGetOptions(int rgc, char *rgv[]) {
         if (rgv[i][0] != '-')
             return i;
         switch (rgv[i][1]) {
+
+            case 'g':
+                refP=rgv[++i];
+                break;
             case 'd':
                 homoFile = rgv[++i];
                 break;
@@ -667,10 +686,29 @@ int TrainMsiP(int argc, char *argv[]) {
     }
     finB.close();
 
+
     loadFilepathFromConfig(TrainBamConfig, TrainBam);
     for (int j = 0; j < TrainBam.size(); j++) {
         polyscan.LoadBamn(TrainBam[j], TrainName[j]);
     }
+    polyscan.refPath=refP;
+
+    //如果训练集中提供了cram，则必须提供reference
+    for(int j=0;j<TrainBam.size();j++)
+    {
+        if(TrainBam[j].find(".cram")!=std::string::npos)
+        {
+            if(access(polyscan.refPath.c_str(), R_OK) == -1)
+            {
+                std::cerr << "Open reference file failed( " << polyscan.refPath
+                          << " ), please provide valid reference file ! \n";
+                exit(0);;
+            }
+        }
+    }
+
+
+
     finH.open(homoFile.c_str());
     if (!finH) {
         std::cerr
@@ -731,7 +769,20 @@ int HomoAndMicrosateDisMsi(int argc, char *argv[]) {
 //    if (normalBam.empty() && !tumorBam.empty()) {
 //        polyscan.LoadBam(tumorBam);
 //    }
+
+
     polyscan.LoadBams(normalBam, tumorBam);
+    polyscan.refPath=refP;
+
+    if(tumorBam.find(".cram")!=std::string::npos && normalBam.find(".cram")!=std::string::npos)
+    {
+        if(access(polyscan.refPath.c_str(), R_OK) == -1)
+        {
+            std::cerr << "Open reference file failed( " << polyscan.refPath
+                      << " ), please provide valid reference file ! \n";
+            exit(0);;
+        }
+    }
     // check homo/microsate file
     finH.open(homoFile.c_str());
     if (!finH) {
@@ -873,8 +924,21 @@ int HomoAndMicrosateDisMsiPro(int argc, char *argv[]) {
      polyscan.LoadBams(normalBam, tumorBam);
      }*/
     // just for tumor only data
-    if (normalBam.empty() && !tumorBam.empty()) {
+    if (normalBam.empty() && !tumorBam.empty())
+    {
         polyscan.LoadBam(tumorBam);
+        polyscan.refPath=refP;   //提供reference
+
+        //如果是cram文件但没有提供reference，或referenec不存在，退出
+        if(tumorBam.find(".cram")!=std::string::npos)
+        {
+            if(access(polyscan.refPath.c_str(), R_OK) == -1)
+            {
+                std::cerr << "Open reference file failed( " << polyscan.refPath
+                          << " ), please provide valid reference file ! \n";
+                exit(0);;
+            }
+        }
     }
     // check homo/microsate file
     finH.open(homoFile.c_str());
@@ -887,6 +951,8 @@ int HomoAndMicrosateDisMsiPro(int argc, char *argv[]) {
               << std::endl;
     polyscan.LoadHomosAndMicrosates(finH);
     finH.close();
+
+
     //polyscan.TestHomos();
     polyscan.SplitWindows();
     //polyscan.TestWindows();
@@ -903,6 +969,7 @@ int HomoAndMicrosateDisMsiPro(int argc, char *argv[]) {
      }*/
 //	std::cout<< "normalBam.empty()" <<normalBam.empty()<<"\n";
 //	std::cout<< "tumorBam.empty()" <<tumorBam.empty()<<"\n";
+
     if (normalBam.empty() && !tumorBam.empty()) {
         polyscan.GetHunterTumorDistribution(sample, disFile);
 

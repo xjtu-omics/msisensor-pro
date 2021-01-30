@@ -40,7 +40,7 @@ public:
 	void GetTumorDistribution(std::vector<SPLIT_READ> &readsInWindow);
 	void GetNormalDistribution(std::vector<SPLIT_READ> &readsInWindow); //add by yelab
 	void LoadReads(std::vector<SPLIT_READ> &readsInWindow,
-			const std::string bam);
+			const std::string bam,std::string ref="");      //ref: 参考基因组的路径
 	void ScanReads(const std::vector<SPLIT_READ> &readsInWindow,
 			unsigned short bamIndex, bool isTumor);
 	void ReverseComplement(std::string &theWord);

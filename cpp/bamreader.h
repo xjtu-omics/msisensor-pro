@@ -5,12 +5,11 @@
 #include "vector"
 
 // Samtools header files
-#include "bam.h"
-#include "sam.h"
-#include "kstring.h"
-#include "kseq.h"
-#include "khash.h"
-#include "ksort.h"
+#include "htslib/sam.h"
+#include "htslib/kstring.h"
+#include "htslib/kseq.h"
+#include "htslib/khash.h"
+#include "htslib/ksort.h"
 
 const unsigned g_SpacerBeforeAfter = 10000000;
 
@@ -104,5 +103,14 @@ bool ReadInBamReads(const char *bam_path, const std::string & FragName,
 		unsigned start, unsigned end, std::vector<SPLIT_READ> & AllReads,
 		std::string Tag);
 
+
+//支持读取cram文件，需要额外参数 const char*ref_path
+bool ReadInCramReads(const char *bam_path, const char*ref_path,const std::string & FragName,
+                    unsigned start, unsigned end, std::vector<SPLIT_READ> & AllReads,
+                    std::string Tag);
+
+
+typedef int (*bam_fetch_f)(const bam1_t *b, void *data);
+int sam_fetch(samFile *fp, const hts_idx_t *idx, int tid, int beg, int end, void *data, bam_fetch_f func);
 #endif /* READER_H */
 

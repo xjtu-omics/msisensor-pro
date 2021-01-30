@@ -6,12 +6,11 @@
 #include <assert.h>
 
 // Samtools header files
-#include "bam.h"
-#include "sam.h"
-#include "kstring.h"
-#include "kseq.h"
-#include "khash.h"
-#include "ksort.h"
+#include "htslib/sam.h"
+#include "htslib/kstring.h"
+#include "htslib/kseq.h"
+#include "htslib/khash.h"
+#include "htslib/ksort.h"
 
 // Bam header files
 #include "bamreader.h"
@@ -31,22 +30,37 @@ unsigned int g_CloseMappedMinus = 0;
 KSORT_INIT_GENERIC(uint32_t)
 KHASH_MAP_INIT_STR(read_name, bam1_t *)
 struct fetch_func_data_SR {
-	fetch_func_data_SR() {
-		LeftReads = NULL;
-		read_to_map_qual = NULL;
-		header = NULL;
-		b1_flags = NULL;
-		b2_flags = NULL;
-		Tag = "";
-		InsertSize = 0;
-	}
 	std::vector<SPLIT_READ> *LeftReads;khash_t (read_name) * read_to_map_qual;
-	bam_header_t *header;
+    sam_hdr_t *header;
 	flags_hit *b1_flags;
 	flags_hit *b2_flags;
 	std::string Tag;
 	int InsertSize;
+    fetch_func_data_SR() {
+        LeftReads = NULL;
+        read_to_map_qual = NULL;
+        header = NULL;
+        b1_flags = NULL;
+        b2_flags = NULL;
+        Tag = "";
+        InsertSize = 0;
+    }
 };
+
+int sam_fetch(samFile *fp, const hts_idx_t *idx, int tid, int beg, int end, void *data, bam_fetch_f func)
+{
+    int ret;
+    hts_itr_t *iter;
+    bam1_t *b;
+    b = bam_init1();
+    iter = sam_itr_queryi(idx, tid, beg, end);
+    while ((ret = sam_itr_next(fp, iter, b)) >= 0) func(b, data);
+    sam_itr_destroy(iter);
+    bam_destroy1(b);
+    return (ret == -1)? 0 : ret;
+}
+
+
 
 void parse_flags_and_tags(const bam1_t * b, flags_hit * flags) {
 	const bam1_core_t *c = &b->core;
@@ -165,19 +179,19 @@ static int fetch_func_ALL(const bam1_t * b1, void *data) {
 bool ReadInBamReads(const char *bam_path, const std::string & FragName,
 		unsigned start, unsigned end, std::vector<SPLIT_READ> & AllReads,
 		std::string Tag) {
-	bamFile fp;
-	fp = bam_open(bam_path, "r");
+	samFile *fp;
+	fp = sam_open(bam_path, "r");
 	assert(fp);
-	bam_index_t *idx;
-	idx = bam_index_load(bam_path); // load BAM index
+    hts_idx_t *idx;
+	idx = sam_index_load(fp,bam_path); // load BAM index
     assert(idx);
-	bam_header_t *header = bam_header_read(fp);
-	bam_init_header_hash(header);
+    sam_hdr_t *header = sam_hdr_read(fp);
+
 	assert(header);
 
 	int tid;
+    tid=sam_hdr_name2tid(header,FragName.c_str());
 
-	tid = bam_get_tid(header, FragName.c_str());
 	fetch_func_data_SR data;
 	data.header = header;
 	data.LeftReads = &AllReads;
@@ -193,11 +207,14 @@ bool ReadInBamReads(const char *bam_path, const std::string & FragName,
 	if (tid == -1) {
 		std::cout << "Program aborted: " << std::endl;
 		std::cout
-				<< "Same reference genome file should be used in both 'msisensor scan' and 'msisensor msi' steps!!!"
+				<< "Same reference genome file should be used in both 'scan' and msi/pro/baseline steps!!!"
 				<< std::endl;
 		exit(1);
 	}
-	bam_fetch(fp, idx, tid, start, end, &data, fetch_func_ALL);
+
+    sam_fetch(fp,idx,tid,start,end,&data,fetch_func_ALL);
+
+
 	// std:: cout << " after bam_fetch " << std::endl;
 	khint_t key;
 	if (kh_size (data.read_to_map_qual) > 0) {
@@ -209,13 +226,93 @@ bool ReadInBamReads(const char *bam_path, const std::string & FragName,
 			}
 		}
 	}
+
 	kh_clear(read_name, data.read_to_map_qual);
 	kh_destroy(read_name, data.read_to_map_qual);
-	bam_header_destroy(header);
-	bam_index_destroy(idx);
-	bam_close(fp);
+
+    sam_hdr_destroy(header);
+    hts_idx_destroy(idx);
+	sam_close(fp);
+
+
+
 	return true;
 }
+
+bool ReadInCramReads(const char *bam_path, const char*ref_path,const std::string & FragName,
+                    unsigned start, unsigned end, std::vector<SPLIT_READ> & AllReads,
+                    std::string Tag){
+
+    hts_opt opt;
+    opt.arg=NULL;
+    opt.opt=CRAM_OPT_REFERENCE;
+    opt.val.s=(char*)ref_path;
+    opt.next=NULL;
+
+    htsFormat format;
+    format.format=cram;
+    format.specific=&opt;
+
+    samFile *fp;
+    fp= sam_open_format(bam_path, "r",&format);
+
+    assert(fp);
+    hts_idx_t *idx;
+    idx = sam_index_load(fp,bam_path); // load BAM index
+    assert(idx);
+    sam_hdr_t *header = sam_hdr_read(fp);
+
+    assert(header);
+
+    int tid;
+    tid=sam_hdr_name2tid(header,FragName.c_str());
+
+    fetch_func_data_SR data;
+    data.header = header;
+    data.LeftReads = &AllReads;
+    data.read_to_map_qual = NULL;
+    data.read_to_map_qual = kh_init(read_name);
+
+    flags_hit b1_flags, b2_flags;
+    data.b1_flags = &b1_flags;
+    data.b2_flags = &b2_flags;
+    data.Tag = Tag;
+    // std:: cout << " before bam_fetch " << std::endl;
+    // give warning and abort if using dif refs
+    if (tid == -1) {
+        std::cout << "Program aborted: " << std::endl;
+        std::cout
+                << "Same reference genome file should be used in both scan and msi/pro/baseline steps!!!"
+                << std::endl;
+        exit(1);
+    }
+
+    sam_fetch(fp,idx,tid,start,end,&data,fetch_func_ALL);
+
+
+    // std:: cout << " after bam_fetch " << std::endl;
+    khint_t key;
+    if (kh_size (data.read_to_map_qual) > 0) {
+        for (key = kh_begin(data.read_to_map_qual);
+             key != kh_end(data.read_to_map_qual); ++key) {
+            if (kh_exist(data.read_to_map_qual, key)) {
+                bam_destroy1(kh_value (data.read_to_map_qual, key));
+                free((char *) kh_key(data.read_to_map_qual, key));
+            }
+        }
+    }
+
+    kh_clear(read_name, data.read_to_map_qual);
+    kh_destroy(read_name, data.read_to_map_qual);
+
+    sam_hdr_destroy(header);
+
+    hts_idx_destroy(idx);
+    sam_close(fp);
+
+    return true;
+}
+
 
 // new version build_record for single end reads 
 void build_record(const bam1_t * current_read, void *data,
@@ -223,16 +320,16 @@ void build_record(const bam1_t * current_read, void *data,
 
 	SPLIT_READ Temp_One_Read;
 	fetch_func_data_SR *data_for_bam = (fetch_func_data_SR *) data;
-	bam_header_t *header = (bam_header_t *) data_for_bam->header;
+    sam_hdr_t *header = (sam_hdr_t *) data_for_bam->header;
 	std::string Tag = (std::string) data_for_bam->Tag;
 
 	const bam1_core_t *current_core;
 	current_core = &current_read->core;
 	// Determine sample name for read.
 	// std::string c_sequence;
-	uint8_t *s = bam1_seq(current_read);
+    uint8_t *s = bam_get_seq(current_read);
 	for (int i = 0; i < current_core->l_qseq; ++i) {
-		Temp_One_Read.ReadSeq.append(1, bam_nt16_rev_table[bam1_seqi(s, i)]);
+		Temp_One_Read.ReadSeq.append(1, seq_nt16_str[bam_seqi(s, i)]);
 	}
 	//std::cout<<Temp_One_Read.ReadSeq<<"\n";
 	if (!flag_current_read->mapped) {

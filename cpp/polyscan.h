@@ -45,6 +45,9 @@ public:
 	void LoadBams(const std::string &nBam, const std::string &tBam);
 	void LoadBam(const std::string &tBam);
 	void LoadBamn(const std::string &bam, const std::string &Name); //add by yelab
+
+
+	std::string refPath; //存储reference path
 	unsigned int totalBamPairsNum;
 	unsigned int totalBamTumorsNum;
 	unsigned int totalBamNormalsNum; //add by yelab
@@ -72,6 +75,9 @@ public:
 	void GetHomoTumorDistribution(Sample &oneSample, const std::string &prefix);
 	void GetHunterTumorDistribution(Sample &oneSample,
 			const std::string &prefix);
+
+
+
 
 protected:
 

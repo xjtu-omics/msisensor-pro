@@ -4,7 +4,30 @@
 
 ![MSIsensor-pro](/fig/logo_msisensor-pro.png)
 
+
 ## Please click [here](https://github.com/xjtu-omics/msisensor-pro/wiki) to see more about MSIsensor-pro in Wiki.
+
+
+# Contact
+
+If you want to apply the MSIsensor-pro to commercial purposes, 
+please contact Peng Jia (pengjia@stu.xjtu.edu.cn) or 
+Kai Ye (kaiye@xjtu.edu.cn) for a license
+and get more services.
+
+# License
+
+MSIsensor-pro is free for non-commercial use
+by academic, government, and non-profit/not-for-profit institutions. A
+commercial version of the software is available and licensed through
+Xi’an Jiaotong University. For more information, please contact with
+kaiye@xjtu.edu.cn.
+
+
+
+# Citation
+Peng Jia, Xiaofei Yang, Li Guo, Bowen Liu, Jiadong Lin, Hao Liang, et al. MSIsensor-pro: fast, accurate, and matched-normal-sample-free detection of microsatellite instability. Genomics Proteomics Bioinformatics 2020,18(1).  [PDF](https://www.sciencedirect.com/science/article/pii/S1672022920300218)
+
 
 # General introduction
 
@@ -52,8 +75,8 @@ MSIsensor-pro evaluates MSI status of a given sample with next generation sequen
 
 * make 
 
-      cd msisensor-pro/cpp
-      make
+      cd msisensor-pro/
+      ./INSTALL
  
 * install
 
