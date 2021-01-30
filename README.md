@@ -1,8 +1,16 @@
-[![Bioconda](https://img.shields.io/conda/dn/bioconda/msisensor-pro.svg?label=Bioconda)](https://bioconda.github.io/recipes/msisensor-pro/README.html)
-[![Published in Genomics, Proteomics & Bioinformatics](https://img.shields.io/badge/Published%20in-GPB-167DA4.svg)](https://www.sciencedirect.com/science/article/pii/S1672022920300218)
-[![Anaconda-Server Badge](https://anaconda.org/bioconda/msisensor-pro/badges/latest_release_date.svg)](https://anaconda.org/bioconda/msisensor-pro)
 
-![MSIsensor-pro](/fig/logo_msisensor-pro.png)
+[![Published in Genomics, Proteomics & Bioinformatics](https://img.shields.io/badge/Published%20in-GPB-167DA4.svg)](https://www.sciencedirect.com/science/article/pii/S1672022920300218)
+![GitHub last commit](https://img.shields.io/github/last-commit/xjtu-omics/msisensor-pro)
+![GitHub Release Date](https://img.shields.io/github/release-date/xjtu-omics/msisensor-pro)
+![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/xjtu-omics/msisensor-pro?include_prereleases)
+[![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/pengjia1110/msisensor-pro)](https://hub.docker.com/repository/docker/pengjia1110/msisensor-pro)
+
+[![Bioconda](https://img.shields.io/conda/dn/bioconda/msisensor-pro.svg?label=Bioconda)](https://bioconda.github.io/recipes/msisensor-pro/README.html)
+![Docker Pulls](https://img.shields.io/docker/pulls/pengjia1110/msisensor-pro)
+![GitHub all releases](https://img.shields.io/github/downloads/xjtu-omics/msisensor-pro/total?label="Github")
+
+
+![MSIsensor-pro](https://raw.githubusercontent.com/xjtu-omics/msisensor-pro/master/fig/logo_msisensor-pro.png)
 
 
 ## Please click [here](https://github.com/xjtu-omics/msisensor-pro/wiki) to see more about MSIsensor-pro in Wiki.
@@ -45,6 +53,10 @@ MSIsensor-pro evaluates MSI status of a given sample with next generation sequen
       chmod +x msisensor-pro 
       export PATH=`pwd`:$PATH
 
+## [ Install Using Docker ]()
+
+       docker pull pengjia1110/msisensor-pro   
+       docker run pengjia1110/msisensor-pro msisensor-pro
 
 ## [ Install Using Bioconda ](https://github.com/xjtu-omics/msisensor-pro/wiki/How-to-install-MSIsensor-pro#install-from-source-code)
 
