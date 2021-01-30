@@ -52,7 +52,7 @@ MSIsensor-pro evaluates MSI status of a given sample with next generation sequen
       chmod +x msisensor-pro 
       export PATH=`pwd`:$PATH
 
-## [ Install Using Docker ]()
+## [ Install Using Docker ](https://github.com/xjtu-omics/msisensor-pro/wiki/How-to-install-MSIsensor-pro#install-using-docker)
 
        docker pull pengjia1110/msisensor-pro   
        docker run pengjia1110/msisensor-pro msisensor-pro
