@@ -28,7 +28,7 @@ MSIsensor-pro is free for non-commercial use
 by academic, government, and non-profit/not-for-profit institutions. A
 commercial version of the software is available and licensed through
 Xi’an Jiaotong University. For more information, please contact with
-kaiye@xjtu.edu.cn.
+Peng Jia (pengjia@stu.xjtu.edu.cn) or Kai Ye (kaiye@xjtu.edu.cn).
 
 
 
