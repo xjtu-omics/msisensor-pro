@@ -10,7 +10,13 @@
 #ifndef VERSION
 //#define VERSION "v0.1.0"
 //#define VERSION "v1.0.a"
-#define VERSION "v1.1.a"  
+//#define VERSION "v1.1.a"
+#define VERSION "v1.2.0"
+// update by Peng Jia  v1.2.0
+// * Support cram input;
+// * Support Docker install;
+// * Fix some bugs.
+
 #endif
 
 int usage(void) {

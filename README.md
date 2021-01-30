@@ -62,11 +62,11 @@ MSIsensor-pro evaluates MSI status of a given sample with next generation sequen
 
 * For Debian or Ubuntu:
 
-      sudo apt-get install zlib1g-dev libncurses5-dev libncursesw5-dev
+      sudo apt-get install libbz2-dev zlib1g-dev libncurses5-dev libncursesw5-dev
 
 * For Fedora, CentOS or RHEL
 
-      sudo yum install zlib-devel ncurses-devel ncurses
+      sudo yum install bzip2-devel xz-devel zlib-devel ncurses-devel ncurses
 
 #### Build MSIsensor-pro from source code
 * colne the repository from our github
