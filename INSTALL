@@ -3,20 +3,14 @@ CURRENT_PATH=`pwd`
 HTSLIB_PATH=${CURRENT_PATH}/vendor/htslib-1.11
 #export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${HTSLIB_PATH}
 
-cd ${HTSLIB_PATH}
-./configure
-make
-cd -
 cd cpp
 LD_LIBRARY_PATH=${HTSLIB_PATH}
 export LD_LIBRARY_PATH
 echo $LD_LIBRARY_PATH
 echo "==============================================================="
 
-
-make HTSLIB=${HTSLIB_PATH}
+make
 cd -
 cp -rf cpp/msisensor-pro ./binary/
-
 
 

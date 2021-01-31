@@ -12,6 +12,8 @@
 //#define VERSION "v1.0.a"
 //#define VERSION "v1.1.a"
 #define VERSION "v1.2.0"
+//https://github.com/xjtu-omics/msisensor-pro/archive/1.1.a.tar.gz
+//https://github.com/xjtu-omics/msisensor-pro/archive/v1.2.0.tar.gz
 // update by Peng Jia  v1.2.0
 // * Support cram input;
 // * Support Docker install;

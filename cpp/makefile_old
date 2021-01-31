@@ -1,6 +1,6 @@
 CXX=g++
 
-HTSLIB=$(realpath ../vendor/htslib-1.11)
+# HTSLIB_ROOT=$(realpath ../vendor/htslib-1.11)
 # HTSLIB_CPPFLAGS=-I$(realpath $(HTSLIB_ROOT))
 # echo $(HTSLIB_CPPFLAGS)
 # HTSLIB_LDFLAGS=-L/mnt/project/Project_Pindel/pindel_update/pindel/htslib/ -Wl,-rpath
@@ -18,7 +18,7 @@ OBJS= $(patsubst %,%.o,$(SOURCE))
 %.o:%.cpp
 	        $(CXX) -L ${HTSLIB} -std=c++11 $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
-all: htsfile msisensor-pro
+all:  msisensor-pro
 #
 htsfile:
 	        $(MAKE) -C ${HTSLIB}

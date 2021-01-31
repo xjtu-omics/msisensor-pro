@@ -56,7 +56,8 @@ pkgconfigdir= $(libdir)/pkgconfig
 MKDIR_P = mkdir -p
 INSTALL = install -p
 INSTALL_DATA    = $(INSTALL) -m 644
-INSTALL_DIR     = $(MKDIR_P) -m 755
+INSTALL_DIR     = $(MKDIR_P) -m 755INSTALL_DIR     = $(MKDIR_P) -m 755
+
 INSTALL_LIB     = $(INSTALL_DATA)
 INSTALL_MAN     = $(INSTALL_DATA)
 INSTALL_PROGRAM = $(INSTALL)
