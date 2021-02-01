@@ -6,6 +6,8 @@ HTSLIB_PATH=${CURRENT_PATH}/vendor/htslib-1.11
 export LD_LIBRARY_PATH
 LD_LIBRARY_PATH=${HTSLIB_PATH}
 cd vendor/htslib-1.11
+autoheader
+autoconf
 ./configure
 cd - 
 cd cpp
