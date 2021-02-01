@@ -1,8 +1,8 @@
 
 [![Published in Genomics, Proteomics & Bioinformatics](https://img.shields.io/badge/Published%20in-GPB-167DA4.svg)](https://www.sciencedirect.com/science/article/pii/S1672022920300218)
 ![GitHub last commit](https://img.shields.io/github/last-commit/xjtu-omics/msisensor-pro)
-![GitHub Release Date](https://img.shields.io/github/release-date/xjtu-omics/msisensor-pro)
-![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/xjtu-omics/msisensor-pro?include_prereleases)
+[![GitHub Release Date](https://img.shields.io/github/release-date/xjtu-omics/msisensor-pro)](https://github.com/xjtu-omics/msisensor-pro/releases)
+[![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/xjtu-omics/msisensor-pro?include_prereleases)](https://github.com/xjtu-omics/msisensor-pro/releases)
 [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/pengjia1110/msisensor-pro)](https://hub.docker.com/repository/docker/pengjia1110/msisensor-pro)
 [![Bioconda](https://img.shields.io/conda/dn/bioconda/msisensor-pro.svg?label=Bioconda)](https://bioconda.github.io/recipes/msisensor-pro/README.html)
 ![Docker Pulls](https://img.shields.io/docker/pulls/pengjia1110/msisensor-pro)
