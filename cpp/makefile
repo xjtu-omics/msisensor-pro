@@ -24,12 +24,10 @@ htsfile:
 	        $(MAKE) -C ${HTSLIB}
 
 msisensor-pro: $(OBJS)
-	        $(CXX)  -std=c++11 $^ $(CXXFLAGS) $(LDFLAGS)  $(LIBS) -Wl,-rpath=${HTSLIB} -o $@
-# 	        $(CXX)  -std=c++11 $^ $(CXXFLAGS) $(INCLUDES)  $(LDFLAGS) $(LIBS) -o $@
+	        $(CXX)  -std=c++11 $^ $(CXXFLAGS) $(LDFLAGS)  $(LIBS) -Wl,-rpath=${HTSLIB} -o $@# 	        $(CXX)  -std=c++11 $^ $(CXXFLAGS) $(INCLUDES)  $(LDFLAGS) $(LIBS) -o $@
 
 clean:
 	        rm -f *.o msisensor-pro
 			        $(MAKE) -C ${HTSLIB}  clean
-
 
 
