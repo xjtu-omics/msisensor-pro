@@ -289,7 +289,7 @@ void RefSeq::ScanHomoAndMicrosate(std::ifstream &fin) {
 		title.push_back(r);
 		// scan window and homopolymer site
 		DoScan(_length, _name, index);
-		std::cout << "scanning chomosome " << _name << " done. "
+		std::cout << "scanning chromosome " << _name << " done. "
 				<< Cal_AllTime() << " secs passed" << std::endl;
 		index++;
 		total_num++;

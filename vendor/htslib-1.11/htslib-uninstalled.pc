@@ -1,0 +1,15 @@
+includedir=/mnt/project/ProjectMSI/MSIsensor-pro/codes/msisensor-pro/vendor/htslib-1.11
+libdir=/mnt/project/ProjectMSI/MSIsensor-pro/codes/msisensor-pro/vendor/htslib-1.11
+
+# Flags and libraries needed when linking against a static libhts.a
+# (used by manual and semi-manual pkg-config(1)-style enquiries).
+static_ldflags=-Wl,-O2 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now -Wl,--disable-new-dtags -Wl,--gc-sections -Wl,-rpath,/home/pengjia/miniconda3/lib -Wl,-rpath-link,/home/pengjia/miniconda3/lib -L/home/pengjia/miniconda3/lib
+static_libs=-lpthread -lz -lm -lbz2 -llzma -ldeflate -lcurl -lcrypto
+
+Name: htslib
+Description: C library for high-throughput sequencing data formats
+Version: @-PACKAGE_VERSION@
+Cflags: -I${includedir}
+Libs: -L${libdir} -lhts
+Libs.private: -L${libdir} -Wl,-O2 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now -Wl,--disable-new-dtags -Wl,--gc-sections -Wl,-rpath,/home/pengjia/miniconda3/lib -Wl,-rpath-link,/home/pengjia/miniconda3/lib -L/home/pengjia/miniconda3/lib -lbz2 -ldeflate -lhts -lm -lpthread
+Requires.private: zlib  liblzma
