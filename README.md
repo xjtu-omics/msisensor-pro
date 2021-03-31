@@ -12,7 +12,9 @@
 ![MSIsensor-pro](https://raw.githubusercontent.com/xjtu-omics/msisensor-pro/master/fig/logo_msisensor-pro.png)
 
 
-## Please click [here](https://github.com/xjtu-omics/msisensor-pro/wiki) to see more about MSIsensor-pro in Wiki.
+## Please click [here](https://github.com/xjtu-omics/msisensor-pro/wiki) to see more about MSIsensor-pro in Wiki. 
+
+## Welcome to try our new software [MSIsensor-RNA](https://github.com/xjtu-omics/msisensor-rna) for MSI detection with RNA-seq data!
 
 
 # Contact
