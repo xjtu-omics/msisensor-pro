@@ -140,4 +140,9 @@ See more detail in the **[Key Commands](https://github.com/xjtu-omics/msisensor-
 
 If you have any questions, please contact with Peng Jia (pengjia@stu.xjtu.edu.cn) or Kai Ye (kaiye@xjtu.edu.cn).
 
+# Contributors
+* Peng Jia 
+* Bowen Liu 
+* Hao Liang 
+* Mingzhe Duan
 
