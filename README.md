@@ -24,6 +24,11 @@ please contact Peng Jia (pengjia@stu.xjtu.edu.cn) or
 Kai Ye (kaiye@xjtu.edu.cn) for a license
 and get more services.
 
+  
+# Questions
+
+If you have any questions, please [open an issue](https://github.com/xjtu-omics/msisensor-pro/issues/new). If you don't get a prompt response(maybe two working day), please contact with Peng Jia (pengjia@stu.xjtu.edu.cn).
+
 # License
 
 MSIsensor-pro is free for non-commercial use
@@ -135,10 +140,7 @@ See more detail in the **[Key Commands](https://github.com/xjtu-omics/msisensor-
 
 # Citation
   Peng Jia, Xiaofei Yang, Li Guo, Bowen Liu, Jiadong Lin, Hao Liang, et al. MSIsensor-pro: fast, accurate, and matched-normal-sample-free detection of microsatellite instability. Genomics Proteomics Bioinformatics 2020,18(1).  [PDF](https://www.sciencedirect.com/science/article/pii/S1672022920300218)   
-   
-# Contact
-
-If you have any questions, please contact with Peng Jia (pengjia@stu.xjtu.edu.cn) or Kai Ye (kaiye@xjtu.edu.cn).
+ 
 
 # Contributors
 * Peng Jia 
