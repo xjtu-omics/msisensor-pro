@@ -67,7 +67,7 @@ MSIsensor-pro evaluates MSI status of a given sample with next generation sequen
 ## [ Install Using Bioconda ](https://github.com/xjtu-omics/msisensor-pro/wiki/How-to-install-MSIsensor-pro#install-from-source-code)
 
 
-      conda install msisensor-pro
+      conda install msisensor-pro=v1.2.0
       
 
 ## [ Install from source code ](https://github.com/xjtu-omics/msisensor-pro/wiki/How-to-install-MSIsensor-pro#install-from-source-code)
