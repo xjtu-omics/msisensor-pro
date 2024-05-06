@@ -131,7 +131,7 @@ See more detail in the **[Key Commands](https://github.com/xjtu-omics/msisensor-
 
 # Files  format
 
-  see details in the **[Files format](https://github.com/xjtu-omics/msisensor-pro/wiki/Files-format)** page in WiKi.
+  see details of [Input](https://github.com/xjtu-omics/msisensor-pro/wiki/Input-Files-format) and [Output](https://github.com/xjtu-omics/msisensor-pro/wiki/Output-file-format) in WiKi.
 ## 
 # Frequently asked questions
    
