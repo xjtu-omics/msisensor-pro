@@ -20,14 +20,16 @@
 # Contact
 
 If you want to apply the MSIsensor-pro to commercial purposes, 
-please contact Peng Jia (pengjia@stu.xjtu.edu.cn) or 
+please contact Peng Jia (pengjia@xjtu.edu.cn; pengjia1110@163.com) or 
 Kai Ye (kaiye@xjtu.edu.cn) for a license
 and get more services.
 
   
 # Questions
 
-If you have any questions, please [open an issue](https://github.com/xjtu-omics/msisensor-pro/issues/new). If you don't get a prompt response(maybe two working day), please contact with Peng Jia (pengjia@stu.xjtu.edu.cn).
+If you have any questions, please [open an issue](https://github.com/xjtu-omics/msisensor-pro/issues/new). If you don't get a prompt response(maybe two working day), please contact with Peng Jia (pengjia@xjtu.edu.cn; pengjia1110@163.com).
+
+
 
 # License
 
@@ -35,7 +37,7 @@ MSIsensor-pro is free for non-commercial use
 by academic, government, and non-profit/not-for-profit institutions. A
 commercial version of the software is available and licensed through
 Xi’an Jiaotong University. For more information, please contact with
-Peng Jia (pengjia@stu.xjtu.edu.cn) or Kai Ye (kaiye@xjtu.edu.cn).
+Peng Jia (pengjia@xjtu.edu.cn) or Kai Ye (kaiye@xjtu.edu.cn).
 
 
 
