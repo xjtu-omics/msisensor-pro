@@ -317,7 +317,7 @@ unsigned short Window::DoOneRead(const std::string &oneRead,
 			tstart0 = tstart;
 		}
 		// if get one
-		if ((p->typeLen == 1) && (count >= paramd.MininalHomoSize)
+		if ((p->typeLen == 1) && (count >= paramd.MininalHomoForDis)
 				|| (p->typeLen > 1) && (count >= paramd.MinMicrosate)) {
 			tstart = tstart0;
 			if (tstart == (tstart0 = oneRead.find(p->ebases, tstart0))) {
