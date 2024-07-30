@@ -62,15 +62,15 @@ Param::Param() :
         ContextLength(5),
         MaxHomoSize(50),
         SpanSize(500),
-        MininalHomoForDis(8), // microsate
-        MinMicrosate(3),
+        MininalHomoForDis(10), // microsate
+        MinMicrosate(5),
         MinMicrosateForDis(5),
         MaxMicrosateForDis(40),
         DisSpan(500),
         HomoOnly(0),
         MicrosateOnly(0),
         s_dispots(100),
-        MaxMicrosate(5),
+        MaxMicrosate(6),  //5 ->6
         Repeats(5), //3->5
         numberThreads(1),
         PercentPairs(20),

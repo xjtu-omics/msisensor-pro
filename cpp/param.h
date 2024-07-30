@@ -7,7 +7,7 @@
 // maximal length of 
 // microsatellite
 #define MAX_MICROSATE_LEN 8
-#define MAX_FLANK_REGION 8
+#define MAX_FLANK_REGION 64
 #define MAX_TRANSFER_LINE_LENGTH 100
 #define MAX_WINDOW 1000000
 #define MAX_SPAN_SIZE 1000

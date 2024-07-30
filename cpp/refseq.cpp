@@ -31,10 +31,8 @@ RefSeq::~RefSeq() {
 
 // output and clear buffer
 bool RefSeq::PouroutHeader(std::ofstream &fout) {
-	fout << "chromosome" << "\t" << "location" << "\t" << "repeat_unit_length"
-			<< "\t" << "repeat_unit_binary" << "\t" << "repeat_times" << "\t"
-			<< "left_flank_binary" << "\t" << "right_flank_binary" << "\t"
-			<< "repeat_unit_bases" << "\t" << "left_flank_bases" << "\t"
+	fout << "chromosome" << "\t" << "location" << "\t" << "repeat_unit_length" << "\t" << "repeat_times" << "\t"
+		<< "repeat_unit_bases" << "\t" << "left_flank_bases" << "\t"
 			<< "right_flank_bases" << "\n";
 	return true;
 }
@@ -44,9 +42,7 @@ bool RefSeq::PouroutBuffer(std::ofstream &fout) {
 	for (int i = 0; i < homosBuffer.size(); i++) {
 		fout << homosBuffer[i].chr << "\t" << homosBuffer[i].location << "\t"
 				<< int(homosBuffer[i].typeLen) << "\t"
-				<< homosBuffer[i].homoType << "\t" << homosBuffer[i].length
-				<< "\t" << homosBuffer[i].frontKmer << "\t"
-				<< homosBuffer[i].endKmer << "\t";
+				 << homosBuffer[i].length << "\t";
 		// append readable output
 		homosBuffer[i].TransferString();
 		fout << homosBuffer[i].transfer << "\n";
@@ -98,8 +94,8 @@ bit8_t RefSeq::LoadOneSite(const std::string & chr, const std::string & seq,
 	std::string::iterator p0 = _seq.begin();
 	std::string::iterator p1 = _seq.begin();
 	// flank region
-	bit16_t flankH = 0;
-	bit16_t flankT = 0;
+	bit64_t flankH = 0;
+	bit64_t flankT = 0;
 	int contextStart = loc - param.ContextLength;
 	int contextStop = loc + len * hLen + param.ContextLength;
 	if ((contextStart < 0) || (contextStop >= _length))

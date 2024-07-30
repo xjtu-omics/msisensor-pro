@@ -233,10 +233,10 @@ bool PolyScan::LoadHomosAndMicrosates(std::ifstream &fin) {
         linestream >> chr;
         linestream >> loc;
         linestream >> tsiteLength;
-        linestream >> siteBinary;
+//        linestream >> siteBinary;
         linestream >> siteRepeats;
-        linestream >> frontF;
-        linestream >> tailF;
+//      linestream >> frontF;
+//          linestream >> tailF;
         //xxx
         linestream >> bases;
         linestream >> fbases;
@@ -321,10 +321,10 @@ bool PolyScan::LoadHomosAndMicrosates(std::ifstream &fin) {
         toneSite.chr = chr;
         toneSite.location = loc;
         toneSite.typeLen = siteLength;
-        toneSite.homoType = siteBinary;
+//        toneSite.homoType = siteBinary;
         toneSite.length = siteRepeats;
-        toneSite.frontKmer = frontF;
-        toneSite.endKmer = tailF;
+ //       toneSite.frontKmer = frontF;
+ //       toneSite.endKmer = tailF;
         toneSite.bases = bases;
         toneSite.fbases = fbases;
         toneSite.ebases = ebases;

@@ -21,10 +21,10 @@ public:
 	bit8_t typeLen;
 	// homo or microsate
 	// A/C/G/T/AC/AGC
-	bit16_t homoType;
+	bit64_t homoType;
 	bit16_t length;
-	bit16_t frontKmer;
-	bit16_t endKmer;
+	bit64_t frontKmer;
+	bit64_t endKmer;
 
 	std::string chr;
 	std::string site;
