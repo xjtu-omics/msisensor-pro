@@ -270,12 +270,22 @@ void Window::ScanReads(const std::vector<SPLIT_READ> &readsInWindow,
 		HomoSite *p = _startSite + i;
 		unsigned long tsize = readsInWindow.size();
 		for (unsigned long j = 0; j < tsize; j++) {
+//		std::cout <<j << " "
+//			  << readsInWindow[j].Mapped << " "
+//			 << p->lowcut << " "
+//			<< readsInWindow[j].MatchedRelPos << " " 
+//			<<p->highcut << " "
+//			 << "\n";
 			if (readsInWindow[j].Mapped) {
 				if ((readsInWindow[j].MatchedRelPos < p->lowcut)
 						|| (readsInWindow[j].MatchedRelPos > p->highcut))
 					continue;
 			}
 			unsigned short tCount = DoOneRead(readsInWindow[j].ReadSeq, p);
+			if (isTumor){
+
+			std::cout << readsInWindow[j].ReadSeq <<" "   << tCount <<" " << p->fbases << "\n";
+			}
 			if ((tCount > 0) && (tCount < paramd.s_dispots)) {
 				if (isTumor) {
 					p->tumorDis[bamIndex][tCount - 1]++;
@@ -316,9 +326,12 @@ unsigned short Window::DoOneRead(const std::string &oneRead,
 			tstart += p->bases.length();
 			tstart0 = tstart;
 		}
-		// if get one
-		if ((p->typeLen == 1) && (count >= paramd.MininalHomoForDis)
-				|| (p->typeLen > 1) && (count >= paramd.MinMicrosate)) {
+		// if get one 
+		// std::cout << paramd.MininalHomoForDis << " "<< count <<"\n";
+//		if ((p->typeLen == 1) && (count >= paramd.MininalHomoForDis)
+//				|| (p->typeLen > 1) && (count >= paramd.MinMicrosate)) 
+		if (count>0)
+		{
 			tstart = tstart0;
 			if (tstart == (tstart0 = oneRead.find(p->ebases, tstart0))) {
 				return count;
