@@ -284,7 +284,7 @@ void Window::ScanReads(const std::vector<SPLIT_READ> &readsInWindow,
 			unsigned short tCount = DoOneRead(readsInWindow[j].ReadSeq, p);
 			if (isTumor){
 
-			std::cout << readsInWindow[j].ReadSeq <<" "   << tCount <<" " << p->fbases << "\n";
+		//	std::cout << readsInWindow[j].ReadSeq <<" "   << tCount <<" " << p->fbases << "\n";
 			}
 			if ((tCount > 0) && (tCount < paramd.s_dispots)) {
 				if (isTumor) {
