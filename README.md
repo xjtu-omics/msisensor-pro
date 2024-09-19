@@ -27,7 +27,7 @@ and get more services.
   
 # Questions
 
-If you have any questions, please [open an issue](https://github.com/xjtu-omics/msisensor-pro/issues/new). If you don't get a prompt response(maybe two working day), please contact with Peng Jia (pengjia@xjtu.edu.cn).
+If you have any technical questions, please [open an issue](https://github.com/xjtu-omics/msisensor-pro/issues/new). If you don't get a prompt response(maybe two working day), please contact with Peng Jia (pengjia@xjtu.edu.cn).
 
 
 
@@ -44,13 +44,7 @@ Xi’an Jiaotong University. For more information, please contact with Peng Jia 
 Peng Jia, Xiaofei Yang, Li Guo, Bowen Liu, Jiadong Lin, Hao Liang, et al. MSIsensor-pro: fast, accurate, and matched-normal-sample-free detection of microsatellite instability. Genomics Proteomics Bioinformatics 2020,18(1).  [PDF](https://www.sciencedirect.com/science/article/pii/S1672022920300218)
 
 
-# General introduction
 
-MSIsensor-pro is an updated version of **[msisensor](https://github.com/ding-lab/msisensor)**. MSIsensor-pro evaluates Microsatellite Instability (MSI) for cancer patients with next generation sequencing data. It accepts the whole genome sequencing, whole exome sequencing and target region (panel) sequencing data as input.  MSIsensor-pro introduces a multinomial distribution model to quantify polymerase slippages for each tumor sample and a discriminative sites selection method to enable MSI detection without matched normal samples. For samples of various sequencing depths and tumor purities, MSIsensor-pro significantly outperformed the current leading methods in terms of both accuracy and computational cost. If you want to know more detail about MSIsensor-pro, please see the **[MSIsensor-pro Schematics and Internals](https://github.com/xjtu-omics/msisensor-pro/wiki/MSIsensor-pro-Schematics-and-Internals)** page.
-
-# Scopes of MSIsensor-pro
-
-MSIsensor-pro evaluates MSI status of a given sample with next generation sequencing (NGS) data. If you have normal-tumor paired DNA sequences, you can use _**msi**_ (inherited from msisensor) module to score MSI status while _**pro**_ module would be the option if matched normal is not available.
 
 # How to install MSIsensor-pro?
 

@@ -35,9 +35,9 @@ std::map<std::string, int> SitesSupport;
 std::string homoFile;
 std::string bamListFile;
 std::string normalBam;
-std::string TrainBamConfig; //Yelab
+std::string BaselineConfig; //Yelab
 std::vector <std::string> TrainName; //Yelab
-std::vector <std::string> TrainBam; //Yelab
+std::vector <std::string> BaselineFiles; //Yelab
 std::string tumorBam;
 
 std::string refP; //存储reference path
@@ -53,85 +53,93 @@ std::ofstream foutO;
 
 std::string one_region;
 
-int loadFilepathFromConfig(std::string TrainBamConfig,
-                           std::vector <std::string> &TrainBam) { //Yelab
+int loadFilepathFromConfig(std::string BaselineConfig,
+                           std::vector <std::string> &BaselineFiles) { //Yelab
     std::ifstream fin;
     std::string oneLine = "";
-    fin.open(TrainBamConfig.c_str());
+    fin.open(BaselineConfig.c_str());
     if (!fin) {
         std::cerr
                 << "Open configure file failed, please provide valid configure file ! \n";
         exit(0);
     }
+    std::cout  << "\n";
     while (getline(fin, oneLine)) {
 //		getline(fin, oneLine);
         std::string name = "";
-        std::string bam = "";
+        std::string base_file = "";
 
         std::istringstream linestream(oneLine);
         linestream >> name;
-        linestream >> bam;
-        std::cout<<bam<<"  "<<name<<std::endl;
-        bam = abs_path(bam);
-        std::cout<<bam<<"  "<<name<<std::endl;
-        const char *pathname = bam.c_str();
-        if (access(pathname, R_OK) == -1) {
-            std::cerr << "Open bam file failed( " << bam
-                      << " ), please provide valid bam file with its index file ! \n";
-            exit(0);;
-        } else {
-            std::cout << "load bam:" << bam << " OK!\n";
-        }
+        linestream >> base_file;
+//        std::cout<<base_file<<"  "<<name<<std::endl;
+        base_file = abs_path(base_file);
+//        std::cout<<base_file<<"  "<<name<<std::endl;
+        std::cout << "load file for " << name << "..\n"
+                  <<  base_file << " OK!\n----------\n";
+//
+//        const char *pathname = base_file.c_str();
+//        if (access(pathname, R_OK) == -1) {
+//            std::cerr << "Open bam file failed( " << bam
+//                      << " ), please provide valid bam file with its index file ! \n";
+//            exit(0);;
+//        } else {
+//            std::cout << "load bam:" << bam << " OK!\n";
+//        }
         if (!name.empty()) {
             TrainName.push_back(name);
-            TrainBam.push_back(bam);
+            BaselineFiles.push_back(base_file);
         }
     }
+    std::cout  << "\n";
+
     fin.close();
     return 1;
 }
 
 void DisUsage(void) {
     std::cerr << "\nUsage:  msisensor-pro msi [options] \n\n"
-              << "       -d   <string>   homopolymers and microsatellites file\n"
-              << "       -n   <string>   normal bam file with index\n"
-              << "       -t   <string>   tumor  bam file with index\n"
-              << "       -g   <string>   reference file( .cram need )\n"
-              << "       -o   <string>   output prefix\n\n"
+              << "       -d   <string>   homopolymers and microsatellites file [required]\n"
+              << "       -n   <string>   normal bam file with index [required]\n"
+              << "       -t   <string>   tumor  bam file with index [required]\n"
+              << "       -g   <string>   reference file [required if *.cram for -t]\n"
+              << "       -o   <string>   output path (Ending with a slash is not allowed.) [required] \n\n"
 
-              << "       -e   <string>   bed file, optional\n"
-              << "       -f   <double>   FDR threshold for somatic sites detection, default="
-              << paramd.fdrThreshold << "\n"
+//              << "       -e   <string>   bed file, optional\n"
+              << "       -f   <double>   FDR threshold for somatic sites detection, [default="
+              << paramd.fdrThreshold << "]\n"
 
               //        <<"       -i   <double>   minimal comentropy threshold for somatic sites detection (just for tumor only data), default="<<paramd.comentropyThreshold<<"\n"
-              << "       -c   <int>      coverage threshold for msi analysis, WXS: 20; WGS: 15, default="
-              << paramd.covCutoff << "\n"
-              << "       -z   <int>      coverage normalization for paired tumor and normal data, 0: no; 1: yes, default="
-              << paramd.Normalization << "\n"
-              << "       -r   <string>   choose one region, format: 1:10000000-20000000\n"
+              << "       -c   <int>      coverage threshold for msi analysis, WXS: 20; WGS: 15, [default="
+              << paramd.covCutoff << "]\n"
+              << "       -z   <int>      coverage normalization for paired tumor and normal data, 0: no; 1: yes, [default="
+              << paramd.Normalization << "]\n"
+//              << "       -r   <string>   choose one region, format: 1:10000000-20000000\n"
               //        <<"       -l   <int>      minimal homopolymer size, default="<<paramd.MininalHomoSize<<"\n"
-              << "       -p   <int>      minimal homopolymer size for distribution analysis, default="
-              << paramd.MininalHomoForDis << "\n"
-              << "       -m   <int>      maximal homopolymer size for distribution analysis, default="
-              << paramd.MaxHomoSize << "\n"
+              << "       -p   <int>      minimal homopolymer size for distribution analysis, [default="
+              << paramd.MininalHomoForDis << "]\n"
+              << "       -m   <int>      maximal homopolymer size for distribution analysis, [default="
+              << paramd.MaxHomoSize << "]\n"
 
               //        <<"       -q   <int>      minimal microsatellite size, default="<<paramd.MinMicrosate<<"\n"
-              << "       -s   <int>      minimal microsatellite size for distribution analysis, default="
-              << paramd.MinMicrosateForDis << "\n"
-              << "       -w   <int>      maximal microsatellite size for distribution analysis, default="
-              << paramd.MaxMicrosateForDis << "\n"
+              << "       -s   <int>      minimal microsatellite size for distribution analysis, [default="
+              << paramd.MinMicrosateForDis << "]\n"
+              << "       -w   <int>      maximal microsatellite size for distribution analysis, [default="
+              << paramd.MaxMicrosateForDis << "]\n"
 
-              << "       -u   <int>      span size around window for extracting reads, default="
-              << paramd.DisSpan << "\n"
-              << "       -b   <int>      threads number for parallel computing, default="
-              << paramd.numberThreads << "\n"
-              << "       -x   <int>      output homopolymer only, 0: no; 1: yes, default="
-              << paramd.HomoOnly << "\n"
-              << "       -y   <int>      output microsatellites only, 0: no; 1: yes, default="
-              << paramd.MicrosateOnly << "\n"
-              << "       -0   <int>      output site have no read coverage, 1: no; 0: yes, default="
-              << paramd.outputzeroDis << "\n" << "       \n"
-              << "       -h   help\n\n" << "Function: \n"
+              << "       -u   <int>      span size around window for extracting reads, [default="
+              << paramd.DisSpan << "]\n"
+              << "       -b   <int>      threads number for parallel computing, [default="
+              << paramd.numberThreads << "]\n"
+              << "       -x   <int>      output homopolymer only, 0: no; 1: yes, [default="
+              << paramd.HomoOnly << "]\n"
+              << "       -y   <int>      output microsatellites only, 0: no; 1: yes, [default="
+              << paramd.MicrosateOnly << "]\n"
+              << "       -0   <int>      output site have no read coverage, 1: no; 0: yes, [default="
+              << paramd.outputzeroDis << "]\n"
+              << "       -h   help\n"
+              << "-----------------------------------------------------------------\n"
+              << "Function: \n"
               << "   This module evaluate MSI using the difference between normal and tumor length distribution of microsatellites. You need to input (-d) microsatellites file and two bam files (-t, -n).\n\n"
               << "Example:\n"
               << "   msisensor-pro msi -d /path/to/reference.list -n /path/to/case1_normal_sorted.bam -t /path/to/case1_tumor_sorted.bam -o /path/to/case1_output\n\n"
@@ -146,46 +154,48 @@ void DisUsage(void) {
 // add by YeLab
 void ProUsage(void) {
     std::cerr << "\nUsage:  msisensor-pro pro [options] \n\n"
-              << "       -d   <string>   homopolymers and microsatellites file\n"
-              << "       -t   <string>   tumor bam/cram file\n"
-              << "       -g   <string>   reference file( .cram need )\n"
-              << "       -o   <string>   output prefix\n\n"
+              << "       -d   <string>   homopolymers and microsatellites file [required] \n"
+              << "       -t   <string>   bam/cram file of tumor/normal(for baseline building) sample [required] \n"
+              << "       -g   <string>   reference file [required if *.cram for -t]\n"
+              << "       -o   <string>   output path (Ending with a slash is not allowed.) [required]\n\n"
 
-              << "       -e   <string>   bed file, optional\n"
+//              << "       -e   <string>   bed file, optional\n"
 
               //		<< "       -f   <double>   FDR threshold for somatic sites detection, default=" << paramd.fdrThreshold << "\n"
-              << "       -i   <double>   minimal threshold for instable sites detection (just for tumor only data), default="
-              << paramd.hunterThreshold << "\n"
-              << "       -c   <int>      coverage threshold for msi analysis, WXS: 20; WGS: 15, default="
-              << paramd.covCutoff << "\n"
+              << "       -i   <double>   minimal threshold for instable sites detection (just for tumor only data), [default="
+              << paramd.hunterThreshold << "]\n"
+              << "       -c   <int>      coverage threshold for msi analysis, WXS: 20; WGS: 15, [default="
+              << paramd.covCutoff << "]\n"
 
               //      << "       -z   <int>      coverage normalization for paired tumor and normal data, 0: no; 1: yes, default=" << paramd.Normalization << "\n"
-              << "       -r   <string>   choose one region, format: 1:10000000-20000000\n"
+//              << "       -r   <string>   choose one region, format: 1:10000000-20000000 [default=None]\n"
 
               //		<< "       -l   <int>      minimal homopolymer size, default=" << paramd.MininalHomoSize << "\n"
-              << "       -p   <int>      minimal homopolymer size for distribution analysis, default="
-              << paramd.MininalHomoForDis << "\n"
-              << "       -m   <int>      maximal homopolymer size for distribution analysis, default="
-              << paramd.MaxHomoSize << "\n"
+              << "       -p   <int>      minimal homopolymer size for distribution analysis, [default="
+              << paramd.MininalHomoForDis << "]\n"
+              << "       -m   <int>      maximal homopolymer size for distribution analysis, [default="
+              << paramd.MaxHomoSize << "]\n"
 
               //		<< "       -q   <int>      minimal microsates size, default=" << paramd.MinMicrosate << "\n"
-              << "       -s   <int>      minimal microsatellite size for distribution analysis, default="
-              << paramd.MinMicrosateForDis << "\n"
-              << "       -w   <int>      maximal microsatellite size for distribution analysis, default="
-              << paramd.MaxMicrosateForDis << "\n"
+              << "       -s   <int>      minimal microsatellite size for distribution analysis, [default="
+              << paramd.MinMicrosateForDis << "]\n"
+              << "       -w   <int>      maximal microsatellite size for distribution analysis, [default="
+              << paramd.MaxMicrosateForDis << "]\n"
 
-              << "       -u   <int>      span size around window for extracting reads, default="
-              << paramd.DisSpan << "\n"
-              << "       -b   <int>      threads number for parallel computing, default="
-              << paramd.numberThreads << "\n"
-              << "       -x   <int>      output homopolymer only, 0: no; 1: yes, default="
-              << paramd.HomoOnly << "\n"
-              << "       -y   <int>      output microsatellite only, 0: no; 1: yes, default="
-              << paramd.MicrosateOnly << "\n"
-              << "       -0   <int>      output site have no read coverage, 1: no; 0: yes, default="
-              << paramd.outputzeroDis << "\n" << "       \n"
-              << "       -h   help\n\n" << "Function: \n"
-              << "   This module evaluate MSI using tumor only sample. You need to input (-d) microsatellites file and a bam files (-t) .\n\n"
+              << "       -u   <int>      span size around window for extracting reads, [default="
+              << paramd.DisSpan << "]\n"
+              << "       -b   <int>      threads number for parallel computing, [default="
+              << paramd.numberThreads << "]\n"
+              << "       -x   <int>      output homopolymer only, 0: no; 1: yes, [default="
+              << paramd.HomoOnly << "]\n"
+              << "       -y   <int>      output microsatellite only, 0: no; 1: yes, [default="
+              << paramd.MicrosateOnly << "[\n"
+              << "       -0   <int>      output site have no read coverage, 1: no; 0: yes, [default="
+              << paramd.outputzeroDis << "]\n"
+              << "       -h   help\n"
+              << "-----------------------------------------------------------------\n"
+              << "Function: \n"
+              << "   This module evaluate MSI using single (tumor) sample. You need to input (-d) microsatellites file and a bam files (-t) .\n\n"
               << "Example:\n"
               << "   1. msisensor-pro pro -d /path/to/reference.list -i 0.1 -t /path/to/case1_tumor_sorted.bam -o /path/to/case1_output\n\n"
               << "   2. msisensor-pro pro -d /path/to/reference.list_baseline -t /path/to/case1_tumor_sorted.bam -o /path/to/case1_output\n\n"
@@ -193,9 +203,7 @@ void ProUsage(void) {
               << "Note:\n"
               << "   For diffferent requirements of users, we offer two choices.\n"
               << "      * If you have no normal sample to train a baseline, you can use hard threshold (-i option) to defined an unstable.\n"
-              << "      * You can use also use soft threshold train by your self or download on our github(GRCh38.d1.vd1).\n\n"
-              << "   If you have any questions, please contact with Peng Jia (pengjia@stu.xjtu.edu.cn) or Kai Ye (kaiye@xjtu.edu.cn) .\n"
-
+              << "      * You can use also use soft threshold train by your self or download from the github page of msisensor-pro (GRCh38.d1.vd1).\n\n"
               << std::endl;
     exit(1);
 }
@@ -243,50 +251,56 @@ void EntropyDisUsage(void) {
 //add by yelab
 void TrainUsage(void) {
     std::cerr << "\nUsage:  msisensor-pro baseline [options] \n\n"
-              << "       -d   <string>   homopolymer and microsatellite file\n"
-              << "       -i   <string>   configure files for building baseline (text file) \n"
+              << "       -d   <string>   homopolymer and microsatellite file [required]\n"
+              << "       -i   <string>   configure files for building baseline (text file) [required]\n"
+              << "            you need to provide the output (*_all) from pro command \n"
               << "            e.g.\n"
-              << "              case1\t/path/to/case1_sorted.bam\n"
-              << "              case2\t/path/to/case1_sorted.bam\n"
-              << "              case2\t/path/to/case1-sorted.bam\n"
-              << "       -o   <string>   output directory\n\n"
 
-              << "       -c   <int>      coverage threshold for msi analysis, WXS: 20; WGS: 15, default="
-              << paramd.covCutoff << "\n"
+              << "             ----------------------------------\n"
+              << "              case1\t/path/to/case1_sorted_all \n"
+              << "              case2\t/path/to/case2_sorted_all \n"
+              << "              case3\t/path/to/case3-sorted_all \n"
+              << "             ----------------------------------\n"
+              << "       -o   <string>   output path for baseline [required] \n\n"
 
-              << "       -g   <string>   reference file( .cram need )\n"
-              << "       -l   <double>   a site with a ratio of deteced in all samples less than this parameter will be removed in following analysis, default="
-              << paramd.sampleRatio << "\n"
-              << "       -p   <int>      minimal homopolymer size for pro analysis, default="
-              << paramd.MininalHomoForDis << "\n"
-              << "       -m   <int>      maximal homopolymer size for pro analysis, default="
-              << paramd.MaxHomoSize << "\n"
+//              << "       -c   <int>      coverage threshold for msi analysis, WXS: 20; WGS: 15, default="
+//              << paramd.covCutoff << "\n"
 
-              << "       -u   <int>      span size around window for extracting reads, default="
-              << paramd.DisSpan << "\n"
-              << "       -s   <int>      minimal microsatellite size for distribution analysis, default="
-              << paramd.MinMicrosateForDis << "\n"
-              << "       -w   <int>      maximal microsatellite size for distribution analysis, default="
-              << paramd.MaxMicrosateForDis << "\n"
+//              << "       -g   <string>   reference file( .cram need )\n"
+              << "       -s   <double>   microsatellite sites with support from fewer than -d samples will not pass quality control, [default="
+              << paramd.sampleNum << "]\n"
+//              << "       -p   <int>      minimal homopolymer size for pro analysis, default="
+//              << paramd.MininalHomoForDis << "\n"
+//              << "       -m   <int>      maximal homopolymer size for pro analysis, default="
+//              << paramd.MaxHomoSize << "\n"
+//
+//              << "       -u   <int>      span size around window for extracting reads, default="
+//              << paramd.DisSpan << "\n"
+//              << "       -s   <int>      minimal microsatellite size for distribution analysis, default="
+//              << paramd.MinMicrosateForDis << "\n"
+//              << "       -w   <int>      maximal microsatellite size for distribution analysis, default="
+//              << paramd.MaxMicrosateForDis << "\n"
+//
 
-              //
-              << "       -u   <int>      span size around window for extracting reads, default="
-              << paramd.DisSpan << "\n"
-              << "       -b   <int>      threads number for parallel computing, default="
-              << paramd.numberThreads << "\n"
-              << "       -x   <int>      output homopolymer only, 0: no; 1: yes, default="
-              << paramd.HomoOnly << "\n"
-              << "       -y   <int>      output microsatellite only, 0: no; 1: yes, default="
-              << paramd.MicrosateOnly << "\n"
-              << "       -0   <int>      output site have no read coverage, 1: no; 0: yes, default="
-              << paramd.outputzeroDis << "\n" << "       \n"
-              << "       -h   help\n\n" << "Function: \n"
+//              << "       -u   <int>      span size around window for extracting reads, default="
+//              << paramd.DisSpan << "\n"
+//              << "       -b   <int>      threads number for parallel computing, default="
+//              << paramd.numberThreads << "\n"
+//              << "       -x   <int>      output homopolymer only, 0: no; 1: yes, default="
+//              << paramd.HomoOnly << "\n"
+//              << "       -y   <int>      output microsatellite only, 0: no; 1: yes, default="
+//              << paramd.MicrosateOnly << "\n"
+//              << "       -0   <int>      output site have no read coverage, 1: no; 0: yes, default="
+//              << paramd.outputzeroDis << "\n" << "       \n"
+              << "       -h   help\n"
+              << "-----------------------------------------------------------------\n"
+              << "Function: \n"
               << "   This module build baseline for MSI detection with pro module using only tumor sequencing data. To achieve it, you need sequencing data from normal samples(-i).\n\n"
               << "Example:\n"
-              << "   msisensor-pro baseline -d /path/to/reference.list -i /path/to/configure.txt -o /path/to/baseline/directory \n\n"
+              << "   msisensor-pro baseline -d /path/to/reference.list -i /path/to/configure.txt -o /path/to/baseline.tsv \n\n"
 
               << "Note:\n\n"
-              << "   If you have any questions, please contact with Peng Jia (pengjia@stu.xjtu.edu.cn) or Kai Ye (kaiye@xjtu.edu.cn) .\n"
+              << "   If you have any questions, please contact with Peng Jia (pengjia@xjtu.edu.cn).\n"
 
               << std::endl;
     exit(1);
@@ -460,14 +474,14 @@ int tGetOptions(int rgc, char *rgv[]) {
             return i;
         switch (rgv[i][1]) {
 
-            case 'g':
-                refP=rgv[++i];
-                break;
+//            case 'g':
+//                refP=rgv[++i];
+//                break;
             case 'd':
                 homoFile = rgv[++i];
                 break;
             case 'i':
-                TrainBamConfig = rgv[++i];
+                BaselineConfig = rgv[++i];
                 break;
             case 'o':
                 disFile = rgv[++i];
@@ -478,42 +492,42 @@ int tGetOptions(int rgc, char *rgv[]) {
 //			case '0': paramd.outputzeroDis=atoi(rgv[++i]); break;
 //			case 'a': paramd.NormalcovCutoff = atof(rgv[++i]); break;//!
                 //case 'i': paramd.comentropyThreshold = atof(rgv[++i]); break;
-            case 'c':
-                paramd.covCutoff = atoi(rgv[++i]);
-                break;
-            case 'l':
-                paramd.sampleRatio = atoi(rgv[++i]);
-                break;
-            case 'p':
-                paramd.MininalHomoForDis = atof(rgv[++i]);
-                break;
-
-            case 'u':
-                paramd.DisSpan = atoi(rgv[++i]);
-                break;
-            case 'm':
-                paramd.MaxHomoSize = atoi(rgv[++i]);
-                break;
-//            case 'q': paramd.MinMicrosate = atoi(rgv[++i]); break;
+//            case 'c':
+//                paramd.covCutoff = atoi(rgv[++i]);
+//                break;
             case 's':
-                paramd.MinMicrosateForDis = atoi(rgv[++i]);
+                paramd.sampleNum = atoi(rgv[++i]);
                 break;
-            case 'w':
-                paramd.MaxMicrosateForDis = atoi(rgv[++i]);
-                break;
-            case 'b':
-                paramd.numberThreads = atoi(rgv[++i]);
-                break;
-            case 'x':
-                paramd.HomoOnly = atoi(rgv[++i]);
-                break;
-            case 'y':
-                paramd.MicrosateOnly = atoi(rgv[++i]);
-                break;
-            case '0':
-                paramd.outputzeroDis = atoi(rgv[++i]);
-                break;
-                break;
+//            case 'p':
+//                paramd.MininalHomoForDis = atof(rgv[++i]);
+//                break;
+//
+//            case 'u':
+//                paramd.DisSpan = atoi(rgv[++i]);
+//                break;
+//            case 'm':
+//                paramd.MaxHomoSize = atoi(rgv[++i]);
+//                break;
+////            case 'q': paramd.MinMicrosate = atoi(rgv[++i]); break;
+//            case 's':
+//                paramd.MinMicrosateForDis = atoi(rgv[++i]);
+//                break;
+//            case 'w':
+//                paramd.MaxMicrosateForDis = atoi(rgv[++i]);
+//                break;
+//            case 'b':
+//                paramd.numberThreads = atoi(rgv[++i]);
+//                break;
+//            case 'x':
+//                paramd.HomoOnly = atoi(rgv[++i]);
+//                break;
+//            case 'y':
+//                paramd.MicrosateOnly = atoi(rgv[++i]);
+//                break;
+//            case '0':
+//                paramd.outputzeroDis = atoi(rgv[++i]);
+//                break;
+//                break;
             case 'h':
                 TrainUsage();
             case '?':
@@ -535,47 +549,47 @@ std::string abs_path(std::string path) {
 
 int trainTest() {
     //add code for directory
-    char currentPath[1000];
-    getcwd(currentPath, 100);
-    std::cout << "Check for the environment ... " << "\n";
-    std::cout << "Current work path: " << currentPath << "\n";
-    std::cout << "Microsatellites file: " << abs_path(homoFile) << "\n";
-    std::cout << "Configure file path: " << abs_path(TrainBamConfig) << "\n";
-    std::cout << "Output path:" << abs_path(disFile) << "\n";
-    TrainBamConfig = abs_path(TrainBamConfig);
-    homoFile = abs_path(homoFile);
-    paramd.homoFile = abs_path(homoFile);
-    disFile = abs_path(disFile) + "/";
-    const char *per = disFile.c_str();
-    std::string dir = disFile;
-    if (access(dir.c_str(), 0) == -1) {
-        std::cout << dir << " is not existing！ now make it! OK!" << std::endl;
-
-        int flag = mkdir(dir.c_str(), 0777);
-        if (flag == 0) { ;
+//    char currentPath[1000];
+//    getcwd(currentPath, 100);
+//    std::cout << "Check for the environment ... " << "\n";
+//    std::cout << "Current work path: " << currentPath << "\n";
+//    std::cout << "Microsatellites file: " << abs_path(homoFile) << "\n";
+//    std::cout << "Configure file path: " << abs_path(BaselineConfig) << "\n";
+//    std::cout << "Output path:" << abs_path(disFile) << "\n";
+//    BaselineConfig = abs_path(BaselineConfig);
+//    homoFile = abs_path(homoFile);
+//    paramd.homoFile = abs_path(homoFile);
+//    disFile = abs_path(disFile) + "/";
+//    const char *per = disFile.c_str();
+//    std::string dir = disFile;
+//    if (access(dir.c_str(), 0) == -1) {
+//        std::cout << dir << " is not existing！ now make it! OK!" << std::endl;
+//
+//        int flag = mkdir(dir.c_str(), 0777);
+//        if (flag == 0) { ;
 //				std::cout<<<<"make successfully"<<std::endl;
-        } else {
-            std::cout << "make errorly" << std::endl;
-            return -1;
-        }
-    } else {
-        std::cout << dir << " is existing! OK!" << std::endl;
-    }
-    dir = disFile + "detail";
-    if (access(dir.c_str(), 0) == -1) {
-        std::cout << dir << " is not existing！ now make it ! OK!" << std::endl;
-
-        int flag = mkdir(dir.c_str(), 0777);
-        if (flag == 0) {
+//        } else {
+//            std::cout << "make errorly" << std::endl;
+//            return -1;
+//        }
+//    } else {
+//        std::cout << dir << " is existing! OK!" << std::endl;
+//    }
+//    dir = disFile + "detail";
+//    if (access(dir.c_str(), 0) == -1) {
+//        std::cout << dir << " is not existing！ now make it ! OK!" << std::endl;
+//
+//        int flag = mkdir(dir.c_str(), 0777);
+//        if (flag == 0) {
 //			std::cout<<"make successfully"<<std::endl;
-            ;
-        } else {
-            std::cout << "make errorly" << std::endl;
-            return -1;
-        }
-    } else {
-        std::cout << dir << " is existing! OK!" << std::endl;
-    }
+//            ;
+//        } else {
+//            std::cout << "make errorly" << std::endl;
+//            return -1;
+//        }
+//    } else {
+//        std::cout << dir << " is existing! OK!" << std::endl;
+//    }
     std::cout << std::endl;
     std::cout << "Load files ... " << "\n";
     return 1;
@@ -663,49 +677,49 @@ int TrainMsiP(int argc, char *argv[]) {
     std::cout << "Start at:  " << Curr_Time() << std::endl;
 
     int noptions = tGetOptions(argc, argv);
-    if (trainTest() < 0) {
-        exit(0);
-    }
+//    if (trainTest() < 0) {
+//        exit(0);
+//    }
     // process user defined region
-    if (!one_region.empty()) {
-        if (!polyscan.ParseOneRegion(one_region)) {
-            std::cerr
-                    << "fatal error: Please give correct defined region format (-r) \n";
-            exit(1);
-        }
-        polyscan.ifUserDefinedRegion = true;
-    } else {
-        polyscan.ifUserDefinedRegion = false;
-    }
+//    if (!one_region.empty()) {
+//        if (!polyscan.ParseOneRegion(one_region)) {
+//            std::cerr
+//                    << "fatal error: Please give correct defined region format (-r) \n";
+//            exit(1);
+//        }
+//        polyscan.ifUserDefinedRegion = true;
+//    } else {
+//        polyscan.ifUserDefinedRegion = false;
+//    }
     // reading bed file if is exist
-    finB.open(bedFile.c_str());
-    if (finB) {
-        std::cout << "loading bed regions ..." << std::endl;
-        polyscan.LoadBeds(finB);
-        polyscan.BedFilterorNot();
-    }
-    finB.close();
+//    finB.open(bedFile.c_str());
+//    if (finB) {
+//        std::cout << "loading bed regions ..." << std::endl;
+//        polyscan.LoadBeds(finB);
+//        polyscan.BedFilterorNot();
+//    }
+//    finB.close();
 
 
-    loadFilepathFromConfig(TrainBamConfig, TrainBam);
-    for (int j = 0; j < TrainBam.size(); j++) {
-        polyscan.LoadBamn(TrainBam[j], TrainName[j]);
+    loadFilepathFromConfig(BaselineConfig, BaselineFiles);
+    for (int j = 0; j < BaselineFiles.size(); j++) {
+        polyscan.LoadNormalStatistic(BaselineFiles[j], TrainName[j]);
     }
     polyscan.refPath=refP;
 
     //如果训练集中提供了cram，则必须提供reference
-    for(int j=0;j<TrainBam.size();j++)
-    {
-        if(TrainBam[j].find(".cram")!=std::string::npos)
-        {
-            if(access(polyscan.refPath.c_str(), R_OK) == -1)
-            {
-                std::cerr << "Open reference file failed( " << polyscan.refPath
-                          << " ), please provide valid reference file ! \n";
-                exit(0);;
-            }
-        }
-    }
+//    for(int j=0;j<BaselineFiles.size();j++)
+//    {
+//        if(BaselineFiles[j].find(".cram")!=std::string::npos)
+//        {
+//            if(access(polyscan.refPath.c_str(), R_OK) == -1)
+//            {
+//                std::cerr << "Open reference file failed( " << polyscan.refPath
+//                          << " ), please provide valid reference file ! \n";
+//                exit(0);;
+//            }
+//        }
+//    }
 
 
 
@@ -724,7 +738,7 @@ int TrainMsiP(int argc, char *argv[]) {
               << "  !OK \n";
     std::cout << "Total loading homopolymer and microsatellites:  "
               << polyscan.totalHomosites << "    !OK \n\n";
-    polyscan.GetNormalDistrubution(sample, disFile);
+    polyscan.MergeBaseline(sample, disFile);
     std::cout << "Total time consumed:  " << Cal_AllTime() << " secs\n\n";
 
     return 0;

@@ -1,4 +1,4 @@
-/* The MIT License
+/* The MIT 2_License.md
 
    Copyright (C) 2003-2006, 2008-2010 by Heng Li <lh3lh3@live.co.uk>
    Copyright (C) 2016-2017 Genome Research Ltd.

@@ -1,6 +1,6 @@
 /// \file htslib/hts_log.h
 /// Configuration of log levels.
-/* The MIT License
+/* The MIT 2_License.md
 Copyright (C) 2017 Genome Research Ltd.
 
 Author: Anders Kaplan

@@ -75,7 +75,7 @@ public:
 
 	double hunterThreshold; //add by YeLab
 	double NormalcovCutoff; //add by YeLab
-	double sampleRatio; //add by YeLab
+	int sampleNum;  //add by YeLab
 	bool train;
 	bool pro;
 	bool hard;

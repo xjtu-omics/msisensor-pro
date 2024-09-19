@@ -1,4 +1,4 @@
-/* The MIT License
+/* The MIT 2_License.md
 
    Copyright (C) 2015, 2018 Genome Research Ltd.
 

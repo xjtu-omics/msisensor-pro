@@ -178,20 +178,20 @@ void PolyScan::LoadBam(const std::string &bam) {
 }
 
 //add by yelab
-void PolyScan::LoadBamn(const std::string &bam, const std::string &Name) {
+void PolyScan::LoadNormalStatistic(const std::string &bam, const std::string &Name) {
     BamNormals t_bamnormal;
 
 //   std::cout<<bam<<"\n";
 //   std::cout<<bam.find(".bam")<<"\n";
 //   std::cout<<std::string::npos<<"\n";
 //	if (bam.find(".bam") != std::string::npos) {
-    if (bam.find(".bam") != std::string::npos || bam.find(".cram") != std::string::npos) {
+    if (bam.find("_all") != std::string::npos ) {
         t_bamnormal.sName = Name;
 //		t_bamnormal.normal_bam = abs_path(bam);
         t_bamnormal.normal_bam = bam;
 
     } else {
-        std::cerr << "please provide valid format normal bam file ! \n";
+        std::cerr << "please provide valid format of pro input for baseline (*_all)! \n";
         exit(0);
     }
 
@@ -235,6 +235,7 @@ bool PolyScan::LoadHomosAndMicrosates(std::ifstream &fin) {
         linestream >> tsiteLength;
 //        linestream >> siteBinary;
         linestream >> siteRepeats;
+//        linestream >> siteRepeats;
 //      linestream >> frontF;
 //          linestream >> tailF;
         //xxx
@@ -532,7 +533,7 @@ std::string getRel(std::string str, std::string pattern) {
     return result[result.size() - 1];
 }
 
-void PolyScan::GetNormalDistrubution(Sample &oneSample,
+void PolyScan::MergeBaseline(Sample &oneSample,
                                      const std::string &prefix) { //add by yelab
 
     totalBamTumorsNum = 1;
@@ -541,102 +542,150 @@ void PolyScan::GetNormalDistrubution(Sample &oneSample,
 //    t_bamtumor.tumor_bam = "";
 //    totalBamTumors.push_back(t_bamtumor);
     std::ofstream fout;
-    fout.open(prefix + getRel(paramd.homoFile, "/") + "_baseline");
+    fout.open(prefix );
     if (!fout) {
         std::cerr << "EOORR: please check your output path!\n<<\n";
     }
-    fout << "chromosome" << "\t" << "location" << "\t" << "repeat_unit_length"
-         << "\t" << "repeat_unit_binary" << "\t" << "repeat_times" << "\t"
-         << "left_flank_binary " << "\t" << "right_flank_binary" << "\t"
-         << "repeat_unit_bases" << "\t" << "left_flank_bases" << "\t"
+    fout << "chromosome" << "\t" << "location" << "\t" << "repeat_unit_length"<< "\t"
+//         << "repeat_unit_binary" << "\t"
+         << "repeat_times" << "\t"
+//         << "left_flank_binary " << "\t"
+//         << "right_flank_binary" << "\t"
+         << "repeat_unit_bases" << "\t"
+         << "left_flank_bases" << "\t"
          << "right_flank_bases" << "\t"
          //		<< "covReads"          <<"\t"
-         << "threshold" << "\t" << "supportSamples" << "\n";
+         << "threshold" << "\t" << "supportSamples" << "\tpass"<< "\n";
 
 //    omp_set_num_threads(paramd.numberThreads);
 //#pragma omp parallel for
-    for (unsigned short i = 0; i < totalBamNormalsNum; i++) {
-        unsigned short j = i;
-//		const char* per=(prefix+"/"+totalBamNormals[j].sName).c_str();
-//		int isCreate = mkdir(per,00755);
-        std::cout << "Process the " << j + 1 << " case : "
-                  << totalBamNormals[j].sName << " "
-                  << totalBamNormals[j].normal_bam << "\n";
-//		std::cout<<j<<"\t"<<totalBamNormals[j].sName<<"\n";
-//		train.trainIniNormalDisOutput(prefix+"/"+totalBamNormals[j].sName+"/"+totalBamNormals[j].sName);
-//        #pragma omp critical
-        {
-            oneSample.trainIniNormalDisOutput(
-                    prefix + "/detail/" + totalBamNormals[j].sName);
-        }
-        std::vector <SPLIT_READ> readsInWindow;
-//        totalBamTumors[0].tumor_bam = totalBamNormals[j].normal_bam;
-//#pragma omp parallel for
-        for (int i = 0; i < totalWindowsNum; i++) {
-            totalWindows[i].InitialTumorDisW();
-
-//				totalWindows[i].GetTumorDistribution(readsInWindow);
-            if (!totalBamNormals[j].normal_bam.empty()) {
-                // extract reads
-
-
-                totalWindows[i].LoadReads(readsInWindow, totalBamNormals[j].normal_bam.c_str(), refPath);
-
-
-                totalWindows[i].ScanReads(readsInWindow, 0, true);
-//					std::cout<<j<<"\t"<<totalBamNormals[j].sName<<"\n";
-                readsInWindow.clear();
-            }
-
-//			if (0) {
+//    for (unsigned short i = 0; i < totalBamNormalsNum; i++) {
+//        unsigned short j = i;
+////		const char* per=(prefix+"/"+totalBamNormals[j].sName).c_str();
+////		int isCreate = mkdir(per,00755);
+//        std::cout << "Process the " << j + 1 << " case : "
+//                  << totalBamNormals[j].sName << " "
+//                  << totalBamNormals[j].normal_bam << "\n";
+////		std::cout<<j<<"\t"<<totalBamNormals[j].sName<<"\n";
+////		train.trainIniNormalDisOutput(prefix+"/"+totalBamNormals[j].sName+"/"+totalBamNormals[j].sName);
+////        #pragma omp critical
+//        {
+//            oneSample.trainIniNormalDisOutput(
+//                    prefix + "/detail/" + totalBamNormals[j].sName);
+//        }
+//        std::vector <SPLIT_READ> readsInWindow;
+////        totalBamTumors[0].tumor_bam = totalBamNormals[j].normal_bam;
+////#pragma omp parallel for
+//        for (int i = 0; i < totalWindowsNum; i++) {
+//            totalWindows[i].InitialTumorDisW();
 //
-//				totalWindows[i].ClearTumorDis();
-//				break;
-//			}
-//				totalWindows[i].PourTumoroutDisW(oneSample);
-            totalWindows[i].PouroutTumorSomaticH(oneSample);
-            totalWindows[i].ClearTumorDis();
-            readsInWindow.clear();
-            std::cout << "    Process " << j + 1 << " "
-                      << totalBamNormals[j].sName << " " << "window: " << i
-                      << " done...:" << totalWindows[i]._chr << ":"
-                      << totalWindows[i]._start << "-" << totalWindows[i]._end
-                      << std::endl;
-        }
-//					oneSample.pourOutMsiScore();
-        oneSample.closeOutStreamTrain();
-//					oneSample.VerboseInfo();
-    }
-//#pragma omp atomic;
-    std::cout << "Build baseline for microsatellites ..." << std::endl;
-
-    std::map<std::string, int>::iterator it;
-    std::map<std::string, double> threshold;
-    std::unordered_map <std::string, std::vector<double>> FinalSites;
-    std::unordered_map < std::string, std::vector < double >> ::iterator
-    iter;
-    int supportNumCutOff = (int) totalBamNormalsNum * paramd.sampleRatio; // 2 is parameter
-    std::vector<double> buf;
-    std::vector<double> tmp;
-    for (it = SitesSupport.begin(); it != SitesSupport.end(); ++it) {
-
-//	    std::cout << (it->first) << " => " << (it->first)<< (it->second )<< '\n';
-        if ((it->second) >= supportNumCutOff) {
-            FinalSites[it->first] = buf;
-        }
-    }
-
+////				totalWindows[i].GetTumorDistribution(readsInWindow);
+//            if (!totalBamNormals[j].normal_bam.empty()) {
+//                // extract reads
+//
+//
+//                totalWindows[i].LoadReads(readsInWindow, totalBamNormals[j].normal_bam.c_str(), refPath);
+//
+//
+//                totalWindows[i].ScanReads(readsInWindow, 0, true);
+////					std::cout<<j<<"\t"<<totalBamNormals[j].sName<<"\n";
+//                readsInWindow.clear();
+//            }
+//
+////			if (0) {
+////
+////				totalWindows[i].ClearTumorDis();
+////				break;
+////			}
+////				totalWindows[i].PourTumoroutDisW(oneSample);
+//            totalWindows[i].PouroutTumorSomaticH(oneSample);
+//            totalWindows[i].ClearTumorDis();
+//            readsInWindow.clear();
+//            std::cout << "    Process " << j + 1 << " "
+//                      << totalBamNormals[j].sName << " " << "window: " << i
+//                      << " done...:" << totalWindows[i]._chr << ":"
+//                      << totalWindows[i]._start << "-" << totalWindows[i]._end
+//                      << std::endl;
+//        }
+////					oneSample.pourOutMsiScore();
+//        oneSample.closeOutStreamTrain();
+////					oneSample.VerboseInfo();
+//    }
     std::string chr;
     std::string location;
     std::string left_flank_bases;
     std::string right_flank_bases;
     std::string repeat_times;
-    std::string rub;
-    std::string rfb;
+    std::string repeat_unit_bases;
     std::string cov;
     std::string site;
-    double pro_u;
-    double pro_v;
+    std::string thresh;
+    std::string pass;
+    double pro_p;
+    double pro_q;
+//    for (unsigned short j = 0; j < totalBamNormalsNum; j++) {
+////		std::cout<<prefix+"/detail/"+totalBamNormals[j].sName<<"\n";
+////		std::cout << j << (totalBamNormals[j].normal_bam).c_str() << "\t";
+//        std::ifstream fin;
+//        std::string oneLine = "";
+//        std::istringstream linestream;
+//        fin.open(
+//                (totalBamNormals[j].normal_bam).c_str());
+////		if(!fin)
+////		{
+////			std::cout<<"open fail!\n";
+////		}
+//        while (getline(fin, oneLine)) {
+//
+//            linestream.str(oneLine);
+//            linestream >> chr >> location >> left_flank_bases
+//                       >> repeat_times >>  repeat_unit_bases >>right_flank_bases >> pro_p >> pro_q
+//                       >> thresh;
+//
+//            linestream.clear();
+//            site = chr + "_" + location;
+////            if (SitesSupport.find(site) == SitesSupport.end()) {
+////				SitesSupport[site] = 1;
+////
+////			} else {
+////				SitesSupport[site]++;
+////			}
+//
+//
+//
+//
+////            if (FinalSites.find(site) != FinalSites.end())
+////                FinalSites[site].push_back(pro_u);
+////	    std::cout << site<< '\n';
+//            }
+//            fin.close();
+//    }
+//#pragma omp atomic;
+    std::cout << "Build baseline for microsatellites ..." << std::endl;
+//	std::cout <<totalBamNormalsNum << "\n";
+    std::map<std::string, int>::iterator it;
+    std::map<std::string, double> threshold;
+    std::unordered_map <std::string, std::vector<double>> FinalSites;
+    std::unordered_map < std::string, std::vector < double >> ::iterator
+    iter;
+     paramd.sampleNum; // 2 is parameter
+    std::cout << "Microsatellites supported by less than " <<paramd.sampleNum<< " samples will be filtered. " << std::endl;
+
+    std::vector<double> buf;
+    std::vector<double> tmp;
+    // TODO SitesSupport 定义
+//    for (it = SitesSupport.begin(); it != SitesSupport.end(); ++it) {
+//
+////	    std::cout << (it->first) << " => " << (it->first)<< (it->second )<< '\n';
+////        if ((it->second) >= supportNumCutOff) {
+////            FinalSites[it->first] = buf;
+//////            std::cout << "lll" << "\n";
+////
+////        }
+//    }
+//	std::cout << supportNumCutOff << "\n"<< totalBamNormalsNum <<"\n";
+
+
     for (unsigned short j = 0; j < totalBamNormalsNum; j++) {
 //		std::cout<<prefix+"/detail/"+totalBamNormals[j].sName<<"\n";
 
@@ -644,21 +693,33 @@ void PolyScan::GetNormalDistrubution(Sample &oneSample,
         std::string oneLine = "";
         std::istringstream linestream;
         fin.open(
-                (prefix + "/detail/" + totalBamNormals[j].sName + "_all").c_str());
+                (totalBamNormals[j].normal_bam).c_str());
 //		if(!fin)
 //		{
 //			std::cout<<"open fail!\n";
 //		}
+
         while (getline(fin, oneLine)) {
 
             linestream.str(oneLine);
+//            linestream >> chr >> location >> left_flank_bases
+//                       >> right_flank_bases >> repeat_times >> rub >> rfb >> cov
+//                       >> pro_u;
             linestream >> chr >> location >> left_flank_bases
-                       >> right_flank_bases >> repeat_times >> rub >> rfb >> cov
-                       >> pro_u;
+                       >> repeat_times >>  repeat_unit_bases >>right_flank_bases >> pro_p >> pro_q
+                       >> thresh;
+
             linestream.clear();
             site = chr + "_" + location;
-            if (FinalSites.find(site) != FinalSites.end())
-                FinalSites[site].push_back(pro_u);
+            if (SitesSupport.find(site) == SitesSupport.end()) {
+				SitesSupport[site] = 1;
+
+			} else {
+				SitesSupport[site]++;
+			}
+//            if (FinalSites.find(site) != FinalSites.end())
+                FinalSites[site].push_back(pro_p);
+//	    std::cout << site<<"\t" <<pro_p<< '\n';
 
 //			buf=FinalSites[];
 //			buf
@@ -670,16 +731,30 @@ void PolyScan::GetNormalDistrubution(Sample &oneSample,
 
     for (iter = FinalSites.begin(); iter != FinalSites.end(); iter++) {
         tmp = iter->second;
-//    	std::cout<<tmp.size()<<"\n";
+//    	std::cout<<tmp<<"\n";
         double sum = std::accumulate(std::begin(tmp), std::end(tmp), 0.0);
         double mean = sum / tmp.size();
-
         double accum = 0.0;
         std::for_each(std::begin(tmp), std::end(tmp), [&](const double d) {
             accum += (d - mean) * (d - mean);
         });
-        double stdev = std::sqrt(accum / (tmp.size() - 1));
+        double stdev ;
+        if (tmp.size()==1){
+        stdev = std::sqrt(accum);
+
+        }
+        else{
+
+         stdev = std::sqrt(accum / (tmp.size() - 1));
+         stdev = std::sqrt(accum / (tmp.size() - 1));
+        }
+
+
+//        double stdev = std::sqrt(accum / (tmp.size() - 1));
         threshold[iter->first] = mean + 3 * stdev;
+//        std::cout <<   mean + 3 * stdev << "\t" << mean << "\t" << stdev << "\t" << sum<<"\t" << tmp.size() << '\n';
+//        std::cout <<  std::begin(tmp) << '\n';
+
     }
 //    std::cout<<threshold.size()<<"fjjfjfsjs"<<"\t"<<"\n";
 
@@ -688,22 +763,35 @@ void PolyScan::GetNormalDistrubution(Sample &oneSample,
         site = totalSites[k].chr + "_" + std::to_string(totalSites[k].location);
 //    	std::cout<<totalSites[k].chr<<"\t"
 //				 <<totalSites[k].location<<"\t"<<"\n";
+        if (SitesSupport[site]>=paramd.sampleNum){
+          pass= "YES";
+        }
+        else {
+          pass= "NO";
+        }
+
         if (threshold.find(site) != threshold.end()) {
+
 //    		std::cout<<totalHomosites<<"\n";
-            fout << totalSites[k].chr << "\t" << totalSites[k].location << "\t"
+            fout << totalSites[k].chr << "\t"
+                 << totalSites[k].location << "\t"
                  << std::to_string(totalSites[k].typeLen) << "\t"
-                 << totalSites[k].homoType << "\t" << totalSites[k].length
-                 << "\t" << totalSites[k].frontKmer << "\t"
-                 << totalSites[k].endKmer << "\t" << totalSites[k].bases
-                 << "\t" << totalSites[k].fbases << "\t"
-                 << totalSites[k].ebases << "\t" << threshold[site] << "\t"
-                 << SitesSupport[site] << "\n";
-            "\n";
+//                 << totalSites[k].homoType << "\t"
+                 << totalSites[k].length << "\t"
+//                 << totalSites[k].frontKmer << "\t"
+//                 << totalSites[k].endKmer << "\t"
+                 << totalSites[k].bases << "\t"
+                 << totalSites[k].fbases << "\t"
+                 << totalSites[k].ebases << "\t"
+                 << threshold[site] << "\t"
+                 << SitesSupport[site] << "\t"
+                 <<  pass << "\n";
+//            "\n";
 //    	    	std::cout<<"hhh"<<"\n";
         }
     }
     fout.close();
     std::cout << "The micorsatellites file  with baseline is in: "
-              << prefix + getRel(paramd.homoFile, "/") + "_baseline\n"
+              << prefix
               << std::endl;
 }

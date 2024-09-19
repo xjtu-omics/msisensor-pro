@@ -1,4 +1,4 @@
-/* The MIT License
+/* The MIT 2_License.md
 
    Copyright (c) 2008, 2009, 2011 Attractive Chaos <attractor@live.co.uk>
    Copyright (C) 2013, 2018, 2020 Genome Research Ltd.

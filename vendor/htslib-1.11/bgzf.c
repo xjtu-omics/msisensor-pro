@@ -1,4 +1,4 @@
-/* The MIT License
+/* The MIT 2_License.md
 
    Copyright (c) 2008 Broad Institute / Massachusetts Institute of Technology
                  2011, 2012 Attractive Chaos <attractor@live.co.uk>

@@ -24,39 +24,41 @@
 
 int usage(void) {
 	std::cerr << "\n\n"
-			<< "Program: msisensor-pro: Microsatellite Instability (MSI) detection using high-throughput sequencing data. \n"
+			<< " msisensor-pro: Microsatellite Instability (MSI) detection using high-throughput sequencing data. \n"
 			<< "         (Support tumor-normal paired samples and tumor-only samples) \n\n"
 			<< "Version: " << VERSION << "\n\n"
-			<< "Usage:   msisensor-pro <command> [options]\n\n"
-			<< "Key Commands:\n\n" << "\t scan\n"
+			<< "Usage: msisensor-pro <command> [options]\n\n"
+			<< "Commands:\n\n"
+            << "\t scan\n"
 			<< "\t   scan the reference genome to get microsatellites information\n\n"
-			<< "\t baseline\n"
-			<< "\t   build baseline for tumor only detection\n\n" << "\t msi\n"
+			<< "\t msi\n"
 			<< "\t   evaluate MSI using paired tumor-normal sequencing data\n\n"
+			<< "\t baseline\n"
+			<< "\t   build baseline for tumor only detection\n\n"
 			<< "\t pro\n"
 			<< "\t   evaluate MSI using single (tumor) sample sequencing data \n"
 			//add by Peng Jia (2018.10.9)
 			<< "\n\n"
 
-			<< "Best Practices:\n" << "\t(a) For tumor only samples:\n"
-			<< "\t\t1. scan\n"
-			<< "\t\t      >> msisensor-pro scan -d /path/to/reference.fa -o /path/to/reference.list\n"
-
-			<< "\t\t2. baseline \n"
-			<< "\t\t      >> msisensor-pro baseline -d /path/to/reference.list -i /path/to/configure.txt -o /path/to/baseline/directory\n"
-
-			<< "\t\t3. pro \n"
-			<< "\t\t      >> msisensor-pro pro -d /path/to/baseline/directory/reference.list_baseline -t /path/to/case1_tumor_sorted.bam -o /path/to/case1_output\n\n"
-			<< "\t(b) For tumor-normal paired samples:\n" << "\t\t1. scan\n"
-			<< "\t\t      >> msisensor-pro scan -d /path/to/reference.fa -o /path/to/reference.list\n"
-			<< "\t\t2. msi \n"
-			<< "\t\t      >> msisensor-pro msi -d /path/to/reference.list -n /path/to/case1_normal_sorted.bam -t /path/to/case1_tumor_sorted.bam -o /path/to/case1_output\n\n"
-
-			<< "Notes:\n"
-			<< "    1. If your analysis are based on reference GRCh38.d1.vd1, you can ignore the scan step by downloading the microsatellites information on our github directly. \n\n"
-			<< "    2. If you don't have normal samples to build baseline(baseline step for tumor only sample detection), you can download the microsatellites information with baseline on our github or use -i option in pro module to set a hard cutoff directly.\n\n"
-
-			<< "    If you have any questions, please contact with Peng Jia (pengjia@stu.xjtu.edu.cn) or Kai Ye (kaiye@xjtu.edu.cn) .\n"
+//			<< "Best Practices:\n" << "\t(a) For tumor only samples:\n"
+//			<< "\t\t1. scan\n"
+//			<< "\t\t      >> msisensor-pro scan -d /path/to/reference.fa -o /path/to/reference.list\n"
+//
+//			<< "\t\t2. baseline \n"
+//			<< "\t\t      >> msisensor-pro baseline -d /path/to/reference.list -i /path/to/configure.txt -o /path/to/baseline/directory\n"
+//
+//			<< "\t\t3. pro \n"
+//			<< "\t\t      >> msisensor-pro pro -d /path/to/baseline/directory/reference.list_baseline -t /path/to/case1_tumor_sorted.bam -o /path/to/case1_output\n\n"
+//			<< "\t(b) For tumor-normal paired samples:\n" << "\t\t1. scan\n"
+//			<< "\t\t      >> msisensor-pro scan -d /path/to/reference.fa -o /path/to/reference.list\n"
+//			<< "\t\t2. msi \n"
+//			<< "\t\t      >> msisensor-pro msi -d /path/to/reference.list -n /path/to/case1_normal_sorted.bam -t /path/to/case1_tumor_sorted.bam -o /path/to/case1_output\n\n"
+//
+//			<< "Notes:\n"
+//			<< "    1. If your analysis are based on reference GRCh38.d1.vd1, you can ignore the scan step by downloading the microsatellites information on our github directly. \n\n"
+//			<< "    2. If you don't have normal samples to build baseline(baseline step for tumor only sample detection), you can download the microsatellites information with baseline on our github or use -i option in pro module to set a hard cutoff directly.\n\n"
+//
+			<< "    If you have any questions, please open an issue on GitHub (https://github.com/xjtu-omics/msisensor-pro) or contact with Peng Jia (pengjia@xjtu.edu.cn) or Kai Ye (kaiye@xjtu.edu.cn) .\n"
 			<< "\n\n";
 
 	return 1;

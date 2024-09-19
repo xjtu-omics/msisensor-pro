@@ -1,0 +1,13 @@
+msisensor-pro:
+  /data/home/pengjia/Project_Data/msisensor-pro_test/msisensor-pro-2024/msisensor-pro/cpp/msisensor-pro
+dir_work:
+  /data/home/pengjia/Project_Data/msisensor-pro_test/msisensor-pro-2024/msisensor-pro/demo/data/data4baseline/test_out/
+reference:
+  /data/home/pengjia/Project_Data/msisensor-pro_test/msisensor-pro-2024/msisensor-pro/demo/data/reference/reference.fa
+ms_list:
+  /data/home/pengjia/Project_Data/msisensor-pro_test/msisensor-pro-2024/msisensor-pro/demo/data/reference/reference.list
+samples4baseline: #path of the bam file for basline building
+  /data/home/pengjia/Project_Data/msisensor-pro_test/msisensor-pro-2024/msisensor-pro/demo/data/data4baseline/baseline.bam.configure
+genome_version:
+  GRCh38
+

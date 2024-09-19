@@ -1,4 +1,4 @@
-/* The MIT/Expat License
+/* The MIT/Expat 2_License.md
 
 Copyright (C) 2017 Genome Research Ltd.
 

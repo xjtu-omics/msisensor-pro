@@ -58,11 +58,11 @@ Param::Param() :
         chains(0),
         max_dbseq_size(300000000), //300Mb
         append_dbseq_size(0x1000000), //16Mb
-        MininalHomoSize(10), //5->10
+        MininalHomoSize(8), //5->10 ->8
         ContextLength(5),
         MaxHomoSize(50),
         SpanSize(500),
-        MininalHomoForDis(10), // microsate
+        MininalHomoForDis(8), // microsate
         MinMicrosate(5),
         MinMicrosateForDis(5),
         MaxMicrosateForDis(40),
@@ -82,12 +82,14 @@ Param::Param() :
         fdrThreshold(0.05),
         comentropyThreshold(1),// for tumor only
         hunterThreshold(0.1), //YeLab
-        outputzeroDis(0), //Yelab
+        outputzeroDis(1), //Yelab
         NormalcovCutoff(0.5),//Yelab
         train(false),
         pro(false),
         hard(false),
-        sampleRatio(0.5) {
+        sampleNum(10)
+//        sampleNum(10)
+{
     inital_homo_phabet();
     initalphabet();
     initrevalphabet();

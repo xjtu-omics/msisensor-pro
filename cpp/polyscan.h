@@ -44,7 +44,7 @@ public:
 	//void LoadBams(std::ifstream &fin);
 	void LoadBams(const std::string &nBam, const std::string &tBam);
 	void LoadBam(const std::string &tBam);
-	void LoadBamn(const std::string &bam, const std::string &Name); //add by yelab
+	void LoadNormalStatistic(const std::string &bam, const std::string &Name); //add by yelab
 
 
 	std::string refPath; //存储reference path
@@ -70,7 +70,7 @@ public:
 	void InithializeDistributions();
 	void outputDistributions();
 	void releaseDistributions();
-	void GetNormalDistrubution(Sample &oneSample, const std::string &prefix);
+	void MergeBaseline(Sample &oneSample, const std::string &prefix);
 	void GetHomoDistribution(Sample &oneSample, const std::string &prefix);
 	void GetHomoTumorDistribution(Sample &oneSample, const std::string &prefix);
 	void GetHunterTumorDistribution(Sample &oneSample,
