@@ -1,22 +1,22 @@
 
-[//]: # ([![Published in Genomics, Proteomics & Bioinformatics]&#40;https://img.shields.io/badge/Published%20in-GPB-167DA4.svg&#41;]&#40;https://www.sciencedirect.com/science/article/pii/S1672022920300218&#41;)
+[![Published in Genomics, Proteomics & Bioinformatics](https://img.shields.io/badge/Published%20in-GPB-167DA4.svg)](https://www.sciencedirect.com/science/article/pii/S1672022920300218)
 
-[//]: # (![GitHub last commit]&#40;https://img.shields.io/github/last-commit/xjtu-omics/msisensor-pro&#41;)
+![GitHub last commit](https://img.shields.io/github/last-commit/xjtu-omics/msisensor-pro)
 
-[//]: # ([![GitHub Release Date]&#40;https://img.shields.io/github/release-date/xjtu-omics/msisensor-pro&#41;]&#40;https://github.com/xjtu-omics/msisensor-pro/releases&#41;)
+[![GitHub Release Date](https://img.shields.io/github/release-date/xjtu-omics/msisensor-pro)](https://github.com/xjtu-omics/msisensor-pro/releases)
 
-[//]: # ([![GitHub release &#40;latest SemVer including pre-releases&#41;]&#40;https://img.shields.io/github/v/release/xjtu-omics/msisensor-pro?include_prereleases&#41;]&#40;https://github.com/xjtu-omics/msisensor-pro/releases&#41;)
+[![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/xjtu-omics/msisensor-pro?include_prereleases)](https://github.com/xjtu-omics/msisensor-pro/releases)
 
-[//]: # ([![Docker Cloud Build Status]&#40;https://img.shields.io/docker/cloud/build/pengjia1110/msisensor-pro&#41;]&#40;https://hub.docker.com/repository/docker/pengjia1110/msisensor-pro&#41;)
+[![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/pengjia1110/msisensor-pro)](https://hub.docker.com/repository/docker/pengjia1110/msisensor-pro)
 
-[//]: # ([![Bioconda]&#40;https://img.shields.io/conda/dn/bioconda/msisensor-pro.svg?label=Bioconda&#41;]&#40;https://bioconda.github.io/recipes/msisensor-pro/README.html&#41;)
+[![Bioconda](https://img.shields.io/conda/dn/bioconda/msisensor-pro.svg?label=Bioconda)](https://bioconda.github.io/recipes/msisensor-pro/README.html)
 
-[//]: # (![Docker Pulls]&#40;https://img.shields.io/docker/pulls/pengjia1110/msisensor-pro&#41;)
+![Docker Pulls](https://img.shields.io/docker/pulls/pengjia1110/msisensor-pro)
 
-[//]: # (![GitHub all releases]&#40;https://img.shields.io/github/downloads/xjtu-omics/msisensor-pro/total?label="Github"&#41;)
+![GitHub all releases](https://img.shields.io/github/downloads/xjtu-omics/msisensor-pro/total?label="Github")
 
-[//]: # ()
-[//]: # ()
+
+
 ![MSIsensor-pro](./fig/logo_msisensor-pro.png)
 
 
@@ -39,12 +39,12 @@ the current leading methods which required matched normal samples in terms of bo
 and computational cost. If you want to know more detail about MSIsensor-pro, please see
 our research paper at [_**Genomics, Proteomics & Bioinformatics**_](https://www.sciencedirect.com/science/article/pii/S1672022920300218) page.
 
-
-# [How to install MSIsensor-pro?](./docs/3_Installation.md)
-# [Main commands of MSIsensor-pro](./docs/4_command.md)
-# [License of MSIsensor-pro](./docs/2_License.md)
-# [File format of MSIsensor-pro](./docs/5_files_type.md)
-# [Frequently asked questions](./docs/6_Frequently_asked_questions.md)
+## [Best practices pipeline](./snakemake)
+## [How to install MSIsensor-pro?](./docs/3_Installation.md)
+## [Main commands of MSIsensor-pro](./docs/4_command.md)
+## [License of MSIsensor-pro](./docs/2_License.md)
+## [File format of MSIsensor-pro](./docs/5_files_type.md)
+## [Frequently asked questions](./docs/6_Frequently_asked_questions.md)
 
 
 
