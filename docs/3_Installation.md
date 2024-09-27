@@ -2,8 +2,8 @@
 
 ## Directly using binary version 
             
-      wget https://github.com/xjtu-omics/msisensor-pro/raw/master/binary/msisensor-pro
-      chmod +x msisensor-pro 
+      wget https://github.com/xjtu-omics/msisensor-pro/raw/master/binary/msisensor-pro[v1.x.x]
+      chmod +x msisensor-pro[v1.x.x]
       export PATH=`pwd`:$PATH
 
 If some dynamic libraries are missing, you need to install them and add their paths to the LD_LIBRARY_PATH variable.
