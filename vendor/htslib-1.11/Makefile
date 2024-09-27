@@ -624,7 +624,7 @@ tags TAGS:
 # code with your program, this hook enables Automake-style "make dist"
 # for this subdirectory.  If you do bundle an htslib snapshot, please
 # add identifying information to $(PACKAGE_VERSION) as appropriate.
-# (The wildcards attempt to omit non-exported files (.git*, README.md,
+# (The wildcards attempt to omit non-exported files (.git*, README.md.md,
 # etc) and other detritus that might be in the top-level directory.)
 distdir:
 	@if [ -z "$(distdir)" ]; then echo "Please supply a distdir=DIR argument."; false; fi

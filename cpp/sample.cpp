@@ -37,8 +37,8 @@ void Sample::iniOutput(const std::string &gavePrefix) {
     // init pour out result files
     output.open(outputPrefix.c_str());
     // outputPSomatic.open( (outputPrefix + "_p_somatic").c_str() );
-    outputSomatic.open((outputPrefix + "_somatic").c_str());
-    outputGermline.open((outputPrefix + "_germline").c_str());
+    outputSomatic.open((outputPrefix + "_unstable").c_str());
+    outputGermline.open((outputPrefix + "_all").c_str());
     outputDistribution.open((outputPrefix + "_dis").c_str());
 
     //if ( !output || !outputPSomatic || !outputSomatic || !outputGermline || !outputDistribution ) {
@@ -58,7 +58,7 @@ void Sample::iniOutput(const std::string &gavePrefix) {
     outputGermline << "chromosome" << "\t" << "location" << "\t"
                    << "left_flank_bases" << "\t" << "repeat_times" << "\t"
                    << "repeat_unit_bases" << "\t" << "right_flank_bases" << "\t"
-                   << "genotype" << "\t" << "difference" << "\t" << "P_value" << "\t" << "FDR" << "\n";
+                   << "\t" << "difference" << "\t" << "P_value" << "\t" << "FDR" << "\n";
 
 }
 
@@ -135,7 +135,7 @@ void Sample::trainIniNormalDisOutput(const std::string &gavePrefix) { //Yelab
 } //YeLab
 
 void Sample::pourOutMsiScore() {
-    output << "Total_Number_of_Sites\tNumber_of_Somatic_Sites\t%" << std::endl;
+    output << "Total_Number_of_Sites\tNumber_of_Unstable_Sites\t%" << std::endl;
     if (numberOfDataPoints != 0) {
         output << numberOfDataPoints << "\t" << numberOfMsiDataPoints << "\t"
                << std::fixed
@@ -191,7 +191,7 @@ void Sample::pourOutSomaticFDR() {
          _it != totalSomaticSites.end(); ++_it) {
         outputGermline << _it->chr << "\t" << _it->location << "\t"
                        << _it->fbases << "\t" << _it->length << "\t" << _it->bases
-                       << "\t" << _it->ebases << "\t" << _it->genotype1 << "|" << _it->genotype2
+                       << "\t" << _it->ebases      //  << "\t" << _it->genotype1 << "|" << _it->genotype2
                        << "\t" << _it->diff << "\t"
                        << _it->pValue << "\t" << _it->FDR << "\n";
         if (!_it->somatic)

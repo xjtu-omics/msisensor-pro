@@ -220,6 +220,8 @@ bool PolyScan::LoadHomosAndMicrosates(std::ifstream &fin) {
     bit16_t frontF;
     bit16_t tailF;
     double thres;
+    int support_num ;
+    std::string filter;
 
     int j = 0;
     BedChr tbedChr;
@@ -242,9 +244,10 @@ bool PolyScan::LoadHomosAndMicrosates(std::ifstream &fin) {
         linestream >> bases;
         linestream >> fbases;
         linestream >> ebases;
-        if (!paramd.hard) {
-            linestream >> thres;
-        } else {
+        linestream >> thres;
+        linestream >> support_num;
+        linestream >> filter;
+        if (thres<0) {
             thres = paramd.hunterThreshold;
         }
 
@@ -314,6 +317,10 @@ bool PolyScan::LoadHomosAndMicrosates(std::ifstream &fin) {
                 if (j >= tbedChr.regions_list.size())
                     continue;
             }
+        }
+        std::transform(filter.begin(), filter.end(), filter.begin(), ::toupper);
+        if (filter.compare("PASS")!=0) {
+          continue;
         }
 
         // load sites
@@ -555,7 +562,7 @@ void PolyScan::MergeBaseline(Sample &oneSample,
          << "left_flank_bases" << "\t"
          << "right_flank_bases" << "\t"
          //		<< "covReads"          <<"\t"
-         << "threshold" << "\t" << "supportSamples" << "\tpass"<< "\n";
+         << "threshold" << "\t" << "support_num" << "\tfilter"<< "\n";
 
 //    omp_set_num_threads(paramd.numberThreads);
 //#pragma omp parallel for
@@ -673,7 +680,7 @@ void PolyScan::MergeBaseline(Sample &oneSample,
 
     std::vector<double> buf;
     std::vector<double> tmp;
-    // TODO SitesSupport 定义
+
 //    for (it = SitesSupport.begin(); it != SitesSupport.end(); ++it) {
 //
 ////	    std::cout << (it->first) << " => " << (it->first)<< (it->second )<< '\n';
@@ -764,10 +771,10 @@ void PolyScan::MergeBaseline(Sample &oneSample,
 //    	std::cout<<totalSites[k].chr<<"\t"
 //				 <<totalSites[k].location<<"\t"<<"\n";
         if (SitesSupport[site]>=paramd.sampleNum){
-          pass= "YES";
+          pass= "PASS";
         }
         else {
-          pass= "NO";
+          pass= "LowSupportSamples";
         }
 
         if (threshold.find(site) != threshold.end()) {

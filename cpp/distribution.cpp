@@ -788,7 +788,7 @@ int HomoAndMicrosateDisMsi(int argc, char *argv[]) {
     polyscan.LoadBams(normalBam, tumorBam);
     polyscan.refPath=refP;
 
-    if(tumorBam.find(".cram")!=std::string::npos && normalBam.find(".cram")!=std::string::npos)
+    if(tumorBam.find(".cram")!=std::string::npos || normalBam.find(".cram")!=std::string::npos)
     {
         if(access(polyscan.refPath.c_str(), R_OK) == -1)
         {

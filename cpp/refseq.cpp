@@ -33,7 +33,7 @@ RefSeq::~RefSeq() {
 bool RefSeq::PouroutHeader(std::ofstream &fout) {
 	fout << "chromosome" << "\t" << "location" << "\t" << "repeat_unit_length" << "\t" << "repeat_times" << "\t"
 		<< "repeat_unit_bases" << "\t" << "left_flank_bases" << "\t"
-			<< "right_flank_bases" << "\n";
+			<< "right_flank_bases" << "\tthreshold\tsupport_num\tfilter\n";
 	return true;
 }
 
@@ -45,7 +45,7 @@ bool RefSeq::PouroutBuffer(std::ofstream &fout) {
 				 << homosBuffer[i].length << "\t";
 		// append readable output
 		homosBuffer[i].TransferString();
-		fout << homosBuffer[i].transfer << "\n";
+		fout << homosBuffer[i].transfer<<"\t-1\t-1\tPASS" << "\n";
 	}
 	homosBuffer.clear();
 	totalSites = 0;

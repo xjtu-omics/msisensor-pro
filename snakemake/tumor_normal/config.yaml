@@ -1,0 +1,10 @@
+msisensor-pro: # path of the msisensor-pro
+  /data/home/pengjia/Project_Data/msisensor-pro_test/msisensor-pro-2024/msisensor-pro/cpp/msisensor-pro
+dir_work: # path of your result output
+  /data/home/pengjia/Project_Data/msisensor-pro_test/msisensor-pro-2024/msisensor-pro/demo/pipeline_output/tumor_normal/
+reference: # path of your reference genome
+  /data/home/pengjia/Project_Data/msisensor-pro_test/msisensor-pro-2024/msisensor-pro/demo/data_input/reference/reference.fa
+genome_version:
+  GRCh38
+sample_path: #path of the sample path, see the  template at demo/data_input/data4test/tumor_normal_paired.samples.info.tsv
+  /data/home/pengjia/Project_Data/msisensor-pro_test/msisensor-pro-2024/msisensor-pro/demo/data_input/data4test/tumor_normal_paired.samples.info.tsv

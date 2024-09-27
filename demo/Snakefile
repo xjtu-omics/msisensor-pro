@@ -1,0 +1,87 @@
+# ======================================================================================================================
+# Project: MSIsensor-pro
+# Script : Snakefile
+# Author : Peng Jia
+# Date   :  2024/5/6
+# Email  : pengjia@xjtu.edu.cn
+# Description: test the pipeline
+# ======================================================================================================================
+
+msisensor_pro="../cpp/msisensor-pro"
+rule all :
+    input:
+        "output/reference/reference.list",
+        "output/msi/test_tumor_normal_bam_out",
+        "output/msi/test_tumor_normal_cram_out",
+        "output/pro/tumor_only/test_tumor_only_bam_out",
+        "output/pro/tumor_only/test_tumor_only_cram_out",
+        # "output/pro/baselines/bam_baseline.tsv",
+        # "output/pro/baselines/cram_baseline.tsv",
+rule scan:
+    input:
+        "data_input/reference/reference.fa"
+    output:
+        "output/reference/reference.list"
+    log:
+        "output/reference/reference.log"
+    run:
+        shell("{msisensor_pro} scan -d {input} -o {output} 2>{log} 1>{log}")
+rule msisensor_bam:
+    input:
+        t="data_input/data4test/test_tumor_sorted.{bam_cram}",
+        n="data_input/data4test/test_normal_sorted.{bam_cram}",
+        ms="output/reference/reference.list",
+        ref ="data_input/reference/reference.fa"
+    output:
+        "output/msi/test_tumor_normal_{bam_cram}_out"
+    log:
+        "output/msi/test_tumor_normal_{bam_cram}.log"
+    run:
+        shell("{msisensor_pro} msi -d {input.ms} -n {input.n} -t {input.t} -g {input.ref}  -o {output} 2>{log}")
+rule msisensor_pro_for_base:
+    input:
+        n = "data_input/data4baseline/{case}_normal_sorted.{bam_cram}",
+        ms = "output/reference/reference.list",
+        ref = "data_input/reference/reference.fa"
+    output:
+        "output/pro/baselines/details/{case}.normal_sorted.{bam_cram}.pro"
+    log:
+        "output/pro/baselines/details/{case}.normal_sorted.{bam_cram}.pro.log"
+    run:
+        shell("{msisensor_pro} pro -d {input.ms} -t {input.n}  -g {input.ref} -o {output} ")
+
+
+rule merge_base_file:
+    input:
+        expand("output/pro/baselines/details/{case}.normal_sorted.{{bam_cram}}.pro",case=["case1","case2","case3"])
+    output:
+        "output/pro/baselines/normal_sorted.{bam_cram}_baseline_sample.list"
+    run:
+        with open(f"{output}","w") as f:
+            for i in input:
+                f.write(f"{i.split('/')[-1]} \t{i}_all\n")
+rule build_baseline:
+    input:
+        list="output/pro/baselines/normal_sorted.{bam_cram}_baseline_sample.list",
+        ms = "output/reference/reference.list",
+    output:
+        "output/pro/baselines/{bam_cram}_baseline.tsv",
+    log:
+        "output/pro/baselines/{bam_cram}_baseline.log",
+    run:
+        shell(f"{msisensor_pro} baseline  -d {input.ms} -i {input.list} -o {output} -s 2")
+
+rule run_pro:
+    input:
+        ms= "output/pro/baselines/{bam_cram}_baseline.tsv",
+        t="data_input/data4test/test_tumor_sorted.{bam_cram}",
+        ref= "data_input/reference/reference.fa",
+    output:
+        "output/pro/tumor_only/test_tumor_only_{bam_cram}_out"
+    log:
+        "output/pro/tumor_only/test_tumor_only_{bam_cram}.log"
+    run:
+        shell("{msisensor_pro} pro -d {input.ms} -t {input.t}  -g {input.ref} -o {output} 2>{log} 1>{log}")
+
+
+
