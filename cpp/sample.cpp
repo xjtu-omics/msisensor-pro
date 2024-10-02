@@ -58,7 +58,7 @@ void Sample::iniOutput(const std::string &gavePrefix) {
     outputGermline << "chromosome" << "\t" << "location" << "\t"
                    << "left_flank_bases" << "\t" << "repeat_times" << "\t"
                    << "repeat_unit_bases" << "\t" << "right_flank_bases" << "\t"
-                   << "\t" << "difference" << "\t" << "P_value" << "\t" << "FDR" << "\n";
+                    << "difference" << "\t" << "P_value" << "\t" << "FDR" << "\n";
 
 }
 
