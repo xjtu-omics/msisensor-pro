@@ -5,8 +5,8 @@
 [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/pengjia1110/msisensor-pro)](https://hub.docker.com/repository/docker/pengjia1110/msisensor-pro)
 [![Bioconda](https://img.shields.io/conda/dn/bioconda/msisensor-pro.svg?label=Bioconda)](https://bioconda.github.io/recipes/msisensor-pro/README.html)
 ![Docker Pulls](https://img.shields.io/docker/pulls/pengjia1110/msisensor-pro)
-![GitHub all releases](https://img.shields.io/github/downloads/xjtu-omics/msisensor-pro/total?label="Github")
-
+![GitHub all releases](https://img.shields.io/github/downloads/xjtu-omics/msisensor-pro/total?label="Github") 
+![GitHub Repo stars](https://img.shields.io/github/stars/xjtu-omics/msisensor-pro)
 
 
 ![MSIsensor-pro](./fig/logo_msisensor-pro.png)
