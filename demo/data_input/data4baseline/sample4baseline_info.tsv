@@ -1,0 +1,4 @@
+case	bam_path
+case1	/data/home/pengjia/Project_Data/msisensor-pro_test/msisensor-pro-2024/msisensor-pro/demo/data_input/data4baseline/case1_normal_sorted.bam
+case2	/data/home/pengjia/Project_Data/msisensor-pro_test/msisensor-pro-2024/msisensor-pro/demo/data_input/data4baseline/case2_normal_sorted.bam
+case3	/data/home/pengjia/Project_Data/msisensor-pro_test/msisensor-pro-2024/msisensor-pro/demo/data_input/data4baseline/case3_normal_sorted.bam
