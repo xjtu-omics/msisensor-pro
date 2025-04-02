@@ -1,0 +1,3 @@
+sample	tumor_path	normal_path
+case1	/data/home/pengjia/Project_Data/msisensor-pro_test/msisensor-pro-2024/msisensor-pro/demo/data_input/data4test/test_tumor_sorted.bam	/data/home/pengjia/Project_Data/msisensor-pro_test/msisensor-pro-2024/msisensor-pro/demo/data_input/data4test/test_normal_sorted.bam
+case2	/data/home/pengjia/Project_Data/msisensor-pro_test/msisensor-pro-2024/msisensor-pro/demo/data_input/data4test/test_tumor_sorted.cram	/data/home/pengjia/Project_Data/msisensor-pro_test/msisensor-pro-2024/msisensor-pro/demo/data_input/data4test/test_normal_sorted.cram
