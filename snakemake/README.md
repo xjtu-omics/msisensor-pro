@@ -1,7 +1,7 @@
 ## Best Practices for MSI evaluation using MSIsensor-pro
 We recommend using Snakemake to run the MSIsensor-pro pipeline,
-especially when you have a large sample size. For both tumor-only and tumor-normal modes, 
-please first modify the parameters for running MSIsensor-pro in the config.yaml and *.smk files. 
+especially when you have a large sample size. For both tumor-only and tumor-normal modes,
+please first modify the parameters for running MSIsensor-pro in the config.yaml and *.smk files.
 Then, run your pipeline using Snakemake.
 
 
@@ -18,11 +18,11 @@ Then, run your pipeline using Snakemake.
       /path/of/your/pipeline_output/tumor_normal/
     reference: # path of your reference genome
       /path/of/reference/reference.fa
-    genome_version: # version ID 
+    genome_version: # version ID
       GRCh38
     sample_path: #path of the sample path, see the  template at demo/data_input/data4test/tumor_normal_paired.samples.info.tsv
       /path/of/tumor_normal_paired/tumor_normal_paired.samples.info.tsv
-    
+
     ```
 
 * ## config.yaml of tumor-only paired model.
@@ -40,4 +40,3 @@ Then, run your pipeline using Snakemake.
      samples4test: #path of the sample info for MSI evaluating, see template at demo/data_input/data4test/tumor_only.samples.info.tsv
        /path/of/tumor_only/data4test/tumor_only.samples.info.ts
      ```
- 

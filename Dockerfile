@@ -1,9 +1,33 @@
-FROM ubuntu:18.04
+FROM ubuntu:24.04 AS builder
 
-RUN apt-get update && apt-get install -y git make build-essential liblzma-dev libbz2-dev zlib1g-dev libncurses5-dev libncursesw5-dev
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    autoconf \
+    automake \
+    make \
+    g++ \
+    liblzma-dev \
+    libbz2-dev \
+    zlib1g-dev \
+    libcurl4-gnutls-dev \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN cd /tmp \
-  && git clone https://github.com/xjtu-omics/msisensor-pro.git \
-  && cd msisensor-pro \
-  && ./INSTALL \
-  && cp -r /tmp/msisensor-pro/binary/msisensor-pro /usr/bin/
+WORKDIR /app
+COPY Makefile VERSION /app/
+COPY vendor /app/vendor/
+COPY cpp /app/cpp/
+RUN make
+
+FROM ubuntu:24.04 AS final
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgomp1 \
+    libcurl4-gnutls-dev \
+    libbz2-1.0 \
+    liblzma5 \
+    zlib1g \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /app/msisensor-pro /usr/local/bin/msisensor-pro
+
+CMD ["msisensor-pro"]

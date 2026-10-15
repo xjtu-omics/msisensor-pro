@@ -1,60 +1,62 @@
 #ifndef _SOMATIC_H_
 #define _SOMATIC_H_
 
-#include <map>
-#include <vector>
-#include <string>
-#include <iostream>
-#include <fstream>
 #include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <string>
+#include <vector>
 
 // homopolymer site
-class SomaticSite {
+class SomaticSite
+{
 public:
-    SomaticSite();
+  SomaticSite ();
 
-    ~SomaticSite();
+  ~SomaticSite ();
 
-    // homo or microsate
-    // A/C/G/T/AC/AGC
-    //
-    std::string chr;
+  // homo or microsate
+  // A/C/G/T/AC/AGC
+  //
+  std::string chr;
 
-    // location
-    int location;
+  // location
+  int location;
 
-    // repeat times
-    unsigned short length;
-    int genotype1; // add by Pengjia
-    int genotype2;// add by Pengjia
+  // repeat times
+  unsigned short length;
+  int genotype1; // add by Pengjia
+  int genotype2; // add by Pengjia
 
-    // homo or microsate
-    // content
-    std::string bases;
-    // front kmer
-    std::string fbases;
-    // tail kmer
-    std::string ebases;
-    // difference between
-    // normal and tumor
-    double diff;
-    double pValue;
-    double FDR;
-    unsigned short rank;
-    bool somatic;
+  // homo or microsate
+  // content
+  std::string bases;
+  // front kmer
+  std::string fbases;
+  // tail kmer
+  std::string ebases;
+  // difference between
+  // normal and tumor
+  double diff;
+  double pValue;
+  double FDR;
+  unsigned short rank;
+  bool somatic;
 
-    // output content
-    void PourOut();
+  // output content
+  void PourOut ();
 
-    // sorting based on p-value
-    //
-    bool operator<(const SomaticSite &rhs) const {
-        return pValue < rhs.pValue;
-    }
+  // sorting based on p-value
+  //
+  bool
+  operator< (const SomaticSite &rhs) const
+  {
+    return pValue < rhs.pValue;
+  }
 
 protected:
-    // xxx
+  // xxx
 };
 
 #endif //_SOMATIC_H_
-

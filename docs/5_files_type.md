@@ -70,11 +70,11 @@ FDR:  Corrected FDR (False Discovery Rate).
 ## 5. output microsatellite information of pro command (*_all / \*_unstable）
 
 * pro_p : probability of deletion of this site.
-* pro_q : probability of insertion of this site.     
-* CovReads: read number covered this site. 
+* pro_q : probability of insertion of this site.
+* CovReads: read number covered this site.
 * threshold: The baseline of this site; sites with pro_p greater than this value will be classified as unstable loci.
 
-**Example** 
+**Example**
 
 | chromosome | location | left_flank_bases | repeat_times | repeat_unit_bases | right_flank_bases | pro_p    | pro_q    | CovReads | threshold |
 |------------|----------|------------------|--------------|-------------------|-------------------|----------|----------|----------|-----------|
@@ -100,5 +100,3 @@ its pro output of normal sample.
     case1   /path/to/normal/case1_all
     case2   /path/to/normal/case2_all
     case3   /path/to/normal/case3_all
-
-

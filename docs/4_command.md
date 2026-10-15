@@ -7,7 +7,7 @@ scan the reference genome to get microsatellites information
        Usage:  msisensor-pro scan [options]
 
        -d   <string>   reference genome sequences file, *.fasta or *.fa format  [required]
-       -o   <string>   output homopolymers and microsatellites file [required] 
+       -o   <string>   output homopolymers and microsatellites file [required]
 
        -l   <int>      minimal homopolymer(repeat unit length = 1) size, [default=8]
        -c   <int>      context length (5-32), [default=5]
@@ -26,7 +26,7 @@ scan the reference genome to get microsatellites information
        -n   <string>   normal bam file with index [required]
        -t   <string>   tumor  bam file with index [required]
        -g   <string>   reference file [required if *.cram for -t]
-       -o   <string>   output path (Ending with a slash is not allowed.) [required] 
+       -o   <string>   output path (Ending with a slash is not allowed.) [required]
 
        -f   <double>   FDR threshold for somatic sites detection, [default=0.05]
        -c   <int>      coverage threshold for msi analysis, WXS: 20; WGS: 15, [default=15]
@@ -40,6 +40,7 @@ scan the reference genome to get microsatellites information
        -x   <int>      output homopolymer only, 0: no; 1: yes, [default=0]
        -y   <int>      output microsatellites only, 0: no; 1: yes, [default=0]
        -0   <int>      output site have no read coverage, 1: no; 0: yes, [default=1]
+       -D, --ignore-duplicates   ignore reads marked as duplicate, [default=no]
        -h   help
 
 
@@ -48,8 +49,8 @@ scan the reference genome to get microsatellites information
 
        Usage:  msisensor-pro pro [options]
 
-       -d   <string>   homopolymers and microsatellites file [required] 
-       -t   <string>   bam/cram file of tumor/normal(for baseline building) sample [required] 
+       -d   <string>   homopolymers and microsatellites file [required]
+       -t   <string>   bam/cram file of tumor/normal(for baseline building) sample [required]
        -g   <string>   reference file [required if *.cram for -t]
        -o   <string>   output path (Ending with a slash is not allowed.) [required]
 
@@ -64,6 +65,7 @@ scan the reference genome to get microsatellites information
        -x   <int>      output homopolymer only, 0: no; 1: yes, [default=0]
        -y   <int>      output microsatellite only, 0: no; 1: yes, [default=0[
        -0   <int>      output site have no read coverage, 1: no; 0: yes, [default=1]
+       -D, --ignore-duplicates   ignore reads marked as duplicate, [default=no]
        -h   help
 
 ## _baseline_
@@ -74,14 +76,14 @@ build baseline for tumor only detection
 
        -d   <string>   homopolymer and microsatellite file [required]
        -i   <string>   configure files for building baseline (text file) [required]
-            you need to provide the output (*_all) from pro command 
+            you need to provide the output (*_all) from pro command
             e.g.
              ----------------------------------
-              case1	/path/to/case1_sorted_all 
-              case2	/path/to/case2_sorted_all 
-              case3	/path/to/case3-sorted_all 
+              case1	/path/to/case1_sorted_all
+              case2	/path/to/case2_sorted_all
+              case3	/path/to/case3-sorted_all
              ----------------------------------
-       -o   <string>   output path for baseline [required] 
+       -o   <string>   output path for baseline [required]
 
        -s   <double>   microsatellite sites with support from fewer than -d samples will not pass quality control, [default=10]
        -h   help

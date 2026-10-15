@@ -1,0 +1,142 @@
+name: Build CI
+on:
+  pull_request:
+  release:
+    types: [published]
+
+jobs:
+  build-ubuntu:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # x86-64
+          - os: ubuntu-latest
+            arch: x86_64
+          # arm
+          - os: ubuntu-24.04-arm
+            arch: aarch64
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v7
+      with:
+        submodules: recursive
+
+    # Linux (ubuntu-latest) build
+    - name: Run apt
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-suggests --no-install-recommends \
+          autoconf \
+          automake \
+          make \
+          g++ \
+          liblzma-dev \
+          libbz2-dev \
+          zlib1g-dev \
+          libcurl4-gnutls-dev
+    - name: Compile
+      run: |
+          make -j5
+
+    - name: Check
+      run: |
+        make check
+
+    - name: Prepare binary artifact
+      if: github.event_name == 'release'
+      run: |
+        mkdir -p bin-out
+        chmod +x msisensor-pro
+        cp msisensor-pro bin-out/msisensor-pro-linux-${{ matrix.arch }}
+        tar -czf bin-out/msisensor-pro-linux-${{ matrix.arch }}.tar.gz msisensor-pro
+
+    - name: Upload binary artifact
+      if: github.event_name == 'release'
+      uses: actions/upload-artifact@v4
+      with:
+        name: binary-${{ matrix.arch }}
+        path: bin-out/*
+
+  build-docker:
+    needs: build-ubuntu
+    if: >
+      github.event_name == 'release' ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Image tags
+        id: tags
+        run: |
+          image="ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
+          tags="${image}:${{ github.sha }}"
+          if [ "${{ github.event_name }}" = "release" ]; then
+            version="${{ github.event.release.tag_name }}"
+            version="${version#v}"
+            tags="${tags},${image}:${version},${image}:stable"
+          else
+            tags="${tags},${image}:latest"
+          fi
+          echo "tags=${tags}" >> "$GITHUB_OUTPUT"
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.tags.outputs.tags }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Download compiled binaries
+        if: github.event_name == 'release'
+        uses: actions/download-artifact@v4
+        with:
+          pattern: binary-*
+          path: downloaded-binaries
+          merge-multiple: true
+
+      - name: Save Docker image archives for release
+        if: github.event_name == 'release'
+        run: |
+          version="${{ github.event.release.tag_name }}"
+          version="${version#v}"
+          image="ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
+
+          # Pull and save amd64 image
+          docker pull "${image}:${version}" --platform linux/amd64
+          docker save "${image}:${version}" | gzip > msisensor-pro-docker-amd64.tar.gz
+
+          # Pull and save arm64 image
+          docker pull "${image}:${version}" --platform linux/arm64
+          docker save "${image}:${version}" | gzip > msisensor-pro-docker-arm64.tar.gz
+
+      - name: Attach binaries and Docker image to release
+        if: github.event_name == 'release'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p release-assets
+          cp downloaded-binaries/msisensor-pro-linux-* release-assets/
+          cp msisensor-pro-docker-*.tar.gz release-assets/
+          cd release-assets
+          sha256sum msisensor-pro-* > SHA256SUMS.txt
+          cd ..
+          gh release upload "${{ github.event.release.tag_name }}" release-assets/* --clobber

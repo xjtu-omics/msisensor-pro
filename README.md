@@ -49,8 +49,8 @@ our research paper at [_**Genomics, Proteomics & Bioinformatics**_](https://www.
 
 
 # Citation
-Peng Jia, Xiaofei Yang, Li Guo, Bowen Liu, Jiadong Lin, Hao Liang, et al. 
-MSIsensor-pro: fast, accurate, and matched-normal-sample-free detection of microsatellite instability. 
+Peng Jia, Xiaofei Yang, Li Guo, Bowen Liu, Jiadong Lin, Hao Liang, et al.
+MSIsensor-pro: fast, accurate, and matched-normal-sample-free detection of microsatellite instability.
 Genomics Proteomics Bioinformatics 2020,18(1).  [PDF](https://www.sciencedirect.com/science/article/pii/S1672022920300218)
 
 
@@ -61,9 +61,9 @@ See more details in the **[Key Commands](https://github.com/xjtu-omics/msisensor
 
 
 # Contributors
-* Peng Jia 
-* Bowen Liu 
-* Hao Liang 
+* Peng Jia
+* Bowen Liu
+* Hao Liang
 * Mingzhe Duan
 
 

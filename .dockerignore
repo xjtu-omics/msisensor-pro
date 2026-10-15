@@ -1,0 +1,6 @@
+.git
+**/*.o
+**/*.a
+**/*.d
+msisensor-pro
+binary/

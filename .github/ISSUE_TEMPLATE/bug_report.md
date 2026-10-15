@@ -25,7 +25,7 @@ If applicable, add screenshots to help explain your problem.
  - Sequencing machine: [e.g. Illumina]
  - WGS/WES/Panel: [e.g. WES]
  - sequencing depth  [e.g. 300x]
- -  ... 
+ -  ...
 
 **Additional context**
 Add any other context about the problem here.

@@ -1,23 +1,25 @@
 // System header files
+#include <assert.h>
+#include <cmath>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <fstream>
-#include <cmath>
-#include <assert.h>
 
 // Samtools header files
-#include "htslib/sam.h"
-#include "htslib/kstring.h"
-#include "htslib/kseq.h"
 #include "htslib/khash.h"
+#include "htslib/kseq.h"
 #include "htslib/ksort.h"
+#include "htslib/kstring.h"
+#include "htslib/sam.h"
 
 // Bam header files
 #include "bamreader.h"
 #include "distribution.h"
 
+extern Param paramd;
+
 // Static function declaration
-static int fetch_func_SR(const bam1_t * b1, void *data);
+static int fetch_func_SR (const bam1_t *b1, void *data);
 
 unsigned int g_InWinPlus = 0;
 unsigned int g_InWinMinus = 0;
@@ -26,102 +28,127 @@ unsigned int g_NumReadInWindow = 0;
 unsigned int g_CloseMappedPlus = 0;
 unsigned int g_CloseMappedMinus = 0;
 
-//init hash/maps for read pairing on the fly
-KSORT_INIT_GENERIC(uint32_t)
-KHASH_MAP_INIT_STR(read_name, bam1_t *)
-struct fetch_func_data_SR {
-	std::vector<SPLIT_READ> *LeftReads;khash_t (read_name) * read_to_map_qual;
-    sam_hdr_t *header;
-	flags_hit *b1_flags;
-	flags_hit *b2_flags;
-	std::string Tag;
-	int InsertSize;
-    fetch_func_data_SR() {
-        LeftReads = NULL;
-        read_to_map_qual = NULL;
-        header = NULL;
-        b1_flags = NULL;
-        b2_flags = NULL;
-        Tag = "";
-        InsertSize = 0;
-    }
+// init hash/maps for read pairing on the fly
+KSORT_INIT_GENERIC (uint32_t)
+KHASH_MAP_INIT_STR (read_name, bam1_t *)
+struct fetch_func_data_SR
+{
+  std::vector<SPLIT_READ> *LeftReads;
+  khash_t (read_name) * read_to_map_qual;
+  sam_hdr_t *header;
+  flags_hit *b1_flags;
+  flags_hit *b2_flags;
+  std::string Tag;
+  int InsertSize;
+  fetch_func_data_SR ()
+  {
+    LeftReads = NULL;
+    read_to_map_qual = NULL;
+    header = NULL;
+    b1_flags = NULL;
+    b2_flags = NULL;
+    Tag = "";
+    InsertSize = 0;
+  }
 };
 
-int sam_fetch(samFile *fp, const hts_idx_t *idx, int tid, int beg, int end, void *data, bam_fetch_f func)
+int
+sam_fetch (samFile *fp, const hts_idx_t *idx, int tid, int beg, int end,
+           void *data, bam_fetch_f func)
 {
-    int ret;
-    hts_itr_t *iter;
-    bam1_t *b;
-    b = bam_init1();
-    iter = sam_itr_queryi(idx, tid, beg, end);
-    while ((ret = sam_itr_next(fp, iter, b)) >= 0) func(b, data);
-    sam_itr_destroy(iter);
-    bam_destroy1(b);
-    return (ret == -1)? 0 : ret;
+  int ret;
+  hts_itr_t *iter;
+  bam1_t *b;
+  b = bam_init1 ();
+  iter = sam_itr_queryi (idx, tid, beg, end);
+  while ((ret = sam_itr_next (fp, iter, b)) >= 0)
+    func (b, data);
+  sam_itr_destroy (iter);
+  bam_destroy1 (b);
+  return (ret == -1) ? 0 : ret;
 }
 
+void
+parse_flags_and_tags (const bam1_t *b, flags_hit *flags)
+{
+  const bam1_core_t *c = &b->core;
+  char xt_code = '\0';
+  int mf_code = 0, nm_code = 0, best_hits = 0;
+  flags->unique = 0;
+  flags->mapped = !(c->flag & BAM_FUNMAP);
+  uint8_t *s = bam_aux_get (b, "XT");
+  if (s != 0)
+    {
+      xt_code = bam_aux2A (s);
+      if (xt_code == 'U')
+        {
+          flags->unique = 1;
+        }
+      else
+        {
+          flags->unique = 0;
+        }
+    }
+  else
+    {
+      flags->unique = 1;
+    }
+  s = NULL;
+  s = bam_aux_get (b, "X0");
+  if (s != 0)
+    {
+      best_hits = bam_aux2i (s);
+    }
+  s = NULL;
+  s = bam_aux_get (b, "X1");
+  if (s != 0)
+    {
+      int sub_hits = bam_aux2i (s);
+      if (best_hits + sub_hits == 1)
+        {
+          flags->suboptimal = 0;
+        }
+      else
+        {
+          flags->suboptimal = 1;
+        }
+    }
+  else
+    {
+      flags->suboptimal = 0;
+    }
+  if (xt_code == 'M' || mf_code == 130)
+    {
+      // short term fix to unset unique if the maq read was s-w mapped.
+      // bwa can't set U and M at once.
+      flags->sw = 1;
+    }
+  else
+    {
+      flags->sw = 0;
+    }
+  s = NULL;
+  s = bam_aux_get (b, "NM");
+  if (s != 0)
+    {
+      nm_code = bam_aux2i (s);
+      flags->edits = nm_code;
+    }
+  else
+    {
+      nm_code = 0;
+      flags->edits = nm_code;
+    }
 
-
-void parse_flags_and_tags(const bam1_t * b, flags_hit * flags) {
-	const bam1_core_t *c = &b->core;
-	char xt_code = '\0';
-	int mf_code = 0, nm_code = 0, best_hits = 0;
-	flags->unique = 0;
-	flags->mapped = !(c->flag & BAM_FUNMAP);
-	uint8_t *s = bam_aux_get(b, "XT");
-	if (s != 0) {
-		xt_code = bam_aux2A(s);
-		if (xt_code == 'U') {
-			flags->unique = 1;
-		} else {
-			flags->unique = 0;
-		}
-	} else {
-		flags->unique = 1;
-	}
-	s = NULL;
-	s = bam_aux_get(b, "X0");
-	if (s != 0) {
-		best_hits = bam_aux2i(s);
-	}
-	s = NULL;
-	s = bam_aux_get(b, "X1");
-	if (s != 0) {
-		int sub_hits = bam_aux2i(s);
-		if (best_hits + sub_hits == 1) {
-			flags->suboptimal = 0;
-		} else {
-			flags->suboptimal = 1;
-		}
-	} else {
-		flags->suboptimal = 0;
-	}
-	if (xt_code == 'M' || mf_code == 130) {
-		//short term fix to unset unique if the maq read was s-w mapped.
-		//bwa can't set U and M at once.
-		flags->sw = 1;
-	} else {
-		flags->sw = 0;
-	}
-	s = NULL;
-	s = bam_aux_get(b, "NM");
-	if (s != 0) {
-		nm_code = bam_aux2i(s);
-		flags->edits = nm_code;
-	} else {
-		nm_code = 0;
-		flags->edits = nm_code;
-	}
-
-	return;
+  return;
 }
-
 
 /*
 
  static int fetch_func_ALL (const bam1_t * b1, void *data) {
  fetch_func_data_SR *data_for_bam = (fetch_func_data_SR *) data;
- khash_t (read_name) * read_to_map_qual = (khash_t (read_name) *) data_for_bam->read_to_map_qual;
+ khash_t (read_name) * read_to_map_qual = (khash_t (read_name) *)
+ data_for_bam->read_to_map_qual;
 
  flags_hit *b1_flags = data_for_bam->b1_flags;
  flags_hit *b2_flags = data_for_bam->b2_flags;
@@ -159,191 +186,213 @@ void parse_flags_and_tags(const bam1_t * b, flags_hit * flags) {
  */
 
 // new version fetch function for single end_reads
-static int fetch_func_ALL(const bam1_t * b1, void *data) {
-	fetch_func_data_SR *data_for_bam = (fetch_func_data_SR *) data;
-	khash_t (read_name) * read_to_map_qual =
-			(khash_t (read_name) *) data_for_bam->read_to_map_qual;
+static int
+fetch_func_ALL (const bam1_t *b1, void *data)
+{
+  if (paramd.filterDuplicates && (b1->core.flag & BAM_FDUP))
+    {
+      return 0;
+    }
 
-	flags_hit *b1_flags = data_for_bam->b1_flags;
+  fetch_func_data_SR *data_for_bam = (fetch_func_data_SR *)data;
+  khash_t (read_name) *read_to_map_qual
+      = (khash_t (read_name) *)data_for_bam->read_to_map_qual;
 
-	//SPLIT_READ Temp_One_Read;
-	const bam1_core_t *b1_core;
-	b1_core = &b1->core;
-	parse_flags_and_tags(b1, b1_flags);
-	build_record(b1, data, b1_flags);
+  flags_hit *b1_flags = data_for_bam->b1_flags;
 
-	return 0;
+  // SPLIT_READ Temp_One_Read;
+  const bam1_core_t *b1_core;
+  b1_core = &b1->core;
+  parse_flags_and_tags (b1, b1_flags);
+  build_record (b1, data, b1_flags);
+
+  return 0;
 }
 
 /** 'ReadInRead' reads in reads from Pindel input file. */
-bool ReadInBamReads(const char *bam_path, const std::string & FragName,
-		unsigned start, unsigned end, std::vector<SPLIT_READ> & AllReads,
-		std::string Tag) {
-	samFile *fp;
-	fp = sam_open(bam_path, "r");
-	assert(fp);
-    hts_idx_t *idx;
-	idx = sam_index_load(fp,bam_path); // load BAM index
-    assert(idx);
-    sam_hdr_t *header = sam_hdr_read(fp);
+bool
+ReadInBamReads (const char *bam_path, const std::string &FragName,
+                unsigned start, unsigned end,
+                std::vector<SPLIT_READ> &AllReads, std::string Tag)
+{
+  samFile *fp;
+  fp = sam_open (bam_path, "r");
+  assert (fp);
+  hts_idx_t *idx;
+  idx = sam_index_load (fp, bam_path); // load BAM index
+  assert (idx);
+  sam_hdr_t *header = sam_hdr_read (fp);
 
-	assert(header);
+  assert (header);
 
-	int tid;
-    tid=sam_hdr_name2tid(header,FragName.c_str());
+  int tid;
+  tid = sam_hdr_name2tid (header, FragName.c_str ());
 
-	fetch_func_data_SR data;
-	data.header = header;
-	data.LeftReads = &AllReads;
-	data.read_to_map_qual = NULL;
-	data.read_to_map_qual = kh_init(read_name);
+  fetch_func_data_SR data;
+  data.header = header;
+  data.LeftReads = &AllReads;
+  data.read_to_map_qual = NULL;
+  data.read_to_map_qual = kh_init (read_name);
 
-	flags_hit b1_flags, b2_flags;
-	data.b1_flags = &b1_flags;
-	data.b2_flags = &b2_flags;
-	data.Tag = Tag;
-	// std:: cout << " before bam_fetch " << std::endl;
-	// give warning and abort if using dif refs
-	if (tid == -1) {
-		std::cout << "Program aborted: " << std::endl;
-		std::cout
-				<< "Same reference genome file should be used in both 'scan' and msi/pro/baseline steps!!!"
-				<< std::endl;
-		exit(1);
-	}
-
-    sam_fetch(fp,idx,tid,start,end,&data,fetch_func_ALL);
-
-
-	// std:: cout << " after bam_fetch " << std::endl;
-	khint_t key;
-	if (kh_size (data.read_to_map_qual) > 0) {
-		for (key = kh_begin(data.read_to_map_qual);
-				key != kh_end(data.read_to_map_qual); ++key) {
-			if (kh_exist(data.read_to_map_qual, key)) {
-				bam_destroy1(kh_value (data.read_to_map_qual, key));
-				free((char *) kh_key(data.read_to_map_qual, key));
-			}
-		}
-	}
-
-	kh_clear(read_name, data.read_to_map_qual);
-	kh_destroy(read_name, data.read_to_map_qual);
-
-    sam_hdr_destroy(header);
-    hts_idx_destroy(idx);
-	sam_close(fp);
-
-
-
-	return true;
-}
-
-bool ReadInCramReads(const char *bam_path, const char*ref_path,const std::string & FragName,
-                    unsigned start, unsigned end, std::vector<SPLIT_READ> & AllReads,
-                    std::string Tag){
-
-    hts_opt opt;
-    opt.arg=NULL;
-    opt.opt=CRAM_OPT_REFERENCE;
-    opt.val.s=(char*)ref_path;
-    opt.next=NULL;
-
-    htsFormat format;
-    format.format=cram;
-    format.specific=&opt;
-
-    samFile *fp;
-    fp= sam_open_format(bam_path, "r",&format);
-
-    assert(fp);
-    hts_idx_t *idx;
-    idx = sam_index_load(fp,bam_path); // load BAM index
-    assert(idx);
-    sam_hdr_t *header = sam_hdr_read(fp);
-
-    assert(header);
-
-    int tid;
-    tid=sam_hdr_name2tid(header,FragName.c_str());
-
-    fetch_func_data_SR data;
-    data.header = header;
-    data.LeftReads = &AllReads;
-    data.read_to_map_qual = NULL;
-    data.read_to_map_qual = kh_init(read_name);
-
-    flags_hit b1_flags, b2_flags;
-    data.b1_flags = &b1_flags;
-    data.b2_flags = &b2_flags;
-    data.Tag = Tag;
-    // std:: cout << " before bam_fetch " << std::endl;
-    // give warning and abort if using dif refs
-    if (tid == -1) {
-        std::cout << "Program aborted: " << std::endl;
-        std::cout
-                << "Same reference genome file should be used in both scan and msi/pro/baseline steps!!!"
-                << std::endl;
-        exit(1);
+  flags_hit b1_flags, b2_flags;
+  data.b1_flags = &b1_flags;
+  data.b2_flags = &b2_flags;
+  data.Tag = Tag;
+  // std:: cout << " before bam_fetch " << std::endl;
+  // give warning and abort if using dif refs
+  if (tid == -1)
+    {
+      std::cout << "Program aborted: " << std::endl;
+      std::cout
+          << "Same reference genome file should be used in both 'scan' and "
+             "msi/pro/baseline steps!!!"
+          << std::endl;
+      exit (1);
     }
 
-    sam_fetch(fp,idx,tid,start,end,&data,fetch_func_ALL);
+  sam_fetch (fp, idx, tid, start, end, &data, fetch_func_ALL);
 
-
-    // std:: cout << " after bam_fetch " << std::endl;
-    khint_t key;
-    if (kh_size (data.read_to_map_qual) > 0) {
-        for (key = kh_begin(data.read_to_map_qual);
-             key != kh_end(data.read_to_map_qual); ++key) {
-            if (kh_exist(data.read_to_map_qual, key)) {
-                bam_destroy1(kh_value (data.read_to_map_qual, key));
-                free((char *) kh_key(data.read_to_map_qual, key));
+  // std:: cout << " after bam_fetch " << std::endl;
+  khint_t key;
+  if (kh_size (data.read_to_map_qual) > 0)
+    {
+      for (key = kh_begin (data.read_to_map_qual);
+           key != kh_end (data.read_to_map_qual); ++key)
+        {
+          if (kh_exist (data.read_to_map_qual, key))
+            {
+              bam_destroy1 (kh_value (data.read_to_map_qual, key));
+              free ((char *)kh_key (data.read_to_map_qual, key));
             }
         }
     }
 
-    kh_clear(read_name, data.read_to_map_qual);
-    kh_destroy(read_name, data.read_to_map_qual);
+  kh_clear (read_name, data.read_to_map_qual);
+  kh_destroy (read_name, data.read_to_map_qual);
 
-    sam_hdr_destroy(header);
+  sam_hdr_destroy (header);
+  hts_idx_destroy (idx);
+  sam_close (fp);
 
-    hts_idx_destroy(idx);
-    sam_close(fp);
-
-    return true;
+  return true;
 }
 
+bool
+ReadInCramReads (const char *bam_path, const char *ref_path,
+                 const std::string &FragName, unsigned start, unsigned end,
+                 std::vector<SPLIT_READ> &AllReads, std::string Tag)
+{
 
-// new version build_record for single end reads 
-void build_record(const bam1_t * current_read, void *data,
-		const flags_hit *flag_current_read) {
+  hts_opt opt;
+  opt.arg = NULL;
+  opt.opt = CRAM_OPT_REFERENCE;
+  opt.val.s = (char *)ref_path;
+  opt.next = NULL;
 
-	SPLIT_READ Temp_One_Read;
-	fetch_func_data_SR *data_for_bam = (fetch_func_data_SR *) data;
-    sam_hdr_t *header = (sam_hdr_t *) data_for_bam->header;
-	std::string Tag = (std::string) data_for_bam->Tag;
+  htsFormat format;
+  format.format = cram;
+  format.specific = &opt;
 
-	const bam1_core_t *current_core;
-	current_core = &current_read->core;
-	// Determine sample name for read.
-	// std::string c_sequence;
-    uint8_t *s = bam_get_seq(current_read);
-	for (int i = 0; i < current_core->l_qseq; ++i) {
-		Temp_One_Read.ReadSeq.append(1, seq_nt16_str[bam_seqi(s, i)]);
-	}
-	//std::cout<<Temp_One_Read.ReadSeq<<"\n";
-	if (!flag_current_read->mapped) {
-		Temp_One_Read.Mapped = false;
-	} else {
-		Temp_One_Read.MatchedRelPos = current_core->pos;
-		Temp_One_Read.Mapped = true;
-	}
-	//std::cout<< Temp_One_Read.MatchedRelPos <<"\n";
-	//
-	// load one read
-	data_for_bam->LeftReads->push_back(Temp_One_Read);
+  samFile *fp;
+  fp = sam_open_format (bam_path, "r", &format);
 
-	return;
+  assert (fp);
+  hts_idx_t *idx;
+  idx = sam_index_load (fp, bam_path); // load BAM index
+  assert (idx);
+  sam_hdr_t *header = sam_hdr_read (fp);
+
+  assert (header);
+
+  int tid;
+  tid = sam_hdr_name2tid (header, FragName.c_str ());
+
+  fetch_func_data_SR data;
+  data.header = header;
+  data.LeftReads = &AllReads;
+  data.read_to_map_qual = NULL;
+  data.read_to_map_qual = kh_init (read_name);
+
+  flags_hit b1_flags, b2_flags;
+  data.b1_flags = &b1_flags;
+  data.b2_flags = &b2_flags;
+  data.Tag = Tag;
+  // std:: cout << " before bam_fetch " << std::endl;
+  // give warning and abort if using dif refs
+  if (tid == -1)
+    {
+      std::cout << "Program aborted: " << std::endl;
+      std::cout
+          << "Same reference genome file should be used in both scan and "
+             "msi/pro/baseline steps!!!"
+          << std::endl;
+      exit (1);
+    }
+
+  sam_fetch (fp, idx, tid, start, end, &data, fetch_func_ALL);
+
+  // std:: cout << " after bam_fetch " << std::endl;
+  khint_t key;
+  if (kh_size (data.read_to_map_qual) > 0)
+    {
+      for (key = kh_begin (data.read_to_map_qual);
+           key != kh_end (data.read_to_map_qual); ++key)
+        {
+          if (kh_exist (data.read_to_map_qual, key))
+            {
+              bam_destroy1 (kh_value (data.read_to_map_qual, key));
+              free ((char *)kh_key (data.read_to_map_qual, key));
+            }
+        }
+    }
+
+  kh_clear (read_name, data.read_to_map_qual);
+  kh_destroy (read_name, data.read_to_map_qual);
+
+  sam_hdr_destroy (header);
+
+  hts_idx_destroy (idx);
+  sam_close (fp);
+
+  return true;
+}
+
+// new version build_record for single end reads
+void
+build_record (const bam1_t *current_read, void *data,
+              const flags_hit *flag_current_read)
+{
+
+  SPLIT_READ Temp_One_Read;
+  fetch_func_data_SR *data_for_bam = (fetch_func_data_SR *)data;
+  sam_hdr_t *header = (sam_hdr_t *)data_for_bam->header;
+  std::string Tag = (std::string)data_for_bam->Tag;
+
+  const bam1_core_t *current_core;
+  current_core = &current_read->core;
+  // Determine sample name for read.
+  // std::string c_sequence;
+  uint8_t *s = bam_get_seq (current_read);
+  for (int i = 0; i < current_core->l_qseq; ++i)
+    {
+      Temp_One_Read.ReadSeq.append (1, seq_nt16_str[bam_seqi (s, i)]);
+    }
+  // std::cout<<Temp_One_Read.ReadSeq<<"\n";
+  if (!flag_current_read->mapped)
+    {
+      Temp_One_Read.Mapped = false;
+    }
+  else
+    {
+      Temp_One_Read.MatchedRelPos = current_core->pos;
+      Temp_One_Read.Mapped = true;
+    }
+  // std::cout<< Temp_One_Read.MatchedRelPos <<"\n";
+  //
+  //  load one read
+  data_for_bam->LeftReads->push_back (Temp_One_Read);
+
+  return;
 }
 
 /*
@@ -385,30 +434,38 @@ void build_record(const bam1_t * current_read, void *data,
 
  */
 
-int32_t bam_cigar2len(const bam1_core_t * c, const uint32_t * cigar) {
-	uint32_t k;
-	int32_t l = 0;
-	for (k = 0; k < c->n_cigar; ++k) {
-		int op = cigar[k] & BAM_CIGAR_MASK;
-		if (op == BAM_CMATCH || op == BAM_CINS || op == BAM_CSOFT_CLIP) {
-			l += cigar[k] >> BAM_CIGAR_SHIFT;
-		}
-		if (op == BAM_CDEL) {
-			l -= cigar[k] >> BAM_CIGAR_SHIFT;
-		}
-	}
-	return l;
+int32_t
+bam_cigar2len (const bam1_core_t *c, const uint32_t *cigar)
+{
+  uint32_t k;
+  int32_t l = 0;
+  for (k = 0; k < c->n_cigar; ++k)
+    {
+      int op = cigar[k] & BAM_CIGAR_MASK;
+      if (op == BAM_CMATCH || op == BAM_CINS || op == BAM_CSOFT_CLIP)
+        {
+          l += cigar[k] >> BAM_CIGAR_SHIFT;
+        }
+      if (op == BAM_CDEL)
+        {
+          l -= cigar[k] >> BAM_CIGAR_SHIFT;
+        }
+    }
+  return l;
 }
 
-int32_t bam_cigar2mismatch(const bam1_core_t *readCore, const uint32_t *cigar) {
-	uint32_t cigarIndex;
-	int32_t numberOfMismatches = 0;
-	for (cigarIndex = 0; cigarIndex < readCore->n_cigar; ++cigarIndex) {
-		int elementType = cigar[cigarIndex] & BAM_CIGAR_MASK;
-		if (elementType != BAM_CMATCH) {
-			numberOfMismatches += cigar[cigarIndex] >> BAM_CIGAR_SHIFT;
-		}
-	}
-	return numberOfMismatches;
+int32_t
+bam_cigar2mismatch (const bam1_core_t *readCore, const uint32_t *cigar)
+{
+  uint32_t cigarIndex;
+  int32_t numberOfMismatches = 0;
+  for (cigarIndex = 0; cigarIndex < readCore->n_cigar; ++cigarIndex)
+    {
+      int elementType = cigar[cigarIndex] & BAM_CIGAR_MASK;
+      if (elementType != BAM_CMATCH)
+        {
+          numberOfMismatches += cigar[cigarIndex] >> BAM_CIGAR_SHIFT;
+        }
+    }
+  return numberOfMismatches;
 }
-

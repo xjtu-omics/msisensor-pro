@@ -1,16 +1,16 @@
 # How to install MSIsensor-pro?
 
-## Directly using binary version 
-            
+## Directly using binary version
+
       wget https://github.com/xjtu-omics/msisensor-pro/raw/master/binary/msisensor-pro[v1.x.x]
       chmod +x msisensor-pro[v1.x.x]
       export PATH=`pwd`:$PATH
 
 If some dynamic libraries are missing, you need to install them and add their paths to the LD_LIBRARY_PATH variable.
 
-## Install Using Docker 
+## Install Using Docker
 
-       docker pull pengjia1110/msisensor-pro   
+       docker pull pengjia1110/msisensor-pro
        docker run pengjia1110/msisensor-pro msisensor-pro
 
 When running msisensor-pro with Docker, please note that you need to map the local path to the internal Docker path using the -v option.
@@ -18,8 +18,8 @@ When running msisensor-pro with Docker, please note that you need to map the loc
 ## Install Using Bioconda
 
 
-      conda install msisensor-pro=v1.2.0 # install v1.2.0 version of msisensor-pro with bioconda 
-      conda install msisensor-pro # install latest version of msisensor-pro with bioconda 
+      conda install msisensor-pro=v1.2.0 # install v1.2.0 version of msisensor-pro with bioconda
+      conda install msisensor-pro # install latest version of msisensor-pro with bioconda
 
 
 
@@ -47,11 +47,10 @@ Dependent packages including zlib, ncurses and nurses-dev are required for MSIse
 * make
 
       cd msisensor-pro/
-      ./INSTALL
+      make
 
 * install
 
-      sudo mv binary/msisensor-pro /usr/local/bin/
+      sudo make install
 
   You can also choose to add the path of msisensor-pro to the PATH variable or run it directly using the absolute path.
-

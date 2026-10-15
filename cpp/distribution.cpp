@@ -1,27 +1,26 @@
 
 // System header files
+#include <algorithm>
+#include <assert.h>
+#include <cmath>
+#include <cstdio>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <fstream>
-#include <cmath>
-#include <assert.h>
-#include <unistd.h>
-#include <cstdio>
-#include <string>
-#include <vector>
-#include <algorithm>
-#include<sys/stat.h>
-#include <sys/types.h>
 #include <map>
-#include <unistd.h>
 #include <sstream>
+#include <string>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <vector>
 
 // Static function declaration
+#include "distribution.h"
 #include "param.h"
 #include "polyscan.h"
-#include "distribution.h"
-#include "utilities.h"
 #include "sample.h"
+#include "utilities.h"
 
 // branch
 #include "cmds.h"
@@ -29,18 +28,18 @@
 Param paramd;
 PolyScan polyscan;
 Sample sample;
-//Train train;
+// Train train;
 std::map<std::string, int> SitesSupport;
 
 std::string homoFile;
 std::string bamListFile;
 std::string normalBam;
-std::string BaselineConfig; //Yelab
-std::vector <std::string> TrainName; //Yelab
-std::vector <std::string> BaselineFiles; //Yelab
+std::string BaselineConfig;             // Yelab
+std::vector<std::string> TrainName;     // Yelab
+std::vector<std::string> BaselineFiles; // Yelab
 std::string tumorBam;
 
-std::string refP; //存储reference path
+std::string refP; // 存储reference path
 
 std::string bedFile;
 std::string disFile;
@@ -53,845 +52,1052 @@ std::ofstream foutO;
 
 std::string one_region;
 
-int loadFilepathFromConfig(std::string BaselineConfig,
-                           std::vector <std::string> &BaselineFiles) { //Yelab
-    std::ifstream fin;
-    std::string oneLine = "";
-    fin.open(BaselineConfig.c_str());
-    if (!fin) {
-        std::cerr
-                << "Open configure file failed, please provide valid configure file ! \n";
-        exit(0);
-    }
-    std::cout  << "\n";
-    while (getline(fin, oneLine)) {
-//		getline(fin, oneLine);
-        std::string name = "";
-        std::string base_file = "";
-
-        std::istringstream linestream(oneLine);
-        linestream >> name;
-        linestream >> base_file;
-//        std::cout<<base_file<<"  "<<name<<std::endl;
-        base_file = abs_path(base_file);
-//        std::cout<<base_file<<"  "<<name<<std::endl;
-        std::cout << "load file for " << name << "..\n"
-                  <<  base_file << " OK!\n----------\n";
-//
-//        const char *pathname = base_file.c_str();
-//        if (access(pathname, R_OK) == -1) {
-//            std::cerr << "Open bam file failed( " << bam
-//                      << " ), please provide valid bam file with its index file ! \n";
-//            exit(0);;
-//        } else {
-//            std::cout << "load bam:" << bam << " OK!\n";
-//        }
-        if (!name.empty()) {
-            TrainName.push_back(name);
-            BaselineFiles.push_back(base_file);
-        }
-    }
-    std::cout  << "\n";
-
-    fin.close();
-    return 1;
-}
-
-void DisUsage(void) {
-    std::cerr << "\nUsage:  msisensor-pro msi [options] \n\n"
-              << "       -d   <string>   homopolymers and microsatellites file [required]\n"
-              << "       -n   <string>   normal bam file with index [required]\n"
-              << "       -t   <string>   tumor  bam file with index [required]\n"
-              << "       -g   <string>   reference file [required if *.cram for -t]\n"
-              << "       -o   <string>   output path (Ending with a slash is not allowed.) [required] \n\n"
-
-//              << "       -e   <string>   bed file, optional\n"
-              << "       -f   <double>   FDR threshold for somatic sites detection, [default="
-              << paramd.fdrThreshold << "]\n"
-
-              //        <<"       -i   <double>   minimal comentropy threshold for somatic sites detection (just for tumor only data), default="<<paramd.comentropyThreshold<<"\n"
-              << "       -c   <int>      coverage threshold for msi analysis, WXS: 20; WGS: 15, [default="
-              << paramd.covCutoff << "]\n"
-              << "       -z   <int>      coverage normalization for paired tumor and normal data, 0: no; 1: yes, [default="
-              << paramd.Normalization << "]\n"
-//              << "       -r   <string>   choose one region, format: 1:10000000-20000000\n"
-              //        <<"       -l   <int>      minimal homopolymer size, default="<<paramd.MininalHomoSize<<"\n"
-              << "       -p   <int>      minimal homopolymer size for distribution analysis, [default="
-              << paramd.MininalHomoForDis << "]\n"
-              << "       -m   <int>      maximal homopolymer size for distribution analysis, [default="
-              << paramd.MaxHomoSize << "]\n"
-
-              //        <<"       -q   <int>      minimal microsatellite size, default="<<paramd.MinMicrosate<<"\n"
-              << "       -s   <int>      minimal microsatellite size for distribution analysis, [default="
-              << paramd.MinMicrosateForDis << "]\n"
-              << "       -w   <int>      maximal microsatellite size for distribution analysis, [default="
-              << paramd.MaxMicrosateForDis << "]\n"
-
-              << "       -u   <int>      span size around window for extracting reads, [default="
-              << paramd.DisSpan << "]\n"
-              << "       -b   <int>      threads number for parallel computing, [default="
-              << paramd.numberThreads << "]\n"
-              << "       -x   <int>      output homopolymer only, 0: no; 1: yes, [default="
-              << paramd.HomoOnly << "]\n"
-              << "       -y   <int>      output microsatellites only, 0: no; 1: yes, [default="
-              << paramd.MicrosateOnly << "]\n"
-              << "       -0   <int>      output site have no read coverage, 1: no; 0: yes, [default="
-              << paramd.outputzeroDis << "]\n"
-              << "       -h   help\n"
-              << "-----------------------------------------------------------------\n"
-              << "Function: \n"
-              << "   This module evaluate MSI using the difference between normal and tumor length distribution of microsatellites. You need to input (-d) microsatellites file and two bam files (-t, -n).\n\n"
-              << "Example:\n"
-              << "   msisensor-pro msi -d /path/to/reference.list -n /path/to/case1_normal_sorted.bam -t /path/to/case1_tumor_sorted.bam -o /path/to/case1_output\n\n"
-              << "Note:\n"
-              << "   This module inherits from msisensor. If you use it for your work, please cite:\n"
-              << "   Beifang Niu*, Kai Ye*, Qunyuan Zhang, Charles Lu, Mingchao Xie, Michael D. McLellan, Michael C. Wendl and Li Ding#.MSIsensor: microsatellite instability detection using paired tumor-normal sequence data. Bioinformatics 30, 1015–1016 (2014).\n \n"
-
-              << std::endl;
-    exit(1);
-}
-
-// add by YeLab
-void ProUsage(void) {
-    std::cerr << "\nUsage:  msisensor-pro pro [options] \n\n"
-              << "       -d   <string>   homopolymers and microsatellites file [required] \n"
-              << "       -t   <string>   bam/cram file of tumor/normal(for baseline building) sample [required] \n"
-              << "       -g   <string>   reference file [required if *.cram for -t]\n"
-              << "       -o   <string>   output path (Ending with a slash is not allowed.) [required]\n\n"
-
-//              << "       -e   <string>   bed file, optional\n"
-
-              //		<< "       -f   <double>   FDR threshold for somatic sites detection, default=" << paramd.fdrThreshold << "\n"
-              << "       -i   <double>   minimal threshold for instable sites detection (just for tumor only data), [default="
-              << paramd.hunterThreshold << "]\n"
-              << "       -c   <int>      coverage threshold for msi analysis, WXS: 20; WGS: 15, [default="
-              << paramd.covCutoff << "]\n"
-
-              //      << "       -z   <int>      coverage normalization for paired tumor and normal data, 0: no; 1: yes, default=" << paramd.Normalization << "\n"
-//              << "       -r   <string>   choose one region, format: 1:10000000-20000000 [default=None]\n"
-
-              //		<< "       -l   <int>      minimal homopolymer size, default=" << paramd.MininalHomoSize << "\n"
-              << "       -p   <int>      minimal homopolymer size for distribution analysis, [default="
-              << paramd.MininalHomoForDis << "]\n"
-              << "       -m   <int>      maximal homopolymer size for distribution analysis, [default="
-              << paramd.MaxHomoSize << "]\n"
-
-              //		<< "       -q   <int>      minimal microsates size, default=" << paramd.MinMicrosate << "\n"
-              << "       -s   <int>      minimal microsatellite size for distribution analysis, [default="
-              << paramd.MinMicrosateForDis << "]\n"
-              << "       -w   <int>      maximal microsatellite size for distribution analysis, [default="
-              << paramd.MaxMicrosateForDis << "]\n"
-
-              << "       -u   <int>      span size around window for extracting reads, [default="
-              << paramd.DisSpan << "]\n"
-              << "       -b   <int>      threads number for parallel computing, [default="
-              << paramd.numberThreads << "]\n"
-              << "       -x   <int>      output homopolymer only, 0: no; 1: yes, [default="
-              << paramd.HomoOnly << "]\n"
-              << "       -y   <int>      output microsatellite only, 0: no; 1: yes, [default="
-              << paramd.MicrosateOnly << "[\n"
-              << "       -0   <int>      output site have no read coverage, 1: no; 0: yes, [default="
-              << paramd.outputzeroDis << "]\n"
-              << "       -h   help\n"
-              << "-----------------------------------------------------------------\n"
-              << "Function: \n"
-              << "   This module evaluate MSI using single (tumor) sample. You need to input (-d) microsatellites file and a bam files (-t) .\n\n"
-              << "Example:\n"
-              << "   1. msisensor-pro pro -d /path/to/reference.list -i 0.1 -t /path/to/case1_tumor_sorted.bam -o /path/to/case1_output\n\n"
-              << "   2. msisensor-pro pro -d /path/to/reference.list_baseline -t /path/to/case1_tumor_sorted.bam -o /path/to/case1_output\n\n"
-
-              << "Note:\n"
-              << "   For diffferent requirements of users, we offer two choices.\n"
-              << "      * If you have no normal sample to train a baseline, you can use hard threshold (-i option) to defined an unstable.\n"
-              << "      * You can use also use soft threshold train by your self or download from the github page of msisensor-pro (GRCh38.d1.vd1).\n\n"
-              << std::endl;
-    exit(1);
-}
-
-void EntropyDisUsage(void) {
-    std::cerr << "\nUsage:  msisensor entropy [options] \n\n"
-              << "       -d   <string>   homopolymer and microsatellite file\n"
-              << "       -t   <string>   tumor  bam file\n"
-              << "       -o   <string>   output prefix\n\n"
-
-              << "       -e   <string>   bed file, optional\n"
-              << "       -i   <double>   minimal comentropy threshold for somatic sites detection (just for tumor only data), default="
-              << paramd.comentropyThreshold << "\n"
-              << "       -c   <int>      coverage threshold for msi analysis, WXS: 20; WGS: 15, default="
-              << paramd.covCutoff << "\n"
-              << "       -r   <string>   choose one region, format: 1:10000000-20000000\n"
-              << "       -l   <int>      minimal homopolymer size, default="
-              << paramd.MininalHomoSize << "\n"
-              << "       -p   <int>      minimal homopolymer size for distribution analysis, default="
-              << paramd.MininalHomoForDis << "\n"
-              << "       -m   <int>      maximal homopolymer size for distribution analysis, default="
-              << paramd.MaxHomoSize << "\n"
-
-              << "       -q   <int>      minimal microsatellite size, default="
-              << paramd.MinMicrosate << "\n"
-              << "       -s   <int>      minimal microsatellite size for distribution analysis, default="
-              << paramd.MinMicrosateForDis << "\n"
-              << "       -w   <int>      maximal microsatellite size for distribution analysis, default="
-              << paramd.MaxMicrosateForDis << "\n"
-
-              << "       -u   <int>      span size around window for extracting reads, default="
-              << paramd.DisSpan << "\n"
-              << "       -b   <int>      threads number for parallel computing, default="
-              << paramd.numberThreads << "\n"
-              << "       -x   <int>      output homopolymer only, 0: no; 1: yes, default="
-              << paramd.HomoOnly << "\n"
-              << "       -y   <int>      output microsatellite only, 0: no; 1: yes, default="
-              << paramd.MicrosateOnly << "\n" << "       \n"
-              << "       -h   help\n\n"
-
-              << std::endl;
-    exit(1);
-}
-
-//add by yelab
-void TrainUsage(void) {
-    std::cerr << "\nUsage:  msisensor-pro baseline [options] \n\n"
-              << "       -d   <string>   homopolymer and microsatellite file [required]\n"
-              << "       -i   <string>   configure files for building baseline (text file) [required]\n"
-              << "            you need to provide the output (*_all) from pro command \n"
-              << "            e.g.\n"
-
-              << "             ----------------------------------\n"
-              << "              case1\t/path/to/case1_sorted_all \n"
-              << "              case2\t/path/to/case2_sorted_all \n"
-              << "              case3\t/path/to/case3-sorted_all \n"
-              << "             ----------------------------------\n"
-              << "       -o   <string>   output path for baseline [required] \n\n"
-
-//              << "       -c   <int>      coverage threshold for msi analysis, WXS: 20; WGS: 15, default="
-//              << paramd.covCutoff << "\n"
-
-//              << "       -g   <string>   reference file( .cram need )\n"
-              << "       -s   <double>   microsatellite sites with support from fewer than -d samples will not pass quality control, [default="
-              << paramd.sampleNum << "]\n"
-//              << "       -p   <int>      minimal homopolymer size for pro analysis, default="
-//              << paramd.MininalHomoForDis << "\n"
-//              << "       -m   <int>      maximal homopolymer size for pro analysis, default="
-//              << paramd.MaxHomoSize << "\n"
-//
-//              << "       -u   <int>      span size around window for extracting reads, default="
-//              << paramd.DisSpan << "\n"
-//              << "       -s   <int>      minimal microsatellite size for distribution analysis, default="
-//              << paramd.MinMicrosateForDis << "\n"
-//              << "       -w   <int>      maximal microsatellite size for distribution analysis, default="
-//              << paramd.MaxMicrosateForDis << "\n"
-//
-
-//              << "       -u   <int>      span size around window for extracting reads, default="
-//              << paramd.DisSpan << "\n"
-//              << "       -b   <int>      threads number for parallel computing, default="
-//              << paramd.numberThreads << "\n"
-//              << "       -x   <int>      output homopolymer only, 0: no; 1: yes, default="
-//              << paramd.HomoOnly << "\n"
-//              << "       -y   <int>      output microsatellite only, 0: no; 1: yes, default="
-//              << paramd.MicrosateOnly << "\n"
-//              << "       -0   <int>      output site have no read coverage, 1: no; 0: yes, default="
-//              << paramd.outputzeroDis << "\n" << "       \n"
-              << "       -h   help\n"
-              << "-----------------------------------------------------------------\n"
-              << "Function: \n"
-              << "   This module build baseline for MSI detection with pro module using only tumor sequencing data. To achieve it, you need sequencing data from normal samples(-i).\n\n"
-              << "Example:\n"
-              << "   msisensor-pro baseline -d /path/to/reference.list -i /path/to/configure.txt -o /path/to/baseline.tsv \n\n"
-
-              << "Note:\n\n"
-              << "   If you have any questions, please contact with Peng Jia (pengjia@xjtu.edu.cn).\n"
-
-              << std::endl;
-    exit(1);
-}
-
-int dGetOptions(int rgc, char *rgv[]) {
-    int i;
-    for (i = 1; i < rgc; i++) {
-        if (rgv[i][0] != '-')
-            return i;
-        switch (rgv[i][1]) {
-            case 'g':
-                refP=rgv[++i];
-                break;
-            case 'd':
-                homoFile = rgv[++i];
-                break;
-            case 'n':
-                normalBam = rgv[++i];
-                break;
-            case 't':
-                tumorBam = rgv[++i];
-                break;
-            case 'o':
-                disFile = rgv[++i];
-                break;
-            case 'e':
-                bedFile = rgv[++i];
-                break;
-            case 'r':
-                one_region = rgv[++i];
-                break;
-            case 'f':
-                paramd.fdrThreshold = atof(rgv[++i]);
-                break;
-//            case 'i': paramd.comentropyThreshold = atof(rgv[++i]); break;
-            case 'c':
-                paramd.covCutoff = atoi(rgv[++i]);
-                break;
-            case 'z':
-                paramd.Normalization = atoi(rgv[++i]);
-                break;
-            case 'l':
-                paramd.MininalHomoSize = atoi(rgv[++i]);
-                break;
-            case 'p':
-                paramd.MininalHomoForDis = atoi(rgv[++i]);
-                break;
-            case 'u':
-                paramd.DisSpan = atoi(rgv[++i]);
-                break;
-            case 'm':
-                paramd.MaxHomoSize = atoi(rgv[++i]);
-                break;
-            case 'q':
-                paramd.MinMicrosate = atoi(rgv[++i]);
-                break;
-            case 's':
-                paramd.MinMicrosateForDis = atoi(rgv[++i]);
-                break;
-            case 'w':
-                paramd.MaxMicrosateForDis = atoi(rgv[++i]);
-                break;
-            case 'b':
-                paramd.numberThreads = atoi(rgv[++i]);
-                break;
-            case 'x':
-                paramd.HomoOnly = atoi(rgv[++i]);
-                break;
-            case 'y':
-                paramd.MicrosateOnly = atoi(rgv[++i]);
-                break;
-            case '0':
-                paramd.outputzeroDis = atoi(rgv[++i]);
-                break;
-
-                break;
-            case 'h':
-                DisUsage();
-            case '?':
-                DisUsage();
-            default:
-                std::cout << "ERROR: unrecognized option " << rgv[i] << std::endl;
-
-        }
-    }
-    return i;
-}
-
-//add by YeLab
-int dGetProOptions(int rgc, char *rgv[]) {
-    int i;
-    for (i = 1; i < rgc; i++) {
-        if (rgv[i][0] != '-')
-            return i;
-        switch (rgv[i][1]) {
-            case 'g':
-                refP=rgv[++i];
-                break;
-            case 'd':
-                homoFile = rgv[++i];
-                break;
-                //case 'n': normalBam = rgv[++i]; break;
-            case 't':
-                tumorBam = rgv[++i];
-                break;
-            case 'o':
-                disFile = rgv[++i];
-                break;
-            case 'e':
-                bedFile = rgv[++i];
-                break;
-            case 'r':
-                one_region = rgv[++i];
-                break;
-                //	case 'f': paramd.fdrThreshold = atof(rgv[++i]); break;
-            case 'i':
-                paramd.hunterThreshold = atof(rgv[++i]);
-                paramd.hard = true;
-                break;
-            case 'c':
-                paramd.covCutoff = atoi(rgv[++i]);
-                break;
-                //	case 'z': paramd.Normalization = atoi(rgv[++i]); break;
-                //	case 'l': paramd.MininalHomoSize = atoi(rgv[++i]); break;
-            case 'p':
-                paramd.MininalHomoForDis = atoi(rgv[++i]);
-                break;
-            case 'u':
-                paramd.DisSpan = atoi(rgv[++i]);
-                break;
-            case 'm':
-                paramd.MaxHomoSize = atoi(rgv[++i]);
-                break;
-//		case 'q': paramd.MinMicrosate = atoi(rgv[++i]); break;
-            case 's':
-                paramd.MinMicrosateForDis = atoi(rgv[++i]);
-                break;
-            case 'w':
-                paramd.MaxMicrosateForDis = atoi(rgv[++i]);
-                break;
-            case 'b':
-                paramd.numberThreads = atoi(rgv[++i]);
-                break;
-            case 'x':
-                paramd.HomoOnly = atoi(rgv[++i]);
-                break;
-            case 'y':
-                paramd.MicrosateOnly = atoi(rgv[++i]);
-                break;
-            case '0':
-                paramd.outputzeroDis = atoi(rgv[++i]);
-                break;
-                break;
-            case 'h':
-                ProUsage();
-            case '?':
-                ProUsage();
-            default:
-                std::cout << "ERROR: unrecognized option " << rgv[i] << std::endl;
-        }
-    }
-    return i;
-}
-
-//add by yelab
-int tGetOptions(int rgc, char *rgv[]) {
-    int i;
-    for (i = 1; i < rgc; i++) {
-        if (rgv[i][0] != '-')
-            return i;
-        switch (rgv[i][1]) {
-
-//            case 'g':
-//                refP=rgv[++i];
-//                break;
-            case 'd':
-                homoFile = rgv[++i];
-                break;
-            case 'i':
-                BaselineConfig = rgv[++i];
-                break;
-            case 'o':
-                disFile = rgv[++i];
-                break;
-
-//            case 'e': bedFile  = rgv[++i]; break;
-//            case 'r': one_region = rgv[++i]; break;
-//			case '0': paramd.outputzeroDis=atoi(rgv[++i]); break;
-//			case 'a': paramd.NormalcovCutoff = atof(rgv[++i]); break;//!
-                //case 'i': paramd.comentropyThreshold = atof(rgv[++i]); break;
-//            case 'c':
-//                paramd.covCutoff = atoi(rgv[++i]);
-//                break;
-            case 's':
-                paramd.sampleNum = atoi(rgv[++i]);
-                break;
-//            case 'p':
-//                paramd.MininalHomoForDis = atof(rgv[++i]);
-//                break;
-//
-//            case 'u':
-//                paramd.DisSpan = atoi(rgv[++i]);
-//                break;
-//            case 'm':
-//                paramd.MaxHomoSize = atoi(rgv[++i]);
-//                break;
-////            case 'q': paramd.MinMicrosate = atoi(rgv[++i]); break;
-//            case 's':
-//                paramd.MinMicrosateForDis = atoi(rgv[++i]);
-//                break;
-//            case 'w':
-//                paramd.MaxMicrosateForDis = atoi(rgv[++i]);
-//                break;
-//            case 'b':
-//                paramd.numberThreads = atoi(rgv[++i]);
-//                break;
-//            case 'x':
-//                paramd.HomoOnly = atoi(rgv[++i]);
-//                break;
-//            case 'y':
-//                paramd.MicrosateOnly = atoi(rgv[++i]);
-//                break;
-//            case '0':
-//                paramd.outputzeroDis = atoi(rgv[++i]);
-//                break;
-//                break;
-            case 'h':
-                TrainUsage();
-            case '?':
-                TrainUsage();
-            default:
-                std::cout << "ERROR: unrecognized option " << rgv[i] << std::endl;
-
-        }
-    }
-    return i;
-}
-
-std::string abs_path(std::string path) {
-#define max_path 40960
-    char resolved_path[max_path] = {0};
-    realpath(path.c_str(), resolved_path);
-    return std::string(resolved_path);
-}
-
-int trainTest() {
-    //add code for directory
-//    char currentPath[1000];
-//    getcwd(currentPath, 100);
-//    std::cout << "Check for the environment ... " << "\n";
-//    std::cout << "Current work path: " << currentPath << "\n";
-//    std::cout << "Microsatellites file: " << abs_path(homoFile) << "\n";
-//    std::cout << "Configure file path: " << abs_path(BaselineConfig) << "\n";
-//    std::cout << "Output path:" << abs_path(disFile) << "\n";
-//    BaselineConfig = abs_path(BaselineConfig);
-//    homoFile = abs_path(homoFile);
-//    paramd.homoFile = abs_path(homoFile);
-//    disFile = abs_path(disFile) + "/";
-//    const char *per = disFile.c_str();
-//    std::string dir = disFile;
-//    if (access(dir.c_str(), 0) == -1) {
-//        std::cout << dir << " is not existing！ now make it! OK!" << std::endl;
-//
-//        int flag = mkdir(dir.c_str(), 0777);
-//        if (flag == 0) { ;
-//				std::cout<<<<"make successfully"<<std::endl;
-//        } else {
-//            std::cout << "make errorly" << std::endl;
-//            return -1;
-//        }
-//    } else {
-//        std::cout << dir << " is existing! OK!" << std::endl;
-//    }
-//    dir = disFile + "detail";
-//    if (access(dir.c_str(), 0) == -1) {
-//        std::cout << dir << " is not existing！ now make it ! OK!" << std::endl;
-//
-//        int flag = mkdir(dir.c_str(), 0777);
-//        if (flag == 0) {
-//			std::cout<<"make successfully"<<std::endl;
-//            ;
-//        } else {
-//            std::cout << "make errorly" << std::endl;
-//            return -1;
-//        }
-//    } else {
-//        std::cout << dir << " is existing! OK!" << std::endl;
-//    }
-    std::cout << std::endl;
-    std::cout << "Load files ... " << "\n";
-    return 1;
-}
-
-int dGetEntropyOptions(int rgc, char *rgv[]) {
-    int i;
-    for (i = 1; i < rgc; i++) {
-        if (rgv[i][0] != '-')
-            return i;
-        switch (rgv[i][1]) {
-            case 'd':
-                homoFile = rgv[++i];
-                break;
-            case 't':
-                tumorBam = rgv[++i];
-                break;
-            case 'o':
-                disFile = rgv[++i];
-                break;
-            case 'e':
-                bedFile = rgv[++i];
-                break;
-            case 'r':
-                one_region = rgv[++i];
-                break;
-            case 'i':
-                paramd.comentropyThreshold = atof(rgv[++i]);
-                break;
-            case 'c':
-                paramd.covCutoff = atoi(rgv[++i]);
-                break;
-            case 'l':
-                paramd.MininalHomoSize = atoi(rgv[++i]);
-                break;
-            case 'p':
-                paramd.MininalHomoForDis = atoi(rgv[++i]);
-                break;
-            case 'u':
-                paramd.DisSpan = atoi(rgv[++i]);
-                break;
-            case 'm':
-                paramd.MaxHomoSize = atoi(rgv[++i]);
-                break;
-            case 'q':
-                paramd.MinMicrosate = atoi(rgv[++i]);
-                break;
-            case 's':
-                paramd.MinMicrosateForDis = atoi(rgv[++i]);
-                break;
-            case 'w':
-                paramd.MaxMicrosateForDis = atoi(rgv[++i]);
-                break;
-            case 'b':
-                paramd.numberThreads = atoi(rgv[++i]);
-                break;
-            case 'x':
-                paramd.HomoOnly = atoi(rgv[++i]);
-                break;
-            case 'y':
-                paramd.MicrosateOnly = atoi(rgv[++i]);
-                break;
-                break;
-            case 'h':
-                EntropyDisUsage();
-            case '?':
-                EntropyDisUsage();
-            default:
-                std::cout << "ERROR: unrecognized option " << rgv[i] << std::endl;
-
-        }
-    }
-    return i;
-}
-
-//add by yelab : train normal data and find the p values for normal control
-int TrainMsiP(int argc, char *argv[]) {
-    paramd.train = true;
-    if (argc == 1)
-        TrainUsage();
-    for (int i = 0; i < argc; i++) {
-        std::cout << argv[i] << ' ';
-    }
-    Initial_Time();
-    std::cout << "Start at:  " << Curr_Time() << std::endl;
-
-    int noptions = tGetOptions(argc, argv);
-//    if (trainTest() < 0) {
-//        exit(0);
-//    }
-    // process user defined region
-//    if (!one_region.empty()) {
-//        if (!polyscan.ParseOneRegion(one_region)) {
-//            std::cerr
-//                    << "fatal error: Please give correct defined region format (-r) \n";
-//            exit(1);
-//        }
-//        polyscan.ifUserDefinedRegion = true;
-//    } else {
-//        polyscan.ifUserDefinedRegion = false;
-//    }
-    // reading bed file if is exist
-//    finB.open(bedFile.c_str());
-//    if (finB) {
-//        std::cout << "loading bed regions ..." << std::endl;
-//        polyscan.LoadBeds(finB);
-//        polyscan.BedFilterorNot();
-//    }
-//    finB.close();
-
-
-    loadFilepathFromConfig(BaselineConfig, BaselineFiles);
-    for (int j = 0; j < BaselineFiles.size(); j++) {
-        polyscan.LoadNormalStatistic(BaselineFiles[j], TrainName[j]);
-    }
-    polyscan.refPath=refP;
-
-    //如果训练集中提供了cram，则必须提供reference
-//    for(int j=0;j<BaselineFiles.size();j++)
-//    {
-//        if(BaselineFiles[j].find(".cram")!=std::string::npos)
-//        {
-//            if(access(polyscan.refPath.c_str(), R_OK) == -1)
-//            {
-//                std::cerr << "Open reference file failed( " << polyscan.refPath
-//                          << " ), please provide valid reference file ! \n";
-//                exit(0);;
-//            }
-//        }
-//    }
-
-
-
-    finH.open(homoFile.c_str());
-    if (!finH) {
-        std::cerr
-                << "fatal error: failed to open homopolymer and microsatellites file\n";
-        exit(1);
-    }
-    std::cout << "Loading homopolymer and microsatellite sites ... "
-              << std::endl;
-    polyscan.LoadHomosAndMicrosates(finH);
-    finH.close();
-    polyscan.SplitWindows();
-    std::cout << "Total loading windows:  " << polyscan.totalWindowsNum
-              << "  !OK \n";
-    std::cout << "Total loading homopolymer and microsatellites:  "
-              << polyscan.totalHomosites << "    !OK \n\n";
-    polyscan.MergeBaseline(sample, disFile);
-    std::cout << "Total time consumed:  " << Cal_AllTime() << " secs\n\n";
-
-    return 0;
-}
-
-int HomoAndMicrosateDisMsi(int argc, char *argv[]) {
-    if (argc == 1)
-        DisUsage();
-    for (int i = 0; i < argc; i++) {
-        std::cout << argv[i] << ' ';
-    }
-    Initial_Time();
-    std::cout << "Start at:  " << Curr_Time() << std::endl;
-
-    int noptions = dGetOptions(argc, argv);
-    // process user defined region
-    if (!one_region.empty()) {
-        if (!polyscan.ParseOneRegion(one_region)) {
-            std::cerr
-                    << "fatal error: Please give correct defined region format (-r) \n";
-            exit(1);
-        }
-        polyscan.ifUserDefinedRegion = true;
-    } else {
-        polyscan.ifUserDefinedRegion = false;
-    }
-    // reading bed file if is exist
-    finB.open(bedFile.c_str());
-    if (finB) {
-        std::cout << "loading bed regions ..." << std::endl;
-        polyscan.LoadBeds(finB);
-        polyscan.BedFilterorNot();
-    }
-    finB.close();
-
-    // load bam files
-    //polyscan.LoadBams( normalBam, tumorBam );
-//    if (!normalBam.empty() && !tumorBam.empty()) {
-//        polyscan.LoadBams( normalBam, tumorBam );
-//    }
-//    // just for tumor only data
-//    if (normalBam.empty() && !tumorBam.empty()) {
-//        polyscan.LoadBam(tumorBam);
-//    }
-
-
-    polyscan.LoadBams(normalBam, tumorBam);
-    polyscan.refPath=refP;
-
-    if(tumorBam.find(".cram")!=std::string::npos || normalBam.find(".cram")!=std::string::npos)
+int
+loadFilepathFromConfig (std::string BaselineConfig,
+                        std::vector<std::string> &BaselineFiles)
+{ // Yelab
+  std::ifstream fin;
+  std::string oneLine = "";
+  fin.open (BaselineConfig.c_str ());
+  if (!fin)
     {
-        if(access(polyscan.refPath.c_str(), R_OK) == -1)
+      std::cerr
+          << "Open configure file failed, please provide valid configure "
+             "file ! \n";
+      exit (0);
+    }
+  std::cout << "\n";
+  while (getline (fin, oneLine))
+    {
+      //		getline(fin, oneLine);
+      std::string name = "";
+      std::string base_file = "";
+
+      std::istringstream linestream (oneLine);
+      linestream >> name;
+      linestream >> base_file;
+      //        std::cout<<base_file<<"  "<<name<<std::endl;
+      base_file = abs_path (base_file);
+      //        std::cout<<base_file<<"  "<<name<<std::endl;
+      std::cout << "load file for " << name << "..\n"
+                << base_file << " OK!\n----------\n";
+      //
+      //        const char *pathname = base_file.c_str();
+      //        if (access(pathname, R_OK) == -1) {
+      //            std::cerr << "Open bam file failed( " << bam
+      //                      << " ), please provide valid bam file with its
+      //                      index file ! \n";
+      //            exit(0);;
+      //        } else {
+      //            std::cout << "load bam:" << bam << " OK!\n";
+      //        }
+      if (!name.empty ())
         {
-            std::cerr << "Open reference file failed( " << polyscan.refPath
-                      << " ), please provide valid reference file ! \n";
-            exit(0);;
+          TrainName.push_back (name);
+          BaselineFiles.push_back (base_file);
         }
     }
-    // check homo/microsate file
-    finH.open(homoFile.c_str());
-    if (!finH) {
-        std::cerr
-                << "fatal error: failed to open homopolymer and microsatellites file\n";
-        exit(1);
-    }
-    std::cout << "loading homopolymer and microsatellite sites ..."
-              << std::endl;
-    polyscan.LoadHomosAndMicrosates(finH);
-    finH.close();
-    //polyscan.TestHomos();
-    polyscan.SplitWindows();
-    //polyscan.TestWindows();
-    std::cout << "\nTotal loading windows:  " << polyscan.totalWindowsNum
-              << " \n\n";
-    std::cout << "\nTotal loading homopolymer and microsatellites:  "
-              << polyscan.totalHomosites << " \n\n";
+  std::cout << "\n";
 
-    // change code to one sample
-    //polyscan.GetHomoDistribution(sample, disFile);
-    // control distribution for tumor only input
-    if (!normalBam.empty() && !tumorBam.empty()) {
-        polyscan.GetHomoDistribution(sample, disFile);
-    }
-    //  if (normalBam.empty() && !tumorBam.empty()) {
-    //    polyscan.GetHomoTumorDistribution(sample, disFile);
-    //}
-
-    std::cout << "\nTotal time consumed:  " << Cal_AllTime() << " secs\n\n";
-
-    return 0;
+  fin.close ();
+  return 1;
 }
 
-int HomoAndMicrosateDisMsiEntropy(int argc, char *argv[]) {
-    if (argc == 1)
-        EntropyDisUsage();
-    for (int i = 0; i < argc; i++) {
-        std::cout << argv[i] << ' ';
-    }
-    Initial_Time();
-    std::cout << "Start at:  " << Curr_Time() << std::endl;
+void
+DisUsage (void)
+{
+  std::cerr
+      << "\nUsage:  msisensor-pro msi [options] \n\n"
+      << "       -d   <string>   homopolymers and microsatellites file "
+         "[required]\n"
+      << "       -n   <string>   normal bam file with index [required]\n"
+      << "       -t   <string>   tumor  bam file with index [required]\n"
+      << "       -g   <string>   reference file [required if *.cram for -t]\n"
+      << "       -o   <string>   output path (Ending with a slash is not "
+         "allowed.) [required] \n\n"
 
-    int noptions = dGetEntropyOptions(argc, argv);
-    // process user defined region
-    if (!one_region.empty()) {
-        if (!polyscan.ParseOneRegion(one_region)) {
-            std::cerr
-                    << "fatal error: Please give correct defined region format (-r) \n";
-            exit(1);
-        }
-        polyscan.ifUserDefinedRegion = true;
-    } else {
-        polyscan.ifUserDefinedRegion = false;
-    }
+      //              << "       -e   <string>   bed file, optional\n"
+      << "       -f   <double>   FDR threshold for somatic sites detection, "
+         "[default="
+      << paramd.fdrThreshold
+      << "]\n"
 
-    finB.open(bedFile.c_str());
-    if (finB) {
-        std::cout << "loading bed regions ..." << std::endl;
-        polyscan.LoadBeds(finB);
-        polyscan.BedFilterorNot();
-    }
-    finB.close();
+      //        <<"       -i   <double>   minimal comentropy threshold for
+      //        somatic sites detection (just for tumor only data),
+      //        default="<<paramd.comentropyThreshold<<"\n"
+      << "       -c   <int>      coverage threshold for msi analysis, WXS: "
+         "20; "
+         "WGS: 15, [default="
+      << paramd.covCutoff << "]\n"
+      << "       -z   <int>      coverage normalization for paired tumor and "
+         "normal data, 0: no; 1: yes, [default="
+      << paramd.Normalization
+      << "]\n"
+      //              << "       -r   <string>   choose one region, format:
+      //              1:10000000-20000000\n"
+      //        <<"       -l   <int>      minimal homopolymer size,
+      //        default="<<paramd.MininalHomoSize<<"\n"
+      << "       -p   <int>      minimal homopolymer size for distribution "
+         "analysis, [default="
+      << paramd.MininalHomoForDis << "]\n"
+      << "       -m   <int>      maximal homopolymer size for distribution "
+         "analysis, [default="
+      << paramd.MaxHomoSize
+      << "]\n"
 
-    // load bam files
-    // just for tumor only data
-    polyscan.LoadBam(tumorBam);
+      //        <<"       -q   <int>      minimal microsatellite size,
+      //        default="<<paramd.MinMicrosate<<"\n"
+      << "       -s   <int>      minimal microsatellite size for distribution "
+         "analysis, [default="
+      << paramd.MinMicrosateForDis << "]\n"
+      << "       -w   <int>      maximal microsatellite size for distribution "
+         "analysis, [default="
+      << paramd.MaxMicrosateForDis << "]\n"
 
-    // check homo/microsate file
-    finH.open(homoFile.c_str());
-    if (!finH) {
-        std::cerr
-                << "fatal error: failed to open homopolymer and microsatellites file\n";
-        exit(1);
-    }
-    std::cout << "loading homopolymer and microsatellite sites ..."
-              << std::endl;
-    polyscan.LoadHomosAndMicrosates(finH);
-    finH.close();
-    //polyscan.TestHomos();
-    polyscan.SplitWindows();
-    //polyscan.TestWindows();
-    std::cout << "\nTotal loading windows:  " << polyscan.totalWindowsNum
-              << " \n\n";
-    std::cout << "\nTotal loading homopolymer and microsatellites:  "
-              << polyscan.totalHomosites << " \n\n";
+      << "       -u   <int>      span size around window for extracting "
+         "reads, "
+         "[default="
+      << paramd.DisSpan << "]\n"
+      << "       -b   <int>      threads number for parallel computing, "
+         "[default="
+      << paramd.numberThreads << "]\n"
+      << "       -x   <int>      output homopolymer only, 0: no; 1: yes, "
+         "[default="
+      << paramd.HomoOnly << "]\n"
+      << "       -y   <int>      output microsatellites only, 0: no; 1: yes, "
+         "[default="
+      << paramd.MicrosateOnly << "]\n"
+      << "       -0   <int>      output site have no read coverage, 1: no; 0: "
+         "yes, [default="
+      << paramd.outputzeroDis << "]\n"
+      << "       -D, --ignore-duplicates   ignore reads marked as duplicate, "
+         "[default=no]\n"
+      << "       -h   help\n"
+      << "-----------------------------------------------------------------\n"
+      << "Function: \n"
+      << "   This module evaluate MSI using the difference between normal and "
+         "tumor length distribution of microsatellites. You need to input "
+         "(-d) "
+         "microsatellites file and two bam files (-t, -n).\n\n"
+      << "Example:\n"
+      << "   msisensor-pro msi -d /path/to/reference.list -n "
+         "/path/to/case1_normal_sorted.bam -t /path/to/case1_tumor_sorted.bam "
+         "-o /path/to/case1_output\n\n"
+      << "Note:\n"
+      << "   This module inherits from msisensor. If you use it for your "
+         "work, "
+         "please cite:\n"
+      << "   Beifang Niu*, Kai Ye*, Qunyuan Zhang, Charles Lu, Mingchao Xie, "
+         "Michael D. McLellan, Michael C. Wendl and Li Ding#.MSIsensor: "
+         "microsatellite instability detection using paired tumor-normal "
+         "sequence data. Bioinformatics 30, 1015–1016 (2014).\n \n"
 
-    // change code to one sample
-    polyscan.GetHomoTumorDistribution(sample, disFile);
-    std::cout << "\nTotal time consumed:  " << Cal_AllTime() << " secs\n\n";
-    return 0;
+      << std::endl;
+  exit (1);
 }
 
 // add by YeLab
-//int InitHunter(){
+void
+ProUsage (void)
+{
+  std::cerr
+      << "\nUsage:  msisensor-pro pro [options] \n\n"
+      << "       -d   <string>   homopolymers and microsatellites file "
+         "[required] \n"
+      << "       -t   <string>   bam/cram file of tumor/normal(for baseline "
+         "building) sample [required] \n"
+      << "       -g   <string>   reference file [required if *.cram for -t]\n"
+      << "       -o   <string>   output path (Ending with a slash is not "
+         "allowed.) [required]\n\n"
+
+      //              << "       -e   <string>   bed file, optional\n"
+
+      //		<< "       -f   <double>   FDR threshold for somatic
+      // sites detection, default=" << paramd.fdrThreshold << "\n"
+      << "       -i   <double>   minimal threshold for instable sites "
+         "detection (just for tumor only data), [default="
+      << paramd.hunterThreshold << "]\n"
+      << "       -c   <int>      coverage threshold for msi analysis, WXS: "
+         "20; "
+         "WGS: 15, [default="
+      << paramd.covCutoff
+      << "]\n"
+
+      //      << "       -z   <int>      coverage normalization for paired
+      //      tumor and normal data, 0: no; 1: yes, default=" <<
+      //      paramd.Normalization
+      //      << "\n"
+      //              << "       -r   <string>   choose one region, format:
+      //              1:10000000-20000000 [default=None]\n"
+
+      //		<< "       -l   <int>      minimal homopolymer size,
+      // default=" << paramd.MininalHomoSize << "\n"
+      << "       -p   <int>      minimal homopolymer size for distribution "
+         "analysis, [default="
+      << paramd.MininalHomoForDis << "]\n"
+      << "       -m   <int>      maximal homopolymer size for distribution "
+         "analysis, [default="
+      << paramd.MaxHomoSize
+      << "]\n"
+
+      //		<< "       -q   <int>      minimal microsates size,
+      // default=" << paramd.MinMicrosate << "\n"
+      << "       -s   <int>      minimal microsatellite size for distribution "
+         "analysis, [default="
+      << paramd.MinMicrosateForDis << "]\n"
+      << "       -w   <int>      maximal microsatellite size for distribution "
+         "analysis, [default="
+      << paramd.MaxMicrosateForDis << "]\n"
+
+      << "       -u   <int>      span size around window for extracting "
+         "reads, "
+         "[default="
+      << paramd.DisSpan << "]\n"
+      << "       -b   <int>      threads number for parallel computing, "
+         "[default="
+      << paramd.numberThreads << "]\n"
+      << "       -x   <int>      output homopolymer only, 0: no; 1: yes, "
+         "[default="
+      << paramd.HomoOnly << "]\n"
+      << "       -y   <int>      output microsatellite only, 0: no; 1: yes, "
+         "[default="
+      << paramd.MicrosateOnly << "[\n"
+      << "       -0   <int>      output site have no read coverage, 1: no; 0: "
+         "yes, [default="
+      << paramd.outputzeroDis << "]\n"
+      << "       -D, --ignore-duplicates   ignore reads marked as duplicate, "
+         "[default=no]\n"
+      << "       -h   help\n"
+      << "-----------------------------------------------------------------\n"
+      << "Function: \n"
+      << "   This module evaluate MSI using single (tumor) sample. You need "
+         "to "
+         "input (-d) microsatellites file and a bam files (-t) .\n\n"
+      << "Example:\n"
+      << "   1. msisensor-pro pro -d /path/to/reference.list -i 0.1 -t "
+         "/path/to/case1_tumor_sorted.bam -o /path/to/case1_output\n\n"
+      << "   2. msisensor-pro pro -d /path/to/reference.list_baseline -t "
+         "/path/to/case1_tumor_sorted.bam -o /path/to/case1_output\n\n"
+
+      << "Note:\n"
+      << "   For diffferent requirements of users, we offer two choices.\n"
+      << "      * If you have no normal sample to train a baseline, you can "
+         "use hard threshold (-i option) to defined an unstable.\n"
+      << "      * You can use also use soft threshold train by your self or "
+         "download from the github page of msisensor-pro (GRCh38.d1.vd1).\n\n"
+      << std::endl;
+  exit (1);
+}
+
+void
+EntropyDisUsage (void)
+{
+  std::cerr
+      << "\nUsage:  msisensor entropy [options] \n\n"
+      << "       -d   <string>   homopolymer and microsatellite file\n"
+      << "       -t   <string>   tumor  bam file\n"
+      << "       -o   <string>   output prefix\n\n"
+
+      << "       -e   <string>   bed file, optional\n"
+      << "       -i   <double>   minimal comentropy threshold for "
+         "somatic sites detection (just for tumor only data), default="
+      << paramd.comentropyThreshold << "\n"
+      << "       -c   <int>      coverage threshold for msi analysis, "
+         "WXS: 20; WGS: 15, default="
+      << paramd.covCutoff << "\n"
+      << "       -r   <string>   choose one region, format: "
+         "1:10000000-20000000\n"
+      << "       -l   <int>      minimal homopolymer size, default="
+      << paramd.MininalHomoSize << "\n"
+      << "       -p   <int>      minimal homopolymer size for "
+         "distribution analysis, default="
+      << paramd.MininalHomoForDis << "\n"
+      << "       -m   <int>      maximal homopolymer size for "
+         "distribution analysis, default="
+      << paramd.MaxHomoSize << "\n"
+
+      << "       -q   <int>      minimal microsatellite size, default="
+      << paramd.MinMicrosate << "\n"
+      << "       -s   <int>      minimal microsatellite size for "
+         "distribution analysis, default="
+      << paramd.MinMicrosateForDis << "\n"
+      << "       -w   <int>      maximal microsatellite size for "
+         "distribution analysis, default="
+      << paramd.MaxMicrosateForDis << "\n"
+
+      << "       -u   <int>      span size around window for extracting "
+         "reads, default="
+      << paramd.DisSpan << "\n"
+      << "       -b   <int>      threads number for parallel computing, "
+         "default="
+      << paramd.numberThreads << "\n"
+      << "       -x   <int>      output homopolymer only, 0: no; 1: yes, "
+         "default="
+      << paramd.HomoOnly << "\n"
+      << "       -y   <int>      output microsatellite only, 0: no; 1: "
+         "yes, default="
+      << paramd.MicrosateOnly << "\n"
+      << "       \n"
+      << "       -h   help\n\n"
+
+      << std::endl;
+  exit (1);
+}
+
+// add by yelab
+void
+TrainUsage (void)
+{
+  std::cerr
+      << "\nUsage:  msisensor-pro baseline [options] \n\n"
+      << "       -d   <string>   homopolymer and microsatellite file "
+         "[required]\n"
+      << "       -i   <string>   configure files for building baseline (text "
+         "file) [required]\n"
+      << "            you need to provide the output (*_all) from pro command "
+         "\n"
+      << "            e.g.\n"
+
+      << "             ----------------------------------\n"
+      << "              case1\t/path/to/case1_sorted_all \n"
+      << "              case2\t/path/to/case2_sorted_all \n"
+      << "              case3\t/path/to/case3-sorted_all \n"
+      << "             ----------------------------------\n"
+      << "       -o   <string>   output path for baseline [required] \n\n"
+
+      //              << "       -c   <int>      coverage threshold for msi
+      //              analysis, WXS: 20; WGS: 15, default="
+      //              << paramd.covCutoff << "\n"
+
+      //              << "       -g   <string>   reference file( .cram need
+      //              )\n"
+      << "       -s   <double>   microsatellite sites with support from fewer "
+         "than -d samples will not pass quality control, [default="
+      << paramd.sampleNum
+      << "]\n"
+      //              << "       -p   <int>      minimal homopolymer size for
+      //              pro analysis, default="
+      //              << paramd.MininalHomoForDis << "\n"
+      //              << "       -m   <int>      maximal homopolymer size for
+      //              pro analysis, default="
+      //              << paramd.MaxHomoSize << "\n"
+      //
+      //              << "       -u   <int>      span size around window for
+      //              extracting reads, default="
+      //              << paramd.DisSpan << "\n"
+      //              << "       -s   <int>      minimal microsatellite size
+      //              for distribution analysis, default="
+      //              << paramd.MinMicrosateForDis << "\n"
+      //              << "       -w   <int>      maximal microsatellite size
+      //              for distribution analysis, default="
+      //              << paramd.MaxMicrosateForDis << "\n"
+      //
+
+      //              << "       -u   <int>      span size around window for
+      //              extracting reads, default="
+      //              << paramd.DisSpan << "\n"
+      //              << "       -b   <int>      threads number for parallel
+      //              computing, default="
+      //              << paramd.numberThreads << "\n"
+      //              << "       -x   <int>      output homopolymer only, 0:
+      //              no; 1: yes, default="
+      //              << paramd.HomoOnly << "\n"
+      //              << "       -y   <int>      output microsatellite only, 0:
+      //              no; 1: yes, default="
+      //              << paramd.MicrosateOnly << "\n"
+      //              << "       -0   <int>      output site have no read
+      //              coverage, 1: no; 0: yes, default="
+      //              << paramd.outputzeroDis << "\n" << "       \n"
+      << "       -h   help\n"
+      << "-----------------------------------------------------------------\n"
+      << "Function: \n"
+      << "   This module build baseline for MSI detection with pro module "
+         "using only tumor sequencing data. To achieve it, you need "
+         "sequencing "
+         "data from normal samples(-i).\n\n"
+      << "Example:\n"
+      << "   msisensor-pro baseline -d /path/to/reference.list -i "
+         "/path/to/configure.txt -o /path/to/baseline.tsv \n\n"
+
+      << "Note:\n\n"
+      << "   If you have any questions, please contact with Peng Jia "
+         "(pengjia@xjtu.edu.cn).\n"
+
+      << std::endl;
+  exit (1);
+}
+
+int
+dGetOptions (int rgc, char *rgv[])
+{
+  int i;
+  for (i = 1; i < rgc; i++)
+    {
+      if (rgv[i][0] != '-')
+        return i;
+      switch (rgv[i][1])
+        {
+        case 'g':
+          refP = rgv[++i];
+          break;
+        case 'd':
+          homoFile = rgv[++i];
+          break;
+        case 'n':
+          normalBam = rgv[++i];
+          break;
+        case 't':
+          tumorBam = rgv[++i];
+          break;
+        case 'o':
+          disFile = rgv[++i];
+          break;
+        case 'e':
+          bedFile = rgv[++i];
+          break;
+        case 'r':
+          one_region = rgv[++i];
+          break;
+        case 'f':
+          paramd.fdrThreshold = atof (rgv[++i]);
+          break;
+          //            case 'i': paramd.comentropyThreshold = atof(rgv[++i]);
+          //            break;
+        case 'c':
+          paramd.covCutoff = atoi (rgv[++i]);
+          break;
+        case 'z':
+          paramd.Normalization = atoi (rgv[++i]);
+          break;
+        case 'l':
+          paramd.MininalHomoSize = atoi (rgv[++i]);
+          break;
+        case 'p':
+          paramd.MininalHomoForDis = atoi (rgv[++i]);
+          break;
+        case 'u':
+          paramd.DisSpan = atoi (rgv[++i]);
+          break;
+        case 'm':
+          paramd.MaxHomoSize = atoi (rgv[++i]);
+          break;
+        case 'q':
+          paramd.MinMicrosate = atoi (rgv[++i]);
+          break;
+        case 's':
+          paramd.MinMicrosateForDis = atoi (rgv[++i]);
+          break;
+        case 'w':
+          paramd.MaxMicrosateForDis = atoi (rgv[++i]);
+          break;
+        case 'b':
+          paramd.numberThreads = atoi (rgv[++i]);
+          break;
+        case 'x':
+          paramd.HomoOnly = atoi (rgv[++i]);
+          break;
+        case 'y':
+          paramd.MicrosateOnly = atoi (rgv[++i]);
+          break;
+        case '0':
+          paramd.outputzeroDis = atoi (rgv[++i]);
+          break;
+        case 'D':
+          paramd.filterDuplicates = true;
+          break;
+        case '-':
+          if (strcmp (rgv[i], "--ignore-duplicates") == 0)
+            {
+              paramd.filterDuplicates = true;
+              break;
+            }
+          else if (strcmp (rgv[i], "--help") == 0)
+            {
+              DisUsage ();
+            }
+          else
+            {
+              std::cout << "ERROR: unrecognized option " << rgv[i]
+                        << std::endl;
+              exit (1);
+            }
+          break;
+        case 'h':
+          DisUsage ();
+        case '?':
+          DisUsage ();
+        default:
+          std::cout << "ERROR: unrecognized option " << rgv[i] << std::endl;
+        }
+    }
+  return i;
+}
+
+// add by YeLab
+int
+dGetProOptions (int rgc, char *rgv[])
+{
+  int i;
+  for (i = 1; i < rgc; i++)
+    {
+      if (rgv[i][0] != '-')
+        return i;
+      switch (rgv[i][1])
+        {
+        case 'g':
+          refP = rgv[++i];
+          break;
+        case 'd':
+          homoFile = rgv[++i];
+          break;
+          // case 'n': normalBam = rgv[++i]; break;
+        case 't':
+          tumorBam = rgv[++i];
+          break;
+        case 'o':
+          disFile = rgv[++i];
+          break;
+        case 'e':
+          bedFile = rgv[++i];
+          break;
+        case 'r':
+          one_region = rgv[++i];
+          break;
+          //	case 'f': paramd.fdrThreshold = atof(rgv[++i]); break;
+        case 'i':
+          paramd.hunterThreshold = atof (rgv[++i]);
+          paramd.hard = true;
+          break;
+        case 'c':
+          paramd.covCutoff = atoi (rgv[++i]);
+          break;
+          //	case 'z': paramd.Normalization = atoi(rgv[++i]); break;
+          //	case 'l': paramd.MininalHomoSize = atoi(rgv[++i]); break;
+        case 'p':
+          paramd.MininalHomoForDis = atoi (rgv[++i]);
+          break;
+        case 'u':
+          paramd.DisSpan = atoi (rgv[++i]);
+          break;
+        case 'm':
+          paramd.MaxHomoSize = atoi (rgv[++i]);
+          break;
+          //		case 'q': paramd.MinMicrosate = atoi(rgv[++i]); break;
+        case 's':
+          paramd.MinMicrosateForDis = atoi (rgv[++i]);
+          break;
+        case 'w':
+          paramd.MaxMicrosateForDis = atoi (rgv[++i]);
+          break;
+        case 'b':
+          paramd.numberThreads = atoi (rgv[++i]);
+          break;
+        case 'x':
+          paramd.HomoOnly = atoi (rgv[++i]);
+          break;
+        case 'y':
+          paramd.MicrosateOnly = atoi (rgv[++i]);
+          break;
+        case '0':
+          paramd.outputzeroDis = atoi (rgv[++i]);
+          break;
+        case 'D':
+          paramd.filterDuplicates = true;
+          break;
+        case '-':
+          if (strcmp (rgv[i], "--ignore-duplicates") == 0)
+            {
+              paramd.filterDuplicates = true;
+              break;
+            }
+          else if (strcmp (rgv[i], "--help") == 0)
+            {
+              ProUsage ();
+            }
+          else
+            {
+              std::cout << "ERROR: unrecognized option " << rgv[i]
+                        << std::endl;
+              exit (1);
+            }
+          break;
+        case 'h':
+          ProUsage ();
+        case '?':
+          ProUsage ();
+        default:
+          std::cout << "ERROR: unrecognized option " << rgv[i] << std::endl;
+        }
+    }
+  return i;
+}
+
+// add by yelab
+int
+tGetOptions (int rgc, char *rgv[])
+{
+  int i;
+  for (i = 1; i < rgc; i++)
+    {
+      if (rgv[i][0] != '-')
+        return i;
+      switch (rgv[i][1])
+        {
+
+          //            case 'g':
+          //                refP=rgv[++i];
+          //                break;
+        case 'd':
+          homoFile = rgv[++i];
+          break;
+        case 'i':
+          BaselineConfig = rgv[++i];
+          break;
+        case 'o':
+          disFile = rgv[++i];
+          break;
+
+          //            case 'e': bedFile  = rgv[++i]; break;
+          //            case 'r': one_region = rgv[++i]; break;
+          //			case '0': paramd.outputzeroDis=atoi(rgv[++i]);
+          // break; 			case 'a': paramd.NormalcovCutoff =
+          // atof(rgv[++i]); break;//! case
+          // 'i': paramd.comentropyThreshold = atof(rgv[++i]); break;
+          //            case 'c':
+          //                paramd.covCutoff = atoi(rgv[++i]);
+          //                break;
+        case 's':
+          paramd.sampleNum = atoi (rgv[++i]);
+          break;
+          //            case 'p':
+          //                paramd.MininalHomoForDis = atof(rgv[++i]);
+          //                break;
+          //
+          //            case 'u':
+          //                paramd.DisSpan = atoi(rgv[++i]);
+          //                break;
+          //            case 'm':
+          //                paramd.MaxHomoSize = atoi(rgv[++i]);
+          //                break;
+          ////            case 'q': paramd.MinMicrosate = atoi(rgv[++i]);
+          /// break;
+          //            case 's':
+          //                paramd.MinMicrosateForDis = atoi(rgv[++i]);
+          //                break;
+          //            case 'w':
+          //                paramd.MaxMicrosateForDis = atoi(rgv[++i]);
+          //                break;
+          //            case 'b':
+          //                paramd.numberThreads = atoi(rgv[++i]);
+          //                break;
+          //            case 'x':
+          //                paramd.HomoOnly = atoi(rgv[++i]);
+          //                break;
+          //            case 'y':
+          //                paramd.MicrosateOnly = atoi(rgv[++i]);
+          //                break;
+          //            case '0':
+          //                paramd.outputzeroDis = atoi(rgv[++i]);
+          //                break;
+          //                break;
+        case 'h':
+          TrainUsage ();
+        case '?':
+          TrainUsage ();
+        default:
+          std::cout << "ERROR: unrecognized option " << rgv[i] << std::endl;
+        }
+    }
+  return i;
+}
+
+std::string
+abs_path (std::string path)
+{
+#define max_path 40960
+  char resolved_path[max_path] = { 0 };
+  if (realpath (path.c_str (), resolved_path) != NULL)
+    {
+      return std::string (resolved_path);
+    }
+  return path;
+}
+
+int
+trainTest ()
+{
+  // add code for directory
+  //    char currentPath[1000];
+  //    getcwd(currentPath, 100);
+  //    std::cout << "Check for the environment ... " << "\n";
+  //    std::cout << "Current work path: " << currentPath << "\n";
+  //    std::cout << "Microsatellites file: " << abs_path(homoFile) << "\n";
+  //    std::cout << "Configure file path: " << abs_path(BaselineConfig) <<
+  //    "\n"; std::cout << "Output path:" << abs_path(disFile) << "\n";
+  //    BaselineConfig = abs_path(BaselineConfig);
+  //    homoFile = abs_path(homoFile);
+  //    paramd.homoFile = abs_path(homoFile);
+  //    disFile = abs_path(disFile) + "/";
+  //    const char *per = disFile.c_str();
+  //    std::string dir = disFile;
+  //    if (access(dir.c_str(), 0) == -1) {
+  //        std::cout << dir << " is not existing！ now make it! OK!" <<
+  //        std::endl;
+  //
+  //        int flag = mkdir(dir.c_str(), 0777);
+  //        if (flag == 0) { ;
+  //				std::cout<<<<"make successfully"<<std::endl;
+  //        } else {
+  //            std::cout << "make errorly" << std::endl;
+  //            return -1;
+  //        }
+  //    } else {
+  //        std::cout << dir << " is existing! OK!" << std::endl;
+  //    }
+  //    dir = disFile + "detail";
+  //    if (access(dir.c_str(), 0) == -1) {
+  //        std::cout << dir << " is not existing！ now make it ! OK!" <<
+  //        std::endl;
+  //
+  //        int flag = mkdir(dir.c_str(), 0777);
+  //        if (flag == 0) {
+  //			std::cout<<"make successfully"<<std::endl;
+  //            ;
+  //        } else {
+  //            std::cout << "make errorly" << std::endl;
+  //            return -1;
+  //        }
+  //    } else {
+  //        std::cout << dir << " is existing! OK!" << std::endl;
+  //    }
+  std::cout << std::endl;
+  std::cout << "Load files ... " << "\n";
+  return 1;
+}
+
+int
+dGetEntropyOptions (int rgc, char *rgv[])
+{
+  int i;
+  for (i = 1; i < rgc; i++)
+    {
+      if (rgv[i][0] != '-')
+        return i;
+      switch (rgv[i][1])
+        {
+        case 'd':
+          homoFile = rgv[++i];
+          break;
+        case 't':
+          tumorBam = rgv[++i];
+          break;
+        case 'o':
+          disFile = rgv[++i];
+          break;
+        case 'e':
+          bedFile = rgv[++i];
+          break;
+        case 'r':
+          one_region = rgv[++i];
+          break;
+        case 'i':
+          paramd.comentropyThreshold = atof (rgv[++i]);
+          break;
+        case 'c':
+          paramd.covCutoff = atoi (rgv[++i]);
+          break;
+        case 'l':
+          paramd.MininalHomoSize = atoi (rgv[++i]);
+          break;
+        case 'p':
+          paramd.MininalHomoForDis = atoi (rgv[++i]);
+          break;
+        case 'u':
+          paramd.DisSpan = atoi (rgv[++i]);
+          break;
+        case 'm':
+          paramd.MaxHomoSize = atoi (rgv[++i]);
+          break;
+        case 'q':
+          paramd.MinMicrosate = atoi (rgv[++i]);
+          break;
+        case 's':
+          paramd.MinMicrosateForDis = atoi (rgv[++i]);
+          break;
+        case 'w':
+          paramd.MaxMicrosateForDis = atoi (rgv[++i]);
+          break;
+        case 'b':
+          paramd.numberThreads = atoi (rgv[++i]);
+          break;
+        case 'x':
+          paramd.HomoOnly = atoi (rgv[++i]);
+          break;
+        case 'y':
+          paramd.MicrosateOnly = atoi (rgv[++i]);
+          break;
+          break;
+        case 'h':
+          EntropyDisUsage ();
+        case '?':
+          EntropyDisUsage ();
+        default:
+          std::cout << "ERROR: unrecognized option " << rgv[i] << std::endl;
+        }
+    }
+  return i;
+}
+
+// add by yelab : train normal data and find the p values for normal control
+int
+TrainMsiP (int argc, char *argv[])
+{
+  paramd.train = true;
+  if (argc == 1)
+    TrainUsage ();
+  for (int i = 0; i < argc; i++)
+    {
+      std::cout << argv[i] << ' ';
+    }
+  Initial_Time ();
+  std::cout << "Start at:  " << Curr_Time () << std::endl;
+
+  int noptions = tGetOptions (argc, argv);
+  //    if (trainTest() < 0) {
+  //        exit(0);
+  //    }
+  // process user defined region
+  //    if (!one_region.empty()) {
+  //        if (!polyscan.ParseOneRegion(one_region)) {
+  //            std::cerr
+  //                    << "fatal error: Please give correct defined region
+  //                    format (-r) \n";
+  //            exit(1);
+  //        }
+  //        polyscan.ifUserDefinedRegion = true;
+  //    } else {
+  //        polyscan.ifUserDefinedRegion = false;
+  //    }
+  // reading bed file if is exist
+  //    finB.open(bedFile.c_str());
+  //    if (finB) {
+  //        std::cout << "loading bed regions ..." << std::endl;
+  //        polyscan.LoadBeds(finB);
+  //        polyscan.BedFilterorNot();
+  //    }
+  //    finB.close();
+
+  loadFilepathFromConfig (BaselineConfig, BaselineFiles);
+  for (int j = 0; j < BaselineFiles.size (); j++)
+    {
+      polyscan.LoadNormalStatistic (BaselineFiles[j], TrainName[j]);
+    }
+  polyscan.refPath = refP;
+
+  // 如果训练集中提供了cram，则必须提供reference
+  //    for(int j=0;j<BaselineFiles.size();j++)
+  //    {
+  //        if(BaselineFiles[j].find(".cram")!=std::string::npos)
+  //        {
+  //            if(access(polyscan.refPath.c_str(), R_OK) == -1)
+  //            {
+  //                std::cerr << "Open reference file failed( " <<
+  //                polyscan.refPath
+  //                          << " ), please provide valid reference file !
+  //                          \n";
+  //                exit(0);;
+  //            }
+  //        }
+  //    }
+
+  finH.open (homoFile.c_str ());
+  if (!finH)
+    {
+      std::cerr << "fatal error: failed to open homopolymer and "
+                   "microsatellites file\n";
+      exit (1);
+    }
+  std::cout << "Loading homopolymer and microsatellite sites ... "
+            << std::endl;
+  polyscan.LoadHomosAndMicrosates (finH);
+  finH.close ();
+  polyscan.SplitWindows ();
+  std::cout << "Total loading windows:  " << polyscan.totalWindowsNum
+            << "  !OK \n";
+  std::cout << "Total loading homopolymer and microsatellites:  "
+            << polyscan.totalHomosites << "    !OK \n\n";
+  polyscan.MergeBaseline (sample, disFile);
+  std::cout << "Total time consumed:  " << Cal_AllTime () << " secs\n\n";
+
+  return 0;
+}
+
+int
+HomoAndMicrosateDisMsi (int argc, char *argv[])
+{
+  if (argc == 1)
+    DisUsage ();
+  for (int i = 0; i < argc; i++)
+    {
+      std::cout << argv[i] << ' ';
+    }
+  Initial_Time ();
+  std::cout << "Start at:  " << Curr_Time () << std::endl;
+
+  int noptions = dGetOptions (argc, argv);
+  // process user defined region
+  if (!one_region.empty ())
+    {
+      if (!polyscan.ParseOneRegion (one_region))
+        {
+          std::cerr << "fatal error: Please give correct defined region "
+                       "format (-r) \n";
+          exit (1);
+        }
+      polyscan.ifUserDefinedRegion = true;
+    }
+  else
+    {
+      polyscan.ifUserDefinedRegion = false;
+    }
+  // reading bed file if is exist
+  finB.open (bedFile.c_str ());
+  if (finB)
+    {
+      std::cout << "loading bed regions ..." << std::endl;
+      polyscan.LoadBeds (finB);
+      polyscan.BedFilterorNot ();
+    }
+  finB.close ();
+
+  // load bam files
+  // polyscan.LoadBams( normalBam, tumorBam );
+  //    if (!normalBam.empty() && !tumorBam.empty()) {
+  //        polyscan.LoadBams( normalBam, tumorBam );
+  //    }
+  //    // just for tumor only data
+  //    if (normalBam.empty() && !tumorBam.empty()) {
+  //        polyscan.LoadBam(tumorBam);
+  //    }
+
+  polyscan.LoadBams (normalBam, tumorBam);
+  polyscan.refPath = refP;
+
+  if (tumorBam.find (".cram") != std::string::npos
+      || normalBam.find (".cram") != std::string::npos)
+    {
+      if (access (polyscan.refPath.c_str (), R_OK) == -1)
+        {
+          std::cerr << "Open reference file failed( " << polyscan.refPath
+                    << " ), please provide valid reference file ! \n";
+          exit (0);
+          ;
+        }
+    }
+  // check homo/microsate file
+  finH.open (homoFile.c_str ());
+  if (!finH)
+    {
+      std::cerr << "fatal error: failed to open homopolymer and "
+                   "microsatellites file\n";
+      exit (1);
+    }
+  std::cout << "loading homopolymer and microsatellite sites ..." << std::endl;
+  polyscan.LoadHomosAndMicrosates (finH);
+  finH.close ();
+  // polyscan.TestHomos();
+  polyscan.SplitWindows ();
+  // polyscan.TestWindows();
+  std::cout << "\nTotal loading windows:  " << polyscan.totalWindowsNum
+            << " \n\n";
+  std::cout << "\nTotal loading homopolymer and microsatellites:  "
+            << polyscan.totalHomosites << " \n\n";
+
+  // change code to one sample
+  // polyscan.GetHomoDistribution(sample, disFile);
+  // control distribution for tumor only input
+  if (!normalBam.empty () && !tumorBam.empty ())
+    {
+      polyscan.GetHomoDistribution (sample, disFile);
+    }
+  //  if (normalBam.empty() && !tumorBam.empty()) {
+  //    polyscan.GetHomoTumorDistribution(sample, disFile);
+  //}
+
+  std::cout << "\nTotal time consumed:  " << Cal_AllTime () << " secs\n\n";
+
+  return 0;
+}
+
+int
+HomoAndMicrosateDisMsiEntropy (int argc, char *argv[])
+{
+  if (argc == 1)
+    EntropyDisUsage ();
+  for (int i = 0; i < argc; i++)
+    {
+      std::cout << argv[i] << ' ';
+    }
+  Initial_Time ();
+  std::cout << "Start at:  " << Curr_Time () << std::endl;
+
+  int noptions = dGetEntropyOptions (argc, argv);
+  // process user defined region
+  if (!one_region.empty ())
+    {
+      if (!polyscan.ParseOneRegion (one_region))
+        {
+          std::cerr << "fatal error: Please give correct defined region "
+                       "format (-r) \n";
+          exit (1);
+        }
+      polyscan.ifUserDefinedRegion = true;
+    }
+  else
+    {
+      polyscan.ifUserDefinedRegion = false;
+    }
+
+  finB.open (bedFile.c_str ());
+  if (finB)
+    {
+      std::cout << "loading bed regions ..." << std::endl;
+      polyscan.LoadBeds (finB);
+      polyscan.BedFilterorNot ();
+    }
+  finB.close ();
+
+  // load bam files
+  // just for tumor only data
+  polyscan.LoadBam (tumorBam);
+
+  // check homo/microsate file
+  finH.open (homoFile.c_str ());
+  if (!finH)
+    {
+      std::cerr << "fatal error: failed to open homopolymer and "
+                   "microsatellites file\n";
+      exit (1);
+    }
+  std::cout << "loading homopolymer and microsatellite sites ..." << std::endl;
+  polyscan.LoadHomosAndMicrosates (finH);
+  finH.close ();
+  // polyscan.TestHomos();
+  polyscan.SplitWindows ();
+  // polyscan.TestWindows();
+  std::cout << "\nTotal loading windows:  " << polyscan.totalWindowsNum
+            << " \n\n";
+  std::cout << "\nTotal loading homopolymer and microsatellites:  "
+            << polyscan.totalHomosites << " \n\n";
+
+  // change code to one sample
+  polyscan.GetHomoTumorDistribution (sample, disFile);
+  std::cout << "\nTotal time consumed:  " << Cal_AllTime () << " secs\n\n";
+  return 0;
+}
+
+// add by YeLab
+// int InitHunter(){
 //	//change some default value of parameter
 ////	paramd.MininalHomoForDis=10;
 ////	paramd.MaxHomoSize=20;
@@ -900,97 +1106,104 @@ int HomoAndMicrosateDisMsiEntropy(int argc, char *argv[]) {
 //}
 
 // add by Yelab for msisensor-pro
-int HomoAndMicrosateDisMsiPro(int argc, char *argv[]) {
-//	InitHunter();
-    if (argc == 1)
-        ProUsage();
-    for (int i = 0; i < argc; i++) {
-        std::cout << argv[i] << ' ';
-    }
-    Initial_Time();
-    std::cout << "Start at:  " << Curr_Time() << std::endl;
-
-    int noptions = dGetProOptions(argc, argv);
-    paramd.pro = true;
-
-    // process user defined region
-    if (!one_region.empty()) {
-        if (!polyscan.ParseOneRegion(one_region)) {
-            std::cerr
-                    << "fatal error: Please give correct defined region format (-r) \n";
-            exit(1);
-        }
-        polyscan.ifUserDefinedRegion = true;
-    } else {
-        polyscan.ifUserDefinedRegion = false;
-    }
-    // reading bed file if is exist
-    finB.open(bedFile.c_str());
-    if (finB) {
-        std::cout << "loading bed regions ..." << std::endl;
-        polyscan.LoadBeds(finB);
-        polyscan.BedFilterorNot();
-    }
-
-    // load bam files
-    //polyscan.LoadBams( normalBam, tumorBam );
-    /*if (!normalBam.empty() && !tumorBam.empty()) {
-     polyscan.LoadBams(normalBam, tumorBam);
-     }*/
-    // just for tumor only data
-    if (normalBam.empty() && !tumorBam.empty())
+int
+HomoAndMicrosateDisMsiPro (int argc, char *argv[])
+{
+  //	InitHunter();
+  if (argc == 1)
+    ProUsage ();
+  for (int i = 0; i < argc; i++)
     {
-        polyscan.LoadBam(tumorBam);
-        polyscan.refPath=refP;   //提供reference
+      std::cout << argv[i] << ' ';
+    }
+  Initial_Time ();
+  std::cout << "Start at:  " << Curr_Time () << std::endl;
 
-        //如果是cram文件但没有提供reference，或referenec不存在，退出
-        if(tumorBam.find(".cram")!=std::string::npos)
+  int noptions = dGetProOptions (argc, argv);
+  paramd.pro = true;
+
+  // process user defined region
+  if (!one_region.empty ())
+    {
+      if (!polyscan.ParseOneRegion (one_region))
         {
-            if(access(polyscan.refPath.c_str(), R_OK) == -1)
+          std::cerr << "fatal error: Please give correct defined region "
+                       "format (-r) \n";
+          exit (1);
+        }
+      polyscan.ifUserDefinedRegion = true;
+    }
+  else
+    {
+      polyscan.ifUserDefinedRegion = false;
+    }
+  // reading bed file if is exist
+  finB.open (bedFile.c_str ());
+  if (finB)
+    {
+      std::cout << "loading bed regions ..." << std::endl;
+      polyscan.LoadBeds (finB);
+      polyscan.BedFilterorNot ();
+    }
+
+  // load bam files
+  // polyscan.LoadBams( normalBam, tumorBam );
+  /*if (!normalBam.empty() && !tumorBam.empty()) {
+   polyscan.LoadBams(normalBam, tumorBam);
+   }*/
+  // just for tumor only data
+  if (normalBam.empty () && !tumorBam.empty ())
+    {
+      polyscan.LoadBam (tumorBam);
+      polyscan.refPath = refP; // 提供reference
+
+      // 如果是cram文件但没有提供reference，或referenec不存在，退出
+      if (tumorBam.find (".cram") != std::string::npos)
+        {
+          if (access (polyscan.refPath.c_str (), R_OK) == -1)
             {
-                std::cerr << "Open reference file failed( " << polyscan.refPath
-                          << " ), please provide valid reference file ! \n";
-                exit(0);;
+              std::cerr << "Open reference file failed( " << polyscan.refPath
+                        << " ), please provide valid reference file ! \n";
+              exit (0);
+              ;
             }
         }
     }
-    // check homo/microsate file
-    finH.open(homoFile.c_str());
-    if (!finH) {
-        std::cerr
-                << "fatal error: failed to open homopolymer and microsatellites file\n";
-        exit(1);
+  // check homo/microsate file
+  finH.open (homoFile.c_str ());
+  if (!finH)
+    {
+      std::cerr << "fatal error: failed to open homopolymer and "
+                   "microsatellites file\n";
+      exit (1);
     }
-    std::cout << "loading homopolymer and microsatellite sites ..."
-              << std::endl;
-    polyscan.LoadHomosAndMicrosates(finH);
-    finH.close();
+  std::cout << "loading homopolymer and microsatellite sites ..." << std::endl;
+  polyscan.LoadHomosAndMicrosates (finH);
+  finH.close ();
 
+  // polyscan.TestHomos();
+  polyscan.SplitWindows ();
+  // polyscan.TestWindows();
+  std::cout << "\nTotal loading windows:  " << polyscan.totalWindowsNum
+            << " \n\n";
+  std::cout << "\nTotal loading homopolymer and microsatellites:  "
+            << polyscan.totalHomosites << " \n\n";
 
-    //polyscan.TestHomos();
-    polyscan.SplitWindows();
-    //polyscan.TestWindows();
-    std::cout << "\nTotal loading windows:  " << polyscan.totalWindowsNum
-              << " \n\n";
-    std::cout << "\nTotal loading homopolymer and microsatellites:  "
-              << polyscan.totalHomosites << " \n\n";
+  // change code to one sample
+  // polyscan.GetHomoDistribution(sample, disFile);
+  // control distribution for tumor only input
+  /*if (!normalBam.empty() && !tumorBam.empty()) {
+   polyscan.GetHomoDistribution(sample, disFile);
+   }*/
+  //	std::cout<< "normalBam.empty()" <<normalBam.empty()<<"\n";
+  //	std::cout<< "tumorBam.empty()" <<tumorBam.empty()<<"\n";
 
-    // change code to one sample
-    //polyscan.GetHomoDistribution(sample, disFile);
-    // control distribution for tumor only input
-    /*if (!normalBam.empty() && !tumorBam.empty()) {
-     polyscan.GetHomoDistribution(sample, disFile);
-     }*/
-//	std::cout<< "normalBam.empty()" <<normalBam.empty()<<"\n";
-//	std::cout<< "tumorBam.empty()" <<tumorBam.empty()<<"\n";
-
-    if (normalBam.empty() && !tumorBam.empty()) {
-        polyscan.GetHunterTumorDistribution(sample, disFile);
-
+  if (normalBam.empty () && !tumorBam.empty ())
+    {
+      polyscan.GetHunterTumorDistribution (sample, disFile);
     }
 
-    std::cout << "\nTotal time consumed:  " << Cal_AllTime() << " secs\n\n";
+  std::cout << "\nTotal time consumed:  " << Cal_AllTime () << " secs\n\n";
 
-    return 0;
+  return 0;
 }
-

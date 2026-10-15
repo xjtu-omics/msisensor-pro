@@ -82,6 +82,3 @@ rule run_pro:
         "output/pro/tumor_only/test_tumor_only_{bam_cram}.log"
     run:
         shell("{msisensor_pro} pro -d {input.ms} -t {input.t}  -g {input.ref} -o {output} 2>{log} 1>{log}")
-
-
-
